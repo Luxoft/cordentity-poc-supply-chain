@@ -1,0 +1,113 @@
+version: '3.3'
+services:
+
+  indypool:
+    network_mode: host
+    image: "teamblockchain/indy-pool:1.3.1-dev-406"
+    ports:
+      - "9701-9708:9701-9708"
+    container_name: indypool
+
+
+# -------------------- Corda nodes -----------------------
+
+
+  tccorda:
+    network_mode: host
+    build:
+      context: ./build/nodes/TreatmentCenter
+      dockerfile: Dockerfile-corda
+    ports:
+      - "10101:10101"
+      - "10102:10102"
+      - "10103:10103"
+    container_name: tccorda
+    environment:
+      - INDYUSER_WALLETNAME=Treatment
+      - INDYUSER_DID=V4SGRU86Z58d6TV7PBUe6f
+      - INDYUSER_ROLE=trustee
+      - INDYUSER_SEED=000000000000000000000000Trustee1
+
+  mfcorda:
+    network_mode: host
+    build:
+      context: ./build/nodes/Manufacture
+      dockerfile: Dockerfile-corda
+    ports:
+      - "10001:10001"
+      - "10002:10002"
+      - "10003:10003"
+    container_name: mfcorda
+    environment:
+      - INDYUSER_WALLETNAME=Manufacture
+      - INDYUSER_DID=CzSfMVfq7U5pjTVtzd5uop
+      - INDYUSER_ROLE=trustee
+      - INDYUSER_SEED=00000000000000000000000Insurance
+
+
+  sacorda:
+    network_mode: host
+    build:
+      context: ./build/nodes/SovrinAgent
+      dockerfile: Dockerfile-corda
+    ports:
+      - "10201:10201"
+      - "10202:10202"
+      - "10203:10203"
+    container_name: sacorda
+    environment:
+      - INDYUSER_WALLETNAME=SovrinAgent
+      - INDYUSER_SEED=000000000000000000000000agent1
+
+
+  notary:
+    network_mode: host
+    build:
+      context: ./build/nodes/Notary
+      dockerfile: Dockerfile-corda
+    ports:
+      - "10701:10701"
+      - "10702:10702"
+      - "10703:10703"
+    container_name: notary
+
+
+# -------------------- Spring nodes -----------------------
+
+
+  mfweb:
+    network_mode: host
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile-web
+    ports:
+      - "8081:8081"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=manufacture"
+    container_name: mfweb
+
+
+  tcweb:
+    network_mode: host
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile-web
+    ports:
+      - "8082:8082"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=treatmentcenter"
+    container_name: tcweb
+
+
+  saweb:
+#    networks:
+#      - supplychain
+    network_mode: host
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile-web
+    ports:
+      - "8083:8083"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=sovrinagent"
+    container_name: saweb

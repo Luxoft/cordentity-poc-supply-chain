@@ -1,0 +1,69 @@
+---
+
+- name: Update /etc/hosts
+  become: yes
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1 supplychain'
+    line: '127.0.0.1 supplychain'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Clean docker containers
+  command: docker rm -f indypool notary tccorda sacorda mfcorda tcweb mfweb saweb
+  ignore_errors: True
+
+- name: Clean docker images
+  command: docker rmi -f ubuntu_notary ubuntu_tccorda ubuntu_sacorda ubuntu_mfcorda ubuntu_tcweb ubuntu_mfweb ubuntu_saweb
+  ignore_errors: True
+
+- name: Download docker-compose
+  become: yes
+  command: curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+
+- name: Install docker-compose
+  become: yes
+  command: chmod +x /usr/local/bin/docker-compose
+
+
+- name: Copy nodes
+  synchronize:
+    src: "../../../../build"
+    dest: "{{ ansible_env.HOME}}"
+    delete: yes
+
+- name: Creates webapp directory
+  file:
+    path: "{{ ansible_env.HOME}}/webapp/build/libs"
+    state: directory
+    recurse: yes
+
+- name: Copy webapp
+  copy:
+    src: "../../../../webapp/build/libs/webapp.jar"
+    dest: "{{ ansible_env.HOME}}/webapp/build/libs/webapp.jar"
+
+- name: Copy webapp dockerfile
+  copy:
+    src: "../../../../webapp/Dockerfile-web"
+    dest: "{{ ansible_env.HOME}}/webapp/Dockerfile-web"
+
+- name: Copy docker-compose file
+  synchronize:
+    src: "../../../../docker-compose.yml"
+    dest: "{{ ansible_env.HOME}}"
+    delete: yes
+
+- name: Start Indypool
+  command: docker-compose up -d indypool
+
+- name: Start Corda
+  command: docker-compose up -d notary tccorda sacorda mfcorda
+
+- pause:
+    minutes: 2
+
+- name: Start Web
+  command: docker-compose up -d tcweb mfweb saweb
+

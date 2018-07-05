@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Alexey Doroganov
+  description: Install ansible required files on target host systems via apt
+  company: Luxoft
+  license: Apache
+  min_ansible_version: 1.2
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags: []
+dependencies: []

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+        android:id="@+id/cardlist_item"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:orientation="vertical"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="2dp">
+
+    <LinearLayout
+            android:background="#ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="18dp">
+
+        <TextView
+                android:id="@+id/qr_listitem_medicine_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16.5sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#363636"
+                android:text="Santorium Plus"/>
+
+        <TextView
+                android:id="@+id/qr_listitem_sn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#888888"
+                tools:text="Serial number"/>
+
+        <TextView
+                android:id="@+id/qr_listitem_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#5a564e"
+                tools:text="Insurer approved your prescription"/>
+
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#4e545a"
+                android:lineSpacingExtra="5sp"
+                android:autoLink="map"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Visit your Treatment center to claim it: \n Zeehofstrasse 21, Zurich"
+        />
+
+
+        <Button
+                android:drawableLeft="@drawable/ic_qr_code"
+                android:background="@drawable/gradient"
+                android:drawablePadding="5dp"
+                android:gravity="left|center_vertical"
+                android:id="@+id/btn_scan_qr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:textColor="#212529"
+                android:text="Scan QR-code"/>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

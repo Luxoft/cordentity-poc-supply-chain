@@ -1,0 +1,110 @@
+@import "../../../base";
+
+.home {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: $content-padding-top $content-padding-right $content-padding-bottom $content-padding-left !important;
+
+  @media (max-height: $height-fullhd) {
+    grid-row-gap: 50px;
+  }
+
+  @media (max-height: $height-regular) {
+    grid-row-gap: 20px;
+  }
+
+  header {
+    position: relative;
+    width: 50em;
+
+    h1 {
+      color: white;
+      font-weight: $font-weight-regular;
+      font-size: $font-size-bigger;
+      margin: 0;
+    }
+  }
+
+  article {
+    position: relative;
+
+    height: 100%;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    nav {
+      position: relative;
+      height: 450px;
+      width: 400px;
+
+      @media (max-width: $width-fullhd) {
+        width: 300px;
+      }
+
+      @media (max-height: $height-regular) {
+        height: 400px;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-bottom: 1em;
+
+          a {
+            color: white;
+            font-size: $font-size-big;
+            font-weight: $font-weight-light;
+            text-decoration: none;
+            cursor: pointer;
+
+            &:hover {
+              font-weight: $font-weight-bold;
+            }
+          }
+        }
+      }
+    }
+
+    .content-wrapper {
+      flex: 1;
+      height: 100%;
+      max-width: 1120px;
+      position: relative;
+      top: -100px;
+
+      .architecture {
+        height: 100%;
+        position: relative;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+
+        img {
+          border-radius: $border-radius;
+          box-shadow: $box-shadow;
+          height: 550px;
+          position: relative;
+        }
+      }
+
+      .demo {
+        height: 600px !important;
+        padding-top: 100px;
+        display: inline-flex !important;
+        flex-flow: row nowrap !important;
+
+        > .card-wrapper {
+          margin: 0 $interval-small;
+        }
+      }
+    }
+  }
+}

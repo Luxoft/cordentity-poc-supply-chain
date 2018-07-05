@@ -1,0 +1,77 @@
+@import "../../../base";
+
+
+header {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  nav {
+    position: relative;
+    left: -60px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 600px;
+
+    .back-btn {
+      height: 40px;
+      width: 40px;
+      cursor: pointer;
+      margin-right: 20px;
+
+      @include hover-transition(opacity, .7, 1, .2s)
+    }
+
+    .text {
+      text-align: left;
+      color: white;
+
+      .header {
+        margin: 0;
+        font-size: $font-size-bigger;
+        font-weight: $font-weight-bold;
+      }
+
+      .subheader {
+        margin: 0;
+        font-size: $font-size-big;
+        font-weight: $font-weight-light;
+      }
+    }
+  }
+
+  .user {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    width: 400px;
+
+    .info {
+      text-align: right;
+      margin-right: 20px;
+      color: white;
+
+      .name {
+        font-weight: $font-weight-bold;
+        font-size: $font-size-regular;
+        margin: 0;
+      }
+
+      .description {
+        font-weight: $font-weight-light;
+        font-size: $font-size-small;
+        margin: 0;
+      }
+    }
+
+    .avatar {
+      width: 80px;
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="#f4f4f4"
+             xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+            android:id="@+id/ask_claim_text"
+            android:text="TreatmentCenter requests following information:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="16sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/fragment_list_rv"
+    />
+
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_list_rv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            tools:listitem="@layout/claim_list_item"
+            app:layout_constraintTop_toBottomOf="@+id/ask_claim_text"
+            tools:layout_editor_absoluteX="16dp" app:layout_constraintBottom_toTopOf="@+id/accept_claims_request"/>
+
+    <Button
+            android:layout_weight="1"
+            android:id="@+id/accept_claims_request"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:text="Agree"
+            android:background="@drawable/gradient"
+            tools:layout_editor_absoluteX="33dp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+</android.support.constraint.ConstraintLayout>

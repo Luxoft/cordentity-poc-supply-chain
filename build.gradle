@@ -1,0 +1,171 @@
+buildscript {
+  ext.corda_release_group = 'net.corda'
+  ext.corda_release_version = '3.1-corda'
+  ext.corda_gradle_plugins_version = '3.0.9'
+  ext.indy_version = "1.3.1-dev-406"
+  ext.quasar_version = '0.7.9'
+  ext.junit_version = '4.12'
+  ext.kotlin_version = '1.2.41'
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "net.corda.plugins:cordapp:${corda_gradle_plugins_version}"
+    classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
+    classpath "net.corda.plugins:quasar-utils:${corda_gradle_plugins_version}"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+  }
+}
+
+allprojects {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url 'http://172.26.147.116:8081/repository/luxoft.blockchainlab/' }
+    maven { url 'https://repo.evernym.com/artifactory/libindy-maven-local' }
+    maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
+    maven { url 'https://jitpack.io' }
+  }
+
+  apply plugin: 'kotlin'
+  apply plugin: 'idea'
+
+  dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.1'
+  }
+
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+      languageVersion = "1.2"
+      apiVersion = "1.1"
+      jvmTarget = "1.8"
+      javaParameters = true   // Useful for reflection.
+    }
+  }
+}
+
+apply plugin: 'net.corda.plugins.cordformation'
+apply plugin: 'net.corda.plugins.quasar-utils'
+
+dependencies {
+  compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
+  compile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
+
+  // CorDapp dependencies
+  // Specify your cordapp's dependencies below, including dependent cordapps
+  cordapp project(":cordapp")
+}
+
+
+task deployStuffToNodes {
+  File nodesDir = new File("${buildDir}/nodes/")
+  if (nodesDir.exists()) {
+    nodesDir.eachDir {
+      if (it.name != ".cache") {
+        String nodePath = it.path
+        copy {
+          from('devops/indy-cordapp-0.3.9.6.jar')
+          into(nodePath + "/cordapps")
+        }
+        copy {
+          from('devops/Dockerfile-corda')
+          into(nodePath)
+        }
+      }
+    }
+
+    copy {
+      from('config/test/indyconfig/treatment.properties')
+      into('build/nodes/TreatmentCenter/indyconfig')
+      rename('treatment.properties', 'indy.properties')
+    }
+
+    copy {
+      from('config/test/indyconfig/agent.properties')
+      into('build/nodes/SovrinAgent/indyconfig')
+      rename('agent.properties', 'indy.properties')
+    }
+
+    copy {
+      from('config/test/indyconfig/issuer.properties')
+      into('build/nodes/Manufacture/indyconfig')
+      rename('issuer.properties', 'indy.properties')
+    }
+  }
+}
+
+
+task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['cordapp:jar']) {
+  directory "./build/nodes"
+
+  node {
+    name "O=Notary,L=London,C=GB"
+    notary = [validating: false]
+    p2pPort 10701
+    rpcSettings {
+      address("localhost:10702")
+      adminAddress("localhost:10703")
+    }
+    cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
+    rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+  }
+
+
+  node {
+    name "O=Manufacture,L=London,C=GB"
+    p2pPort 10001
+    rpcSettings {
+      address("localhost:10002")
+      adminAddress("localhost:10003")
+    }
+    cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
+    rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+  }
+
+  node {
+    name "O=TreatmentCenter,L=London,C=GB"
+    p2pPort 10101
+    rpcSettings {
+      address("localhost:10102")
+      adminAddress("localhost:10103")
+    }
+    cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
+    rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+  }
+  node {
+    name "O=SovrinAgent,L=London,C=GB"
+    p2pPort 10201
+    rpcSettings {
+      address("localhost:10202")
+      adminAddress("localhost:10203")
+    }
+    cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
+    rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+  }
+}
+
+
+task runNodes(type: Exec) {
+  workingDir 'build/nodes'
+  executable './runnodes'
+}
+
+
+task copyWebappJar(type: Copy, dependsOn: ['webapp:assemble']) {
+  from "webapp/build/libs"
+  into "devops"
+  include "*.jar"
+}
+
+
+task cleanDefaultPool(type: Exec) {
+  commandLine 'sh', '-c', 'rm -rf ~/.indy_client/'
+}

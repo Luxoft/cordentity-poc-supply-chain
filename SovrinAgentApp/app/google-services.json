@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "930796125216",
+    "firebase_url": "https://supplychainpoc.firebaseio.com",
+    "project_id": "supplychainpoc",
+    "storage_bucket": "supplychainpoc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930796125216:android:258d64d6762b5b1b",
+        "android_client_info": {
+          "package_name": "com.luxoft.supplychain.sovrinagentapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930796125216-j18qmu9m5i85pb0o6nva9ftkntr4r97h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjB-0RyQs9y22atDUv2FvYQeWceRbOoWc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

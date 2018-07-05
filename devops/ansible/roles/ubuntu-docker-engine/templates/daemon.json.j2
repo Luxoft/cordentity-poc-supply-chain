@@ -1,0 +1,6 @@
+{
+  "log-driver": "gelf",
+  "log-opts": {
+    "gelf-address": "udp://{{ hostvars[groups['elk'][0]]['ansible_host'] }}:12201"
+  }
+}

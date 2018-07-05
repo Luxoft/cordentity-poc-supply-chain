@@ -1,0 +1,12 @@
+---
+- hosts: all:!localhost
+  gather_facts: false
+  any_errors_fatal: true
+  roles:
+    - ubuntu-ansible-req
+    - ubuntu-add-luxoft-ca
+    - ubuntu-docker-engine
+
+- hosts: hosts
+  roles:
+    - monolith

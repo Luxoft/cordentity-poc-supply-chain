@@ -1,0 +1,13 @@
+---
+- name: Unpack CA archive
+  unarchive: 
+    src: "{{ role_path }}/files/luxoft.certset.tar.gz"
+    dest: /
+    creates: /usr/local/share/ca-certificates/luxoft/
+  register: certs
+  become: yes
+  
+- name: Import CA
+  shell: update-ca-certificates
+  when: certs.changed
+  become: yes

@@ -1,0 +1,34 @@
+
+spring:
+  profiles: manufacture
+server:
+  port: 8081
+node:
+  address: localhost
+  rpcPort: 10002
+  rpcUser: user1
+  rpcPassword: test
+
+---
+
+spring:
+  profiles: sovrinagent
+server:
+  port: 8083
+node:
+  address: localhost
+  rpcPort: 10202
+  rpcUser: user1
+  rpcPassword: test
+
+---
+
+spring:
+  profiles: treatmentcenter
+server:
+  port: 8082
+node:
+  address: localhost
+  rpcPort: 10102
+  rpcUser: user1
+  rpcPassword: test

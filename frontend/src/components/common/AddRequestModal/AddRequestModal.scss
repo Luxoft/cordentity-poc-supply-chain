@@ -1,0 +1,111 @@
+@import "../../../base";
+
+.modal {
+  width: 550px;
+  background-color: white;
+  border-radius: $border-radius;
+  position: relative;
+
+  > .header {
+    height: 60px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 20px;
+    border-bottom: 1px solid $color-light-gray;
+
+    h5 {
+      font-size: $font-size-tiny;
+    }
+
+    .close-btn {
+      height: 22px;
+      width: 21px;
+      cursor: pointer;
+
+      @include hover-transition(opacity, .7, 1)
+    }
+  }
+
+  > .body {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    height: 600px;
+
+    > .content {
+      width: 450px;
+      height: 500px;
+      border: 1px solid $color-light-gray;
+
+      .steps {
+        border-bottom: 1px solid $color-light-gray;
+      }
+
+      .info {
+        height: 420px;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+
+        &.step-0 {
+          flex-flow: row nowrap;
+
+          .app-screenshot {
+            height: 300px;
+          }
+
+          .instructions {
+            padding: 1em;
+            width: 40%;
+            box-sizing: border-box;
+            color: $color-gray;
+          }
+        }
+
+        &.step-1 {
+          flex-flow: column nowrap;
+
+          .instructions {
+            margin-top: 10px;
+            width: 300px;
+            color: $color-gray;
+
+            p:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+
+    > .controls {
+      margin-top: 10px;
+      width: 100%;
+      padding: 0 50px;
+      box-sizing: border-box;
+
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+
+      .cancel-btn {
+        @include btn($color-gray);
+        margin-right: 10px;
+      }
+
+      .next-btn {
+        @include btn(#6166BE);
+        background-color: #6166BE;
+        color: white;
+      }
+
+      &.one {
+        justify-content: flex-end;
+      }
+    }
+  }
+}
