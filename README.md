@@ -1,7 +1,7 @@
 ### Package Supply Chain
 Decentralized package delivery system with Self Sovereign Identity layer.
 
-#####Business roles
+##### Business roles
 <u>User</u> - not a system component<br/>
 <u>Client</u> - User who has permissions to request new package (e.g Patient)  <br/>
 <u>Initiator</u> - authority who checks client's permissions and initiates new production cycle (e.g Treatment center) <br/>
@@ -11,7 +11,7 @@ Decentralized package delivery system with Self Sovereign Identity layer.
 
 Client doesnt have Indy/Corda Node so his identity in the network represented by Agent. Agent has private Corda instance.
 
-#####User Story 
+##### User Story 
 
 <b>Scenario#1</b>  New Package Request:
 
@@ -70,7 +70,7 @@ User Story:
 5. When all checks completed and Package ownership transferred to Client Agent Corda Node receives Package transferring 
 notification
 
-#####List of existing flows
+##### List of existing flows
 
 There are 3 business processes in project: 
 
@@ -139,6 +139,6 @@ User     |Issuer   | HTTP-API  |<u>DeliverShipment</u>| Issuer selects the exist
 User     |Receiver | HTTP-API  |<u>ReceiveShipment</u>| Counterparty gets new personal shipment and accept it manually 
 
 
-#####Client authentication
+##### Client authentication
 
 Only authorized and approved Clients can request new personal package producing. Each Client 
