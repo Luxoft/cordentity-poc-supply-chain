@@ -1,6 +1,7 @@
 package com.luxoft.flow
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
+import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyArtifactsRegistry
 import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyService
 import com.luxoft.poc.supplychain.flow.*
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
@@ -27,6 +28,8 @@ open class NetworkConfiguration {
     lateinit var goverment: StartedNode<InternalMockNetwork.MockNode>
     lateinit var insurance: StartedNode<InternalMockNetwork.MockNode>
 
+    lateinit var artifactory: StartedNode<InternalMockNetwork.MockNode>
+
     fun up() {
         setupIndyConfigs()
 
@@ -43,6 +46,8 @@ open class NetworkConfiguration {
         val govermentCert = CordaX500Name("Goverment", "London", "GB")
         val insuranceCert = CordaX500Name("Insurance", "London", "GB")
 
+        val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
+
         agent = net.createPartyNode(agentCert)
         issuer = net.createPartyNode(issuerCert)
         carrier = net.createPartyNode(carrierCert)
@@ -50,6 +55,8 @@ open class NetworkConfiguration {
 
         goverment = net.createPartyNode(govermentCert)
         insurance = net.createPartyNode(insuranceCert)
+
+        artifactory = net.createPartyNode(artifactoryCert)
 
         parties = listOf(issuer, treatment, carrier, agent, goverment, insurance)
 
@@ -69,6 +76,10 @@ open class NetworkConfiguration {
             it.registerInitiatedFlow(GetDidFlow.Authority::class.java)
         }
 
+        artifactory.registerInitiatedFlow(IndyArtifactsRegistry.QueryHandler::class.java)
+        artifactory.registerInitiatedFlow(IndyArtifactsRegistry.CheckHandler::class.java)
+        artifactory.registerInitiatedFlow(IndyArtifactsRegistry.PutHandler::class.java)
+
         parties.filter { it != goverment }.forEach { setPermissions(it, goverment) }
     }
 
@@ -85,7 +96,7 @@ open class NetworkConfiguration {
                             "indyuser.walletName" to name + System.currentTimeMillis().toString(),
                             "indyuser.did" to "CzSfMVfq7U5pjTVtzd5uop",
                             "indyuser.seed" to "00000000000000000000000Insurance"))
-                    "Treatment", "Laboratory", "Agent", "Carrier", "Notary Service" ->
+                    "Treatment", "Laboratory", "Agent", "Carrier", "Notary Service", "Artifactory" ->
                         ConfigurationMap(mapOf("indyuser.walletName" to name + System.currentTimeMillis().toString()))
                     else -> throw IllegalArgumentException("Unknown party: $name")
 
@@ -97,7 +108,7 @@ open class NetworkConfiguration {
     private fun setPermissions(issuer: StartedNode<InternalMockNetwork.MockNode>,
                                authority: StartedNode<InternalMockNetwork.MockNode>) {
         val permissionsFuture = issuer.services.startFlow(
-                AssignPermissionsFlow.Issuer(authority = authority.getName())
+                AssignPermissionsFlow.Issuer(authority = authority.getName(), role = "TRUSTEE")
         ).resultFuture
 
         net.runNetwork()
@@ -105,10 +116,15 @@ open class NetworkConfiguration {
     }
 
     fun down() {
-        parties.forEach {
-            it.services.cordaService(IndyService::class.java).indyUser.close()
+        try {
+            parties.forEach {
+                it.services.cordaService(IndyService::class.java).indyUser.close()
+            }
+            artifactory.services.cordaService(IndyService::class.java).indyUser.close()
+
+        } finally {
+            net.stopNodes()
         }
-        net.stopNodes()
     }
 
     fun runNetwork() = net.runNetwork()

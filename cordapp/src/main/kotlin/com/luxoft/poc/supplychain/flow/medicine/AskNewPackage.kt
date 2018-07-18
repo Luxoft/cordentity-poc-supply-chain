@@ -75,6 +75,7 @@ class AskNewPackage {
         private fun authenticateUser(serial: String, authorities: ChainOfAuthority): Boolean {
             require(authorities.chain.containsKey(BusinessEntity.Goverment)) { "Government has to be specified" }
             require(authorities.chain.containsKey(BusinessEntity.Insuranse)) { "Insurance has to be specified" }
+            require(authorities.chain.containsKey(BusinessEntity.Artifactory)) { "Artifactory has to be specified" }
 
             val govermentDid = subFlow(GetDidFlow.Initiator(authorities.chain[BusinessEntity.Goverment]!!))
             val insuranceDid = subFlow(GetDidFlow.Initiator(authorities.chain[BusinessEntity.Insuranse]!!))

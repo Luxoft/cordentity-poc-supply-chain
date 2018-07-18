@@ -47,6 +47,7 @@ class GradleDriven: e2eBase {
                 .add(BusinessEntity.Manufacturer, issuerCert)
                 .add(BusinessEntity.Insuranse, treatmentCert)
                 .add(BusinessEntity.Goverment, treatmentCert)
+                .add(BusinessEntity.Artifactory, treatmentCert)
 
         println("Indy step finished")
 

@@ -83,7 +83,7 @@ fun FlowLogic<Any>.getClaimFrom(serial: String, issuer: String): StateAndRef<Ind
 fun FlowLogic<Any>.getClaimProof(serial: String): StateAndRef<IndyClaimProof> {
 
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
-    val serial = QueryCriteria.VaultCustomQueryCriteria(ClaimProofSchemaV1.PersistentClaim::id.equal(serial))
+    val serial = QueryCriteria.VaultCustomQueryCriteria(ClaimProofSchemaV1.PersistentProof::id.equal(serial))
 
     val criteria = generalCriteria.and(serial)
 

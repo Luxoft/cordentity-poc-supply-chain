@@ -42,56 +42,44 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
         val packageSchemaVersion = PackageReceipt.schemaVersion
         val packageSchemaAttrs = PackageReceipt().getSchemaAttrs().map { it.name }
 
-        val (receiptSchemaId, receiptCredId) = initCredentialDesc(treatmentDid,
-                packageSchemaName, packageSchemaVersion, packageSchemaAttrs)
+        initCredentialDesc(treatmentDid, packageSchemaName, packageSchemaVersion, packageSchemaAttrs)
 
         // Collecting claim from insurance
         val diagnosisSchemaName = DiagnosisDetails.schemaName
         val diagnosisSchemaVersion = DiagnosisDetails.schemaVersion
         val diagnosisSchemaAttrs = DiagnosisDetails().getSchemaAttrs().map { it.name }
 
-        val (diagnosisSchemaId, diagnosisCredId) = initCredentialDesc(treatmentDid,
-                diagnosisSchemaName, diagnosisSchemaVersion, diagnosisSchemaAttrs)
-
+        initCredentialDesc(treatmentDid, diagnosisSchemaName, diagnosisSchemaVersion, diagnosisSchemaAttrs)
         issueClaimTo(treatmentDid, agentCert, diagnosisDetailsProposal, diagnosisSchemaName, diagnosisSchemaVersion)
     }
 
     fun initIssuerIndy() {
-        rpc.startFlow(
-                AssignPermissionsFlow::Issuer,
-                null, null, treatmentCert
-        )
+        rpc.startFlow(AssignPermissionsFlow::Issuer, null, null, treatmentCert)
 
         // Collecting claim from government
         val privateInfoSchemaName = PersonalInformation.schemaName
         val privateInfoSchemaVersion = PersonalInformation.schemaVersion
         val privateInfoSchemaAttrs = PersonalInformation().getSchemaAttrs().map { it.name }
 
-        val (personalInfoSchemaId, personalInfoCredId) = initCredentialDesc(issuerDid,
-                privateInfoSchemaName, privateInfoSchemaVersion, privateInfoSchemaAttrs)
-
+        initCredentialDesc(issuerDid, privateInfoSchemaName, privateInfoSchemaVersion, privateInfoSchemaAttrs)
         issueClaimTo(issuerDid, agentCert, personalInformationProposal, privateInfoSchemaName, privateInfoSchemaVersion)
     }
 
     fun initCredentialDesc(myDid: String,
                            schemaName: String,
                            schemaVersion: String,
-                           schemaAttrs: List<String>): Pair<String, String> {
+                           schemaAttrs: List<String>) {
 
         val schemaResFuture = rpc.startFlow(
                 CreateSchemaFlow::Authority,
-                schemaName, schemaVersion, schemaAttrs
-        ).returnValue
+                schemaName, schemaVersion, schemaAttrs, treatmentCert).returnValue
+        schemaResFuture.getOrThrow(timeout)
 
+        val schemaDetails = IndyUser.SchemaDetails(schemaName, schemaVersion, myDid)
         val claimDefFuture = rpc.startFlow(
                 CreateClaimDefFlow::Authority,
-                myDid, schemaName, schemaVersion
-        ).returnValue
-
-        val schemaId = schemaResFuture.getOrThrow(timeout)
-        val credsId = claimDefFuture.getOrThrow(timeout)
-
-        return Pair(schemaId, credsId)
+                schemaDetails, treatmentCert).returnValue
+        claimDefFuture.getOrThrow(timeout)
     }
 
     fun issueClaimTo(
@@ -106,8 +94,7 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
         val claimIssueFuture = rpc.startFlow(
                 IssueClaimFlow::Issuer,
                 "xxx",
-                schema, claim, toName
-        ).returnValue
+                schema, claim, toName, treatmentCert).returnValue
 
         claimIssueFuture.getOrThrow(timeout)
     }

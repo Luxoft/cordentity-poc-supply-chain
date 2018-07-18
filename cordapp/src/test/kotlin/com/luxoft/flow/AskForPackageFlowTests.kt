@@ -107,7 +107,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
         config.agent.database.transaction {
             val indyClaims = config.agent.services.vaultService.queryBy<IndyClaim>(criteria).states
             assertEquals(3, indyClaims.size)
-            val claimsByIssuer = indyClaims.groupingBy { it.state.data.claim.issuerDid }.eachCount()
+            val claimsByIssuer = indyClaims.groupingBy { it.state.data.issuerDid }.eachCount()
             assertEquals(1, claimsByIssuer[config.insurance.getPartyDid()])
             assertEquals(1, claimsByIssuer[config.goverment.getPartyDid()])
             assertEquals(1, claimsByIssuer[config.treatment.getPartyDid()])
