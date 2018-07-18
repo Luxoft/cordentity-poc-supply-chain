@@ -90,31 +90,31 @@ class AskNewPackage {
                     govermentDid)
 
             val attributes = listOf(
-                    IndyUser.ProofAttribute(diagnosisSchema, DiagnosisDetails.Attributes.Disease.name),
-                    IndyUser.ProofAttribute(diagnosisSchema, DiagnosisDetails.Attributes.MedicineName.name),
-                    IndyUser.ProofAttribute(diagnosisSchema, DiagnosisDetails.Attributes.Recommendation.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Disease.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.MedicineName.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Recommendation.name),
 
-                    IndyUser.ProofAttribute(personalitySchema, PersonalInformation.Attributes.Nationality.name, "eu")
+                    VerifyClaimFlow.ProofAttribute(personalitySchema, govermentDid, PersonalInformation.Attributes.Nationality.name, "eu")
             )
 
             // TODO: get Constants from Config!!!
             val predicates = listOf(
-                    IndyUser.ProofPredicate(diagnosisSchema, DiagnosisDetails.Attributes.Stage.name, 3),
-                    IndyUser.ProofPredicate(personalitySchema, PersonalInformation.Attributes.Age.name, 18)
+                    VerifyClaimFlow.ProofPredicate(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Stage.name, 3),
+                    VerifyClaimFlow.ProofPredicate(personalitySchema, govermentDid, PersonalInformation.Attributes.Age.name, 18)
             )
 
-            val prover = flowSession.counterparty.name
-            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, predicates, prover))
+            val proverName = flowSession.counterparty.name
+            val artifactoryName = authorities.chain[BusinessEntity.Artifactory]!!
+            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, predicates, proverName, artifactoryName))
         }
 
         @Suspendable
         private fun requestNewPackage(serial: String, packageRequest: PackageRequest) {
-            require(packageRequest.authorities.chain.containsKey(BusinessEntity.Manufacturer)) {
-                "Manufacturer have to be specified"
-            }
+            require(packageRequest.authorities.chain.containsKey(BusinessEntity.Manufacturer)) { "Manufacturer has to be specified" }
+            require(packageRequest.authorities.chain.containsKey(BusinessEntity.Artifactory)) { "Artifactory has to be specified" }
 
             val proof = getClaimProof(serial).state.data.proof
-            val proofReq = getClaimProof(serial).state.data.proofReq.json
+            val proofReq = getClaimProof(serial).state.data.proofReq.json.toString()
 
             val patientAgent = flowSession.counterparty.name
 
@@ -142,7 +142,8 @@ class AskNewPackage {
                     .addAttr(PackageReceipt.Attributes.Serial, serial)
                     .build()
 
-            subFlow(IssueClaimFlow.Issuer(serial, receiptSchema, receiptProposal, patientAgent))
+            val artifactoryName = packageRequest.authorities.chain[BusinessEntity.Artifactory]!!
+            subFlow(IssueClaimFlow.Issuer(serial, receiptSchema, receiptProposal, patientAgent, artifactoryName))
 
             flowSession.send(serial)
         }

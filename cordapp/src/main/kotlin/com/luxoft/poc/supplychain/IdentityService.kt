@@ -42,14 +42,17 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
         val packageSchemaVersion = PackageReceipt.schemaVersion
         val packageSchemaAttrs = PackageReceipt().getSchemaAttrs().map { it.name }
 
-        initIndySchema(treatmentDid, packageSchemaName, packageSchemaVersion, packageSchemaAttrs)
+        val (receiptSchemaId, receiptCredId) = initCredentialDesc(treatmentDid,
+                packageSchemaName, packageSchemaVersion, packageSchemaAttrs)
 
         // Collecting claim from insurance
         val diagnosisSchemaName = DiagnosisDetails.schemaName
         val diagnosisSchemaVersion = DiagnosisDetails.schemaVersion
         val diagnosisSchemaAttrs = DiagnosisDetails().getSchemaAttrs().map { it.name }
 
-        initIndySchema(treatmentDid, diagnosisSchemaName, diagnosisSchemaVersion, diagnosisSchemaAttrs)
+        val (diagnosisSchemaId, diagnosisCredId) = initCredentialDesc(treatmentDid,
+                diagnosisSchemaName, diagnosisSchemaVersion, diagnosisSchemaAttrs)
+
         issueClaimTo(treatmentDid, agentCert, diagnosisDetailsProposal, diagnosisSchemaName, diagnosisSchemaVersion)
     }
 
@@ -64,11 +67,17 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
         val privateInfoSchemaVersion = PersonalInformation.schemaVersion
         val privateInfoSchemaAttrs = PersonalInformation().getSchemaAttrs().map { it.name }
 
-        initIndySchema(issuerDid, privateInfoSchemaName, privateInfoSchemaVersion, privateInfoSchemaAttrs)
+        val (personalInfoSchemaId, personalInfoCredId) = initCredentialDesc(issuerDid,
+                privateInfoSchemaName, privateInfoSchemaVersion, privateInfoSchemaAttrs)
+
         issueClaimTo(issuerDid, agentCert, personalInformationProposal, privateInfoSchemaName, privateInfoSchemaVersion)
     }
 
-    fun initIndySchema(myDid: String, schemaName: String, schemaVersion: String, schemaAttrs: List<String>) {
+    fun initCredentialDesc(myDid: String,
+                           schemaName: String,
+                           schemaVersion: String,
+                           schemaAttrs: List<String>): Pair<String, String> {
+
         val schemaResFuture = rpc.startFlow(
                 CreateSchemaFlow::Authority,
                 schemaName, schemaVersion, schemaAttrs
@@ -79,8 +88,10 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
                 myDid, schemaName, schemaVersion
         ).returnValue
 
-        schemaResFuture.getOrThrow(timeout)
-        claimDefFuture.getOrThrow(timeout)
+        val schemaId = schemaResFuture.getOrThrow(timeout)
+        val credsId = claimDefFuture.getOrThrow(timeout)
+
+        return Pair(schemaId, credsId)
     }
 
     fun issueClaimTo(
