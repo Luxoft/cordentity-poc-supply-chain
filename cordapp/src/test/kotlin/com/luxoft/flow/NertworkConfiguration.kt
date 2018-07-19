@@ -11,8 +11,11 @@ import com.natpryce.konfig.TestConfigurationsProvider
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
 import net.corda.node.internal.StartedNode
+import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.internal.InternalMockNetwork
 import net.corda.testing.node.internal.startFlow
+import net.corda.testing.node.MockNetworkParameters
+
 import java.time.Duration
 
 open class NetworkConfiguration {
@@ -33,9 +36,9 @@ open class NetworkConfiguration {
     fun up() {
         setupIndyConfigs()
 
-        net = InternalMockNetwork(listOf(
-                "com.luxoft.poc.supplychain",
-                "com.luxoft.blockchainlab.corda.hyperledger.indy")
+        net = InternalMockNetwork(
+                cordappPackages = listOf("com.luxoft.poc.supplychain", "com.luxoft.blockchainlab.corda.hyperledger.indy"),
+                networkParameters = testNetworkParameters(maxTransactionSize = 10485760 * 3)
         )
 
         val agentCert = CordaX500Name("Agent", "London", "GB")
