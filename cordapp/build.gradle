@@ -30,7 +30,8 @@ sourceSets {
 }
 
 dependencies {
-    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:indy-cordapp:0.4.1"
+    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp:0.4.2"
+    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp-contracts-states:0.4.2"
 //    cordapp files('../devops/indy-cordapp-0.3.5.jar')
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'

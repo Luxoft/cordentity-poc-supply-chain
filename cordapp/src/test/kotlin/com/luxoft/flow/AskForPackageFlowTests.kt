@@ -55,6 +55,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
+                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
         val askForPackageFuture = config.agent.services.startFlow(flowAskForPackage).resultFuture
@@ -94,6 +95,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
+                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
 
