@@ -3,11 +3,9 @@ Steps to set up remote environment:
 
 #####ON LOCAL MACHINE:
 
-Build and copy frontend to resources dir
+Build artifacts
 
 `./gradlew buildAndCopyFrontend`
-
-Build artifacts
 
 `./gradlew deployNodes`
 

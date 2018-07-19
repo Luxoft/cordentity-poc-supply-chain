@@ -69,22 +69,6 @@ class SovrinAgentController(rpc: RPCComponent) {
         }
     }
 
-
-    @PostMapping("push/token")
-    fun sendPushToken(@RequestBody request: PushToken): Any? {
-
-        return try {
-
-//            val flowHandle = services.startFlowDynamic(RegisterPushTokenFlow.Pusher::class.java, request.did, request.token)
-//            flowHandle.returnValue.get()
-            null
-
-        } catch (e: Exception) {
-            logger.error("", e)
-            FAILURE.plus("error" to e.message)
-        }
-    }
-
     @GetMapping("package/list")
     fun getPackageRequests(): Any {
         return try {

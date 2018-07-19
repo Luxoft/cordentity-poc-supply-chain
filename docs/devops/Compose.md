@@ -3,6 +3,8 @@ Steps to set up local environment:
 
 Build artifacts
 
+`./gradlew buildAndCopyFrontend`
+
 `./gradlew deployNodes`
 
 `./gradlew deployStuffToNodes`
