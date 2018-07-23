@@ -1,8 +1,6 @@
 Steps to set up local environment:
 
 
-
-
 Clean Indy
 
 `docker rm -f indypool`
@@ -11,6 +9,8 @@ Clean Indy
 
 
 Build artifacts
+
+`./gradlew buildAndCopyFrontend`
 
 `./gradlew deployNodes`
 
@@ -26,11 +26,12 @@ Start Corda nodes
 
 `./gradlew runNodes`
 
-In case of OOM - input in failed Corda terminal
+
+(Optional) In case of OOM - input in failed Corda terminal
 
 `java -Xmx1024m -jar corda.jar`
 
+
 Start web servers (after Corda nodes are properly up)
-Make sure webapp.jar is fresh in 'devops' folder
 
 `docker-compose up -d tcweb mfweb saweb`

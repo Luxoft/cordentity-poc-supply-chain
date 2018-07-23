@@ -3,7 +3,7 @@
 
 ## Request to list all packages
 
- [PACKAGE_DATA_OBJECT](data_objects.md)
+ [PACKAGE_DATA_OBJECT](DataObjects.md)
 
 ### Method and url
 `GET` */api/tc/package/list*
