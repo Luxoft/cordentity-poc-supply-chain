@@ -3,7 +3,7 @@ services:
 
   indypool:
     network_mode: host
-    image: "teamblockchain/indy-pool:1.3.1-dev-406"
+    image: "teamblockchain/indy-pool:1.5.0"
     ports:
       - "9701-9708:9701-9708"
     container_name: indypool

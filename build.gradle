@@ -72,7 +72,11 @@ task deployStuffToNodes {
       if (it.name != ".cache") {
         String nodePath = it.path
         copy {
-          from('devops/indy-cordapp-0.3.9.6.jar')
+          from('devops/cordapp-0.4.3.jar')
+          into(nodePath + "/cordapps")
+        }
+        copy {
+          from('devops/cordapp-contracts-states-0.4.3.jar')
           into(nodePath + "/cordapps")
         }
         copy {
