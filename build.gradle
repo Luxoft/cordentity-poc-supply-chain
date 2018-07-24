@@ -3,6 +3,8 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.5.0"
+  ext.indy_cordapp_version = '0.4.4'
+  ext.indy_utils_version = '0.2.1'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
   ext.kotlin_version = '1.2.41'
@@ -72,11 +74,11 @@ task deployStuffToNodes {
       if (it.name != ".cache") {
         String nodePath = it.path
         copy {
-          from('devops/cordapp-0.4.3.jar')
+          from("devops/cordapp-${indy_cordapp_version}.jar")
           into(nodePath + "/cordapps")
         }
         copy {
-          from('devops/cordapp-contracts-states-0.4.3.jar')
+          from("devops/cordapp-contracts-states-${indy_cordapp_version}.jar")
           into(nodePath + "/cordapps")
         }
         copy {
