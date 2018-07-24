@@ -23,6 +23,7 @@ class GradleDriven: e2eBase {
     val agentCert = CordaX500Name("SovrinAgent", "London", "GB")
     val issuerCert  = CordaX500Name("Manufacture", "London", "GB")
     val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
+    val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
 
     override fun execute() {
 
@@ -40,14 +41,17 @@ class GradleDriven: e2eBase {
                 .start(user.username, user.password).proxy
 
         val treatmentCenterIdentityService = IdentityService(treatment)
-//        treatmentCenterIdentityService.initIndy()
+        treatmentCenterIdentityService.initTreatmentIndy()
+
+        val manufactureIdentityService = IdentityService(issuer)
+        manufactureIdentityService.initIssuerIndy()
 
         val chainOfAuthority = ChainOfAuthority()
                 .add(BusinessEntity.Treatment, treatmentCert)
                 .add(BusinessEntity.Manufacturer, issuerCert)
                 .add(BusinessEntity.Insuranse, treatmentCert)
-                .add(BusinessEntity.Goverment, treatmentCert)
-                .add(BusinessEntity.Artifactory, treatmentCert)
+                .add(BusinessEntity.Goverment, issuerCert)
+                .add(BusinessEntity.Artifactory, artifactoryCert)
 
         println("Indy step finished")
 

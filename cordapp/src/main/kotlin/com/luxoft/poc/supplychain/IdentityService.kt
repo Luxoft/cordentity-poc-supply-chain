@@ -23,6 +23,9 @@ val issuerDid = "CzSfMVfq7U5pjTVtzd5uop"
 val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
 val treatmentDid = "V4SGRU86Z58d6TV7PBUe6f"
 
+val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
+
+
 val diagnosisDetailsProposal = DiagnosisDetails()
         .addAttr(DiagnosisDetails.Attributes.Stage, "4")
         .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
@@ -54,7 +57,7 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
     }
 
     fun initIssuerIndy() {
-        rpc.startFlow(AssignPermissionsFlow::Issuer, null, null, treatmentCert)
+        rpc.startFlow(AssignPermissionsFlow::Issuer, rpc.nodeInfo().legalIdentities.first().name.commonName, "TRUSTEE", treatmentCert).returnValue.getOrThrow(timeout)
 
         // Collecting claim from government
         val privateInfoSchemaName = PersonalInformation.schemaName
@@ -72,13 +75,13 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
 
         val schemaResFuture = rpc.startFlow(
                 CreateSchemaFlow::Authority,
-                schemaName, schemaVersion, schemaAttrs, treatmentCert).returnValue
+                schemaName, schemaVersion, schemaAttrs, artifactoryCert).returnValue
         schemaResFuture.getOrThrow(timeout)
 
         val schemaDetails = IndyUser.SchemaDetails(schemaName, schemaVersion, myDid)
         val claimDefFuture = rpc.startFlow(
                 CreateClaimDefFlow::Authority,
-                schemaDetails, treatmentCert).returnValue
+                schemaDetails, artifactoryCert).returnValue
         claimDefFuture.getOrThrow(timeout)
     }
 
@@ -94,7 +97,7 @@ class IdentityService(private val rpc: CordaRPCOps, private val timeout: Duratio
         val claimIssueFuture = rpc.startFlow(
                 IssueClaimFlow::Issuer,
                 "xxx",
-                schema, claim, toName, treatmentCert).returnValue
+                schema, claim, toName, artifactoryCert).returnValue
 
         claimIssueFuture.getOrThrow(timeout)
     }
