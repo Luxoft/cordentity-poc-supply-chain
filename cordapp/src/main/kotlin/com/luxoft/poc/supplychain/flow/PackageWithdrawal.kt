@@ -6,6 +6,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.VerifyClaimFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.poc.supplychain.contract.PackageContract
+import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.state.Package
@@ -18,6 +19,7 @@ import com.luxoft.poc.supplychain.runSessions
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
@@ -88,18 +90,19 @@ class PackageWithdrawal {
         }
 
         @Suspendable
-        private fun checkReceipt(serial: String): Boolean {
+        private fun checkReceipt(serial: String, artifactoryName: CordaX500Name): Boolean {
             val schema = IndyUser.SchemaDetails(
                     PackageReceipt.schemaName,
                     PackageReceipt.schemaVersion,
                     indyUser().did)
 
             val attributes = listOf(
-                    IndyUser.ProofAttribute(schema, PackageReceipt.Attributes.Serial.name, serial)
+                    VerifyClaimFlow.ProofAttribute(schema, PackageReceipt.Attributes.Serial.name, serial)
             )
 
-            val prover = flowSession.counterparty.name
-            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, emptyList(), prover))
+            val proverName = flowSession.counterparty.name
+
+            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, emptyList(), proverName, artifactoryName))
         }
     }
 }

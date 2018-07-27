@@ -55,6 +55,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
+                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
         val askForPackageFuture = config.agent.services.startFlow(flowAskForPackage).resultFuture
@@ -94,6 +95,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
+                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
 
@@ -107,7 +109,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
         config.agent.database.transaction {
             val indyClaims = config.agent.services.vaultService.queryBy<IndyClaim>(criteria).states
             assertEquals(3, indyClaims.size)
-            val claimsByIssuer = indyClaims.groupingBy { it.state.data.claim.issuerDid }.eachCount()
+            val claimsByIssuer = indyClaims.groupingBy { it.state.data.issuerDid }.eachCount()
             assertEquals(1, claimsByIssuer[config.insurance.getPartyDid()])
             assertEquals(1, claimsByIssuer[config.goverment.getPartyDid()])
             assertEquals(1, claimsByIssuer[config.treatment.getPartyDid()])

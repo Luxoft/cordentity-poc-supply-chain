@@ -2,7 +2,9 @@ buildscript {
   ext.corda_release_group = 'net.corda'
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
-  ext.indy_version = "1.3.1-dev-406"
+  ext.indy_version = "1.5.0"
+  ext.indy_cordapp_version = '0.4.6'
+  ext.indy_utils_version = '0.2.2'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
   ext.kotlin_version = '1.2.41'
@@ -72,7 +74,11 @@ task deployStuffToNodes {
       if (it.name != ".cache") {
         String nodePath = it.path
         copy {
-          from('devops/indy-cordapp-0.3.9.6.jar')
+          from("devops/cordapp-${indy_cordapp_version}.jar")
+          into(nodePath + "/cordapps")
+        }
+        copy {
+          from("devops/cordapp-contracts-states-${indy_cordapp_version}.jar")
           into(nodePath + "/cordapps")
         }
         copy {
@@ -98,6 +104,12 @@ task deployStuffToNodes {
       from('config/test/indyconfig/issuer.properties')
       into('build/nodes/Manufacture/indyconfig')
       rename('issuer.properties', 'indy.properties')
+    }
+
+    copy {
+      from('config/test/indyconfig/artifactory.properties')
+      into('build/nodes/Artifactory/indyconfig')
+      rename('artifactory.properties', 'indy.properties')
     }
   }
 }
@@ -146,6 +158,16 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['cordapp:jar']) {
     rpcSettings {
       address("localhost:10202")
       adminAddress("localhost:10203")
+    }
+    cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
+    rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+  }
+  node {
+    name "O=Artifactory,L=London,C=GB"
+    p2pPort 10301
+    rpcSettings {
+      address("localhost:10302")
+      adminAddress("localhost:10303")
     }
     cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
     rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]

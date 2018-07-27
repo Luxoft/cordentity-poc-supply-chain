@@ -3,7 +3,7 @@ services:
 
   indypool:
     network_mode: host
-    image: "teamblockchain/indy-pool:1.3.1-dev-406"
+    image: "teamblockchain/indy-pool:1.5.0"
     ports:
       - "9701-9708:9701-9708"
     container_name: indypool
@@ -27,6 +27,7 @@ services:
       - INDYUSER_DID=V4SGRU86Z58d6TV7PBUe6f
       - INDYUSER_ROLE=trustee
       - INDYUSER_SEED=000000000000000000000000Trustee1
+      - RUST_LOG=trace
 
   mfcorda:
     network_mode: host
@@ -57,8 +58,21 @@ services:
     container_name: sacorda
     environment:
       - INDYUSER_WALLETNAME=SovrinAgent
-      - INDYUSER_SEED=000000000000000000000000agent1
+      - RUST_LOG=trace
 
+  artifactory:
+    network_mode: host
+    build:
+      context: ./build/nodes/Artifactory
+      dockerfile: Dockerfile-corda
+    ports:
+      - "10301:10301"
+      - "10302:10302"
+      - "10303:10303"
+    container_name: artifactory
+    environment:
+      - INDYUSER_WALLETNAME=Artifactory
+      - RUST_LOG=trace
 
   notary:
     network_mode: host

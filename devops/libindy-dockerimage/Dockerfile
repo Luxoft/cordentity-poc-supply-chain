@@ -26,9 +26,9 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # Install libindy from Sovrin repo
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
-RUN add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial master"
+RUN add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial stable"
 RUN apt-get update -y
-RUN apt-get install -y libindy=1.3.1~406
+RUN apt-get install -y libindy=1.5.0
 
 
 # Define default command.

@@ -32,6 +32,7 @@ class IndyInitializer {
         val agentCert = CordaX500Name("SovrinAgent", "London", "GB")
         val issuerCert = CordaX500Name("Manufacture", "London", "GB")
         val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
+        val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
 
         val timeout = Duration.ofSeconds(1000L)
 
@@ -63,6 +64,7 @@ class IndyInitializer {
                 .add(BusinessEntity.Manufacturer, issuerCert)
                 .add(BusinessEntity.Insuranse, treatmentCert)
                 .add(BusinessEntity.Goverment, issuerCert)
+                .add(BusinessEntity.Artifactory, artifactoryCert)
 
         logger.info("Creating test package...")
 

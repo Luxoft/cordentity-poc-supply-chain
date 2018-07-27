@@ -49,16 +49,19 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
                 CreateSchemaFlow.Authority(
                         PackageReceipt.schemaName,
                         PackageReceipt.schemaVersion,
-                        PackageReceipt().getSchemaAttrs().map { it.name })).resultFuture
+                        PackageReceipt().getSchemaAttrs().map { it.name },
+                        config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         schemaResFuture.getOrThrow(Duration.ofSeconds(30))
 
+        val schemaDetails = IndyUser.SchemaDetails(
+                PackageReceipt.schemaName,
+                PackageReceipt.schemaVersion,
+                config.treatment.getPartyDid())
+
         val future = config.treatment.services.startFlow(
-                CreateClaimDefFlow.Authority(
-                        config.treatment.getPartyDid(),
-                        PackageReceipt.schemaName,
-                        PackageReceipt.schemaVersion)).resultFuture
+                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         future.getOrThrow(Duration.ofSeconds(30))
@@ -69,16 +72,19 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
                 CreateSchemaFlow.Authority(
                         DiagnosisDetails.schemaName,
                         DiagnosisDetails.schemaVersion,
-                        DiagnosisDetails().getSchemaAttrs().map { it.name })).resultFuture
+                        DiagnosisDetails().getSchemaAttrs().map { it.name },
+                        config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         schemaResFuture.getOrThrow(Duration.ofSeconds(30))
 
+        val schemaDetails = IndyUser.SchemaDetails(
+                DiagnosisDetails.schemaName,
+                DiagnosisDetails.schemaVersion,
+                config.insurance.getPartyDid())
+
         val future = config.insurance.services.startFlow(
-                CreateClaimDefFlow.Authority(
-                        config.insurance.getPartyDid(),
-                        DiagnosisDetails.schemaName,
-                        DiagnosisDetails.schemaVersion)).resultFuture
+                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         future.getOrThrow(Duration.ofSeconds(30))
@@ -89,16 +95,19 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
                 CreateSchemaFlow.Authority(
                         PersonalInformation.schemaName,
                         PersonalInformation.schemaVersion,
-                        PersonalInformation().getSchemaAttrs().map { it.name })).resultFuture
+                        PersonalInformation().getSchemaAttrs().map { it.name },
+                        config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         schemaResFuture.getOrThrow(Duration.ofSeconds(30))
 
+        val schemaDetails = IndyUser.SchemaDetails(
+                PersonalInformation.schemaName,
+                PersonalInformation.schemaVersion,
+                config.goverment.getPartyDid())
+
         val future = config.goverment.services.startFlow(
-                CreateClaimDefFlow.Authority(
-                        config.goverment.getPartyDid(),
-                        PersonalInformation.schemaName,
-                        PersonalInformation.schemaVersion)).resultFuture
+                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
 
         config.runNetwork()
         future.getOrThrow(Duration.ofSeconds(30))
@@ -110,7 +119,11 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
         val uid = UUID.randomUUID().toString()
 
         val future = claimDesc.issuer.services.startFlow(
-                IssueClaimFlow.Issuer(uid, claimDesc.getSchema(), claimDesc.proposal, to.getName())
+                IssueClaimFlow.Issuer(uid,
+                        claimDesc.getSchema(),
+                        claimDesc.proposal,
+                        to.getName(),
+                        config.artifactory.getName())
         ).resultFuture
 
         config.runNetwork()
