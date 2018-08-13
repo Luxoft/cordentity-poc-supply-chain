@@ -67,48 +67,6 @@ dependencies {
 }
 
 
-task deployStuffToNodes {
-  File nodesDir = new File("${buildDir}/nodes/")
-  if (nodesDir.exists()) {
-    nodesDir.eachDir {
-      if (it.name != ".cache") {
-        String nodePath = it.path
-        copy {
-          from("devops/cordapp-${indy_cordapp_version}.jar")
-          into(nodePath + "/cordapps")
-        }
-        copy {
-          from("devops/cordapp-contracts-states-${indy_cordapp_version}.jar")
-          into(nodePath + "/cordapps")
-        }
-        copy {
-          from('devops/Dockerfile-corda')
-          into(nodePath)
-        }
-      }
-    }
-
-    copy {
-      from('config/test/indyconfig/treatment.properties')
-      into('build/nodes/TreatmentCenter/indyconfig')
-      rename('treatment.properties', 'indy.properties')
-    }
-
-    copy {
-      from('config/test/indyconfig/agent.properties')
-      into('build/nodes/SovrinAgent/indyconfig')
-      rename('agent.properties', 'indy.properties')
-    }
-
-    copy {
-      from('config/test/indyconfig/issuer.properties')
-      into('build/nodes/Manufacture/indyconfig')
-      rename('issuer.properties', 'indy.properties')
-    }
-  }
-}
-
-
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['cordapp:jar']) {
   directory "./build/nodes"
 
@@ -156,6 +114,55 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['cordapp:jar']) {
     cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
     rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
   }
+}
+
+deployNodes.initializeConfiguration()
+def cordaNodes = deployNodes.nodes
+
+
+task deployCordappToNodes {
+  for(nodeDir in cordaNodes*.nodeDir) {
+    copy {
+      from("devops")
+      into("$nodeDir/cordapps")
+      include("cordapp-${indy_cordapp_version}.jar")
+      include("cordapp-contracts-states-${indy_cordapp_version}.jar")
+    }
+    copy {
+      from('devops/Dockerfile-corda')
+      into(nodeDir)
+    }
+  }
+}
+
+task deployConfigsToNodes {
+  def indyConfigMapping = ["TreatmentCenter": "treatment",
+                           "SovrinAgent"    : "agent",
+                           "Manufacture"    : "issuer"]
+
+  indyConfigMapping.each { nodeName, configName ->
+    def node = cordaNodes.find { it.nodeDir.name == nodeName }
+
+    copy {
+      from("config/test/indyconfig")
+      into("${node.nodeDir}/indyconfig")
+      include("${configName}.properties")
+      rename("${configName}.properties", 'indy.properties')
+    }
+  }
+}
+
+
+task deployCordaNetwork {
+  dependsOn deployNodes
+  dependsOn deployCordappToNodes
+  dependsOn deployConfigsToNodes
+}
+
+/* DEPRECATED! Use `deployCordaNetwork` task */
+task deployStuffToNodes {
+  dependsOn deployCordappToNodes
+  dependsOn deployConfigsToNodes
 }
 
 
