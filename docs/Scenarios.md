@@ -1,5 +1,5 @@
 ### Package Supply Chain
-<b>Decentralized package delivery system with Self Sovereign Identity layer.<b\>
+<b>Decentralized package delivery with Self Sovereign Identity (SSI) layer.<b\>
 <br/><br/>
 Implements corda flows for a <u>Carrier</u>, or transport company, to transfer ownership of a package to a <u>Receiver</u>, or party that receives the package.
 
