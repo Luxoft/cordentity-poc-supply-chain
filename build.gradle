@@ -3,8 +3,8 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.5.0"
-  ext.indy_cordapp_version = '0.4.6'
-  ext.indy_utils_version = '0.2.2'
+  ext.indy_cordapp_version = '0.4.9'
+  ext.indy_utils_version = '0.2.5'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
   ext.kotlin_version = '1.2.41'

@@ -45,8 +45,7 @@ enum class BusinessEntity {
     Treatment,
     Manufacturer,
     Goverment,
-    Insuranse,
-    Artifactory,
+    Insuranse
 }
 
 @CordaSerializable

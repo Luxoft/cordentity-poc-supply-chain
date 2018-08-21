@@ -9,6 +9,7 @@ import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
+import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.data.state.getObservers
@@ -90,19 +91,17 @@ class PackageWithdrawal {
         }
 
         @Suspendable
-        private fun checkReceipt(serial: String, artifactoryName: CordaX500Name): Boolean {
-            val schema = IndyUser.SchemaDetails(
-                    PackageReceipt.schemaName,
-                    PackageReceipt.schemaVersion,
-                    indyUser().did)
+        private fun checkReceipt(serial: String): Boolean {
+            val packageSchemaId = getCacheSchemaId(PackageReceipt)
+            val packageCredDefId = getCacheCredDefId(PackageReceipt)
 
             val attributes = listOf(
-                    VerifyClaimFlow.ProofAttribute(schema, PackageReceipt.Attributes.Serial.name, serial)
+                    VerifyClaimFlow.ProofAttribute(packageSchemaId, packageCredDefId, PackageReceipt.Attributes.Serial.name, serial)
             )
 
             val proverName = flowSession.counterparty.name
 
-            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, emptyList(), proverName, artifactoryName))
+            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, emptyList(), proverName))
         }
     }
 }

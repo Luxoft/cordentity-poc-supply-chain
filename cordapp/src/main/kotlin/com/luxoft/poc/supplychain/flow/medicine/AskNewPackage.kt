@@ -5,17 +5,16 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.GetDidFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.IssueClaimFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.VerifyClaimFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.poc.supplychain.IndyArtifactsRegistry.ARTIFACT_TYPE
 import com.luxoft.poc.supplychain.data.BusinessEntity
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
-import com.luxoft.poc.supplychain.flow.RequestForPackage
-import com.luxoft.poc.supplychain.flow.getClaimProof
-import com.luxoft.poc.supplychain.flow.whoIs
+import com.luxoft.poc.supplychain.flow.*
 import net.corda.core.flows.*
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.utilities.unwrap
@@ -43,7 +42,7 @@ class AskNewPackage {
                 return flowSession.sendAndReceive<String>(packageRequest).unwrap{ it }
 
             } catch (e: FlowException) {
-                logger.error("", e)
+                logger.error("Package request can't be processed", e)
                 throw FlowException("Request wasnt accepted")
             }
         }
@@ -65,7 +64,7 @@ class AskNewPackage {
                     requestNewPackage(serial, packageRequest)
 
                 } catch (e: Exception) {
-                    logger.error("", e)
+                    logger.error("Patient cant be authenticated", e)
                     throw FlowException(e.message)
                 }
             }
@@ -75,44 +74,40 @@ class AskNewPackage {
         private fun authenticateUser(serial: String, authorities: ChainOfAuthority): Boolean {
             require(authorities.chain.containsKey(BusinessEntity.Goverment)) { "Government has to be specified" }
             require(authorities.chain.containsKey(BusinessEntity.Insuranse)) { "Insurance has to be specified" }
-            require(authorities.chain.containsKey(BusinessEntity.Artifactory)) { "Artifactory has to be specified" }
 
-            val govermentDid = subFlow(GetDidFlow.Initiator(authorities.chain[BusinessEntity.Goverment]!!))
-            val insuranceDid = subFlow(GetDidFlow.Initiator(authorities.chain[BusinessEntity.Insuranse]!!))
+            val insurance = authorities.chain[BusinessEntity.Insuranse]!!
+            val goverment = authorities.chain[BusinessEntity.Goverment]!!
 
-            val diagnosisSchema = IndyUser.SchemaDetails(
-                    DiagnosisDetails.schemaName,
-                    DiagnosisDetails.schemaVersion,
-                    insuranceDid)
+            val govermentDid = subFlow(GetDidFlow.Initiator(goverment))
+            val insuranceDid = subFlow(GetDidFlow.Initiator(insurance))
 
-            val personalitySchema = IndyUser.SchemaDetails(
-                    PersonalInformation.schemaName,
-                    PersonalInformation.schemaVersion,
-                    govermentDid)
+            val diagnosisSchemaId = getArtifactId(ARTIFACT_TYPE.Schema, DiagnosisDetails, insurance)
+            val diagnosisCredDefId = getArtifactId(ARTIFACT_TYPE.Definition, DiagnosisDetails, insurance)
+
+            val personalitySchemaId = getArtifactId(ARTIFACT_TYPE.Schema, PersonalInformation, goverment)
+            val personalityCredDefId = getArtifactId(ARTIFACT_TYPE.Definition, PersonalInformation, goverment)
 
             val attributes = listOf(
-                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Disease.name),
-                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.MedicineName.name),
-                    VerifyClaimFlow.ProofAttribute(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Recommendation.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchemaId, diagnosisCredDefId, insuranceDid, DiagnosisDetails.Attributes.Disease.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchemaId, diagnosisCredDefId, insuranceDid, DiagnosisDetails.Attributes.MedicineName.name),
+                    VerifyClaimFlow.ProofAttribute(diagnosisSchemaId, diagnosisCredDefId, insuranceDid, DiagnosisDetails.Attributes.Recommendation.name),
 
-                    VerifyClaimFlow.ProofAttribute(personalitySchema, govermentDid, PersonalInformation.Attributes.Nationality.name, "eu")
+                    VerifyClaimFlow.ProofAttribute(personalitySchemaId, personalityCredDefId, govermentDid, PersonalInformation.Attributes.Nationality.name, "eu")
             )
 
             // TODO: get Constants from Config!!!
             val predicates = listOf(
-                    VerifyClaimFlow.ProofPredicate(diagnosisSchema, insuranceDid, DiagnosisDetails.Attributes.Stage.name, 3),
-                    VerifyClaimFlow.ProofPredicate(personalitySchema, govermentDid, PersonalInformation.Attributes.Age.name, 18)
+                    VerifyClaimFlow.ProofPredicate(diagnosisSchemaId, diagnosisCredDefId, insuranceDid, DiagnosisDetails.Attributes.Stage.name, 3),
+                    VerifyClaimFlow.ProofPredicate(personalitySchemaId, personalityCredDefId, govermentDid, PersonalInformation.Attributes.Age.name, 18)
             )
 
             val proverName = flowSession.counterparty.name
-            val artifactoryName = authorities.chain[BusinessEntity.Artifactory]!!
-            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, predicates, proverName, artifactoryName))
+            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, predicates, proverName))
         }
 
         @Suspendable
         private fun requestNewPackage(serial: String, packageRequest: PackageRequest) {
             require(packageRequest.authorities.chain.containsKey(BusinessEntity.Manufacturer)) { "Manufacturer has to be specified" }
-            require(packageRequest.authorities.chain.containsKey(BusinessEntity.Artifactory)) { "Artifactory has to be specified" }
 
             val proof = getClaimProof(serial).state.data.proof
             val proofReq = getClaimProof(serial).state.data.proofReq.json.toString()
@@ -134,17 +129,12 @@ class AskNewPackage {
             subFlow(RequestForPackage.Initiator(packageInfo, packageRequest.authorities.chain[BusinessEntity.Manufacturer]!!))
 
             // create confirmation receipt
-            val receiptSchema = IndyUser.SchemaDetails(
-                    PackageReceipt.schemaName,
-                    PackageReceipt.schemaVersion,
-                    indyUser().did)
-
-            val receiptProposal = PackageReceipt()
+            val receiptProposal = IndySchemaBuilder()
                     .addAttr(PackageReceipt.Attributes.Serial, serial)
                     .build()
+            val receiptCredDefId = getCacheCredDefId(PackageReceipt)
 
-            val artifactoryName = packageRequest.authorities.chain[BusinessEntity.Artifactory]!!
-            subFlow(IssueClaimFlow.Issuer(serial, receiptSchema, receiptProposal, patientAgent, artifactoryName))
+            subFlow(IssueClaimFlow.Issuer(serial, receiptCredDefId, receiptProposal, patientAgent))
 
             flowSession.send(serial)
         }

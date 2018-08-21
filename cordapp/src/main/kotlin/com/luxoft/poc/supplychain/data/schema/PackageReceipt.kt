@@ -1,18 +1,12 @@
 package com.luxoft.poc.supplychain.data.schema
 
-class PackageReceipt: IndySchemaBuilder() {
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder.AttrTypes
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder.Attribute
 
+object PackageReceipt: IndySchema(schemaName = "package_receipt", schemaVersion = "1.0") {
     object Attributes {
-        object Serial : IndySchemaBuilder.AttrTypes by Attribute("serial")
+        object Serial : AttrTypes by Attribute("serial")
     }
 
-    companion object {
-
-        val schemaName = "package_receipt"
-        val schemaVersion = "1.0"
-
-        val schemaKey = "{ \"name\":\"${schemaName}\",\"version\":\"${schemaVersion}\",\"did\":\"%s\"}"
-    }
-
-    override fun getSchemaAttrs(): List<IndySchemaBuilder.AttrTypes> = listOf(Attributes.Serial)
+    override fun getSchemaAttrs(): List<AttrTypes> = listOf(Attributes.Serial)
 }

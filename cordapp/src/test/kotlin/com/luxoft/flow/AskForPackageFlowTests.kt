@@ -6,6 +6,7 @@ import com.luxoft.poc.supplychain.data.BusinessEntity
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.data.state.Shipment
@@ -29,23 +30,21 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
     @Test
     fun `user not authorized to request new package`() {
 
-        val meta = listOf<ClaimDescriptor>(
-                ClaimDescriptor(
-                        DiagnosisDetails()
+        val meta = listOf<CredentialDesc>(
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(DiagnosisDetails.Attributes.Stage, "4")
                                 .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
                                 .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
                                 .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
-                                .build(),
-                        DiagnosisDetails.schemaName, DiagnosisDetails.schemaVersion, config.insurance),
+                                .build(), getCredDefId(config.insurance, DiagnosisDetails), config.insurance),
 
-                ClaimDescriptor(
-                        PersonalInformation()
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(PersonalInformation.Attributes.Age, "15")
                                 .addAttr(PersonalInformation.Attributes.Nationality, "eu")
                                 .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
-                                .build(),
-                        PersonalInformation.schemaName, PersonalInformation.schemaVersion, config.goverment)
+                                .build(), getCredDefId(config.goverment, PersonalInformation), config.goverment)
         )
 
         meta.forEach { issueClaim(it, config.agent) }
@@ -55,7 +54,6 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
-                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
         val askForPackageFuture = config.agent.services.startFlow(flowAskForPackage).resultFuture
@@ -69,23 +67,21 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
     @Test
     fun  `user authorized to request new package`() {
 
-        val meta = listOf<ClaimDescriptor>(
-                ClaimDescriptor(
-                        DiagnosisDetails()
+        val meta = listOf<CredentialDesc>(
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(DiagnosisDetails.Attributes.Stage, "4")
                                 .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
                                 .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
                                 .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
-                                .build(),
-                        DiagnosisDetails.schemaName, DiagnosisDetails.schemaVersion, config.insurance),
+                                .build(), getCredDefId(config.insurance, DiagnosisDetails), config.insurance),
 
-                ClaimDescriptor(
-                        PersonalInformation()
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(PersonalInformation.Attributes.Age, "20")
                                 .addAttr(PersonalInformation.Attributes.Nationality, "eu")
                                 .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
-                                .build(),
-                        PersonalInformation.schemaName, PersonalInformation.schemaVersion, config.goverment)
+                                .build(), getCredDefId(config.goverment, PersonalInformation), config.goverment)
         )
 
         meta.forEach { issueClaim(it, config.agent) }
@@ -95,7 +91,6 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
                 .add(BusinessEntity.Manufacturer, config.issuer.getName())
                 .add(BusinessEntity.Insuranse, config.insurance.getName())
                 .add(BusinessEntity.Goverment, config.goverment.getName())
-                .add(BusinessEntity.Artifactory, config.artifactory.getName())
 
         val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
 

@@ -1,10 +1,13 @@
 package com.luxoft.poc.supplychain.flow
 
+import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.ClaimProofSchemaV1
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.ClaimSchemaV1
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaim
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaimProof
+import com.luxoft.poc.supplychain.IndyArtifactsRegistry
 import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageSchemaV1
 import com.luxoft.poc.supplychain.data.schema.ShipmentSchemaV1
 import com.luxoft.poc.supplychain.data.state.Package
@@ -90,3 +93,32 @@ fun FlowLogic<Any>.getClaimProof(serial: String): StateAndRef<IndyClaimProof> {
     val results = serviceHub.vaultService.queryBy<IndyClaimProof>(criteria)
     return results.states.singleOrNull()!!
 }
+
+@Suspendable
+fun FlowLogic<Any>.getCacheSchemaId(schema: IndySchema): String {
+    val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Schema,
+            schema.schemaName, schema.schemaVersion)
+    return subFlow(ArtifactsManagement.Accessor(queryRequest))
+}
+
+@Suspendable
+fun FlowLogic<Any>.getCacheCredDefId(schema: IndySchema): String {
+    val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Definition,
+            schema.schemaName, schema.schemaVersion)
+    return subFlow(ArtifactsManagement.Accessor(queryRequest))
+}
+
+@Suspendable
+fun FlowLogic<Any>.getArtifactId(type: IndyArtifactsRegistry.ARTIFACT_TYPE, schema: IndySchema, ownerName: CordaX500Name): String  =
+        try {
+            when (type) {
+                IndyArtifactsRegistry.ARTIFACT_TYPE.Schema -> getCacheSchemaId(schema)
+                IndyArtifactsRegistry.ARTIFACT_TYPE.Definition -> getCacheCredDefId(schema)
+            }
+        } catch(ex: Exception) {
+            logger.info("Artifact ${type} for ${schema} is missed in local cache. " +
+                    "Set connection to ${ownerName.organisation}")
+
+            val queryRequest = IndyArtifactsRegistry.QueryRequest(type, schema.schemaName, schema.schemaVersion)
+            subFlow(ArtifactsManagement.LocalCacheRefresher(queryRequest, ownerName))
+        }
