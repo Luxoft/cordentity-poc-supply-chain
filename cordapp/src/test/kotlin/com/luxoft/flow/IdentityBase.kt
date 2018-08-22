@@ -8,6 +8,7 @@ import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.flow.ArtifactsManagement
 import net.corda.core.utilities.getOrThrow
+import net.corda.core.utilities.loggerFor
 import net.corda.node.internal.StartedNode
 import net.corda.testing.node.internal.InternalMockNetwork
 import net.corda.testing.node.internal.startFlow
@@ -18,6 +19,11 @@ import java.time.Duration
 import java.util.*
 
 abstract class IdentityBase(val config: NetworkConfiguration) {
+
+    companion object {
+        val logger = loggerFor<IdentityBase>()
+    }
+
 
     data class CredentialDesc(val credProposal: String,
                               val credDefId: String,
@@ -46,6 +52,8 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
     private fun createIndyMeta(issuer: StartedNode<InternalMockNetwork.MockNode>,
                                schema: IndySchema) {
 
+        logger.info("creating new Indy Meta for: ${schema}, Issuer ${issuer.getName().organisation}")
+
         var putRequest: IndyArtifactsRegistry.PutRequest
 
         // create schema
@@ -58,6 +66,8 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
         val schemaResFuture = issuer.services.startFlow(
                 ArtifactsManagement.Creator(putRequest)).resultFuture
 
+        logger.info("Request for new schema is submitted: ${putRequest}")
+
         config.runNetwork()
         val schemaId = schemaResFuture.getOrThrow(Duration.ofSeconds(30))
 
@@ -69,12 +79,19 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
         val credDefResFuture = issuer.services.startFlow(
                 ArtifactsManagement.Creator(putRequest)).resultFuture
 
+        logger.info("Request for new definition is submitted: ${putRequest}")
+
         config.runNetwork()
         credDefResFuture.getOrThrow(Duration.ofSeconds(30))
     }
 
     fun issueClaim(credDesc: CredentialDesc,
                    to: StartedNode<InternalMockNetwork.MockNode>) {
+
+        logger.info("creating new credentials " +
+                "${credDesc.issuer.getName().organisation} -> ${to.getName().organisation}:" +
+                "${credDesc.credDefId}:${credDesc.credProposal}: ")
+
         val uid = UUID.randomUUID().toString()
 
         val future = credDesc.issuer.services.startFlow(
@@ -83,19 +100,26 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
                         credDesc.credProposal,
                         to.getName())).resultFuture
 
+        logger.info("Request for new credentials is submitted: ${uid}")
+
         config.runNetwork()
         future.getOrThrow(Duration.ofSeconds(30))
     }
 
     fun getCredDefId(owner: StartedNode<InternalMockNetwork.MockNode>,
                      schema: IndySchema): String {
+        logger.info("getting existing credentials definition id from the registry " +
+                "${owner.getName().organisation}: {$schema}")
+
         val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Definition,
                 schema.schemaName, schema.schemaVersion)
 
         val schemaResFuture = owner.services.startFlow(
                 ArtifactsManagement.Accessor(queryRequest)).resultFuture
-        config.runNetwork()
 
+        logger.info("Request for credential definition id is submitted")
+
+        config.runNetwork()
         return schemaResFuture.getOrThrow(Duration.ofSeconds(30))
     }
 }
