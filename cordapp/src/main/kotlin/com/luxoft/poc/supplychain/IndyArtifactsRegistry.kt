@@ -1,13 +1,14 @@
 package com.luxoft.poc.supplychain
 
+import SerializationUtils
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateClaimDefFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
+import net.corda.core.flows.FlowException
+import net.corda.core.flows.FlowLogic
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
-import net.corda.core.serialization.SingletonSerializeAsToken
-
-import net.corda.core.flows.*
 import net.corda.core.serialization.CordaSerializable
+import net.corda.core.serialization.SingletonSerializeAsToken
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -72,7 +73,7 @@ object IndyArtifactsRegistry {
 
             when (putRequest.type) {
                 ARTIFACT_TYPE.Schema -> {
-                    val payload =  SerializationUtils.jSONToAny<IndySchema>(putRequest.payloadJson)
+                    val payload = SerializationUtils.jSONToAny<IndySchema>(putRequest.payloadJson)
                             ?: throw RuntimeException("Unable to parse schema from json")
 
                     artifactId = subFlow(CreateSchemaFlow.Authority(payload.name, payload.version, payload.attrs))
