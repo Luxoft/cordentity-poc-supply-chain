@@ -6,7 +6,7 @@ class IndySchemaBuilder {
         val name: String
     }
     data class Attribute(override val name: String) : AttrTypes
-    
+
     private val builder: MutableMap<String, List<String>> =  mutableMapOf()
 
     fun addAttr(type: AttrTypes, attr: String): IndySchemaBuilder {
