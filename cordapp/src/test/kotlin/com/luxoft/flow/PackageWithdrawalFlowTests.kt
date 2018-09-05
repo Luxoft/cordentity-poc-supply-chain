@@ -4,6 +4,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaim
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaimProof
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
@@ -25,29 +26,26 @@ class PackageWithdrawalFlowTests: ShipmentBase(NetworkConfiguration()) {
 
     //@Test
     fun `user authorized to withdraw the package`() {
-        val meta = listOf<ClaimDescriptor>(
-                ClaimDescriptor(
-                        PackageReceipt()
+        val meta = listOf<CredentialDesc>(
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(PackageReceipt.Attributes.Serial, packageInfo.serial)
-                                .build(),
-                        PackageReceipt.schemaName, PackageReceipt.schemaVersion, config.treatment),
+                                .build(), getCredDefId(config.treatment, PackageReceipt), config.treatment),
 
-                ClaimDescriptor(
-                        DiagnosisDetails()
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(DiagnosisDetails.Attributes.Stage, "4")
                                 .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
                                 .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
                                 .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
-                                .build(),
-                        DiagnosisDetails.schemaName, DiagnosisDetails.schemaVersion, config.insurance),
+                                .build(), getCredDefId(config.insurance, DiagnosisDetails), config.insurance),
 
-                ClaimDescriptor(
-                        PersonalInformation()
+                CredentialDesc(
+                        IndySchemaBuilder()
                                 .addAttr(PersonalInformation.Attributes.Age, "20")
                                 .addAttr(PersonalInformation.Attributes.Nationality, "eu")
                                 .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
-                                .build(),
-                        PersonalInformation.schemaName, PersonalInformation.schemaVersion, config.goverment)
+                                .build(), getCredDefId(config.goverment, PersonalInformation), config.goverment)
         )
 
         meta.forEach { issueClaim(it, config.agent) }

@@ -60,20 +60,6 @@ services:
       - INDYUSER_WALLETNAME=SovrinAgent
       - RUST_LOG=trace
 
-  artifactory:
-    network_mode: host
-    build:
-      context: ./build/nodes/Artifactory
-      dockerfile: Dockerfile-corda
-    ports:
-      - "10301:10301"
-      - "10302:10302"
-      - "10303:10303"
-    container_name: artifactory
-    environment:
-      - INDYUSER_WALLETNAME=Artifactory
-      - RUST_LOG=trace
-
   notary:
     network_mode: host
     build:

@@ -1,9 +1,12 @@
 package com.luxoft.web.components
 
-import com.luxoft.poc.supplychain.IdentityService
+import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.BusinessEntity
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
+import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
+import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.DeliverShipment
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
@@ -26,14 +29,29 @@ import javax.annotation.PostConstruct
 class IndyInitializer {
     private final val logger = loggerFor<IndyInitializer>()
 
-    @PostConstruct
-    fun init() {
+    companion object {
+
         // TODO: How can we rewrite these names to make them look nice like "Marina Bay Hospital" etc???
         val agentCert = CordaX500Name("SovrinAgent", "London", "GB")
         val issuerCert = CordaX500Name("Manufacture", "London", "GB")
         val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
-        val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
 
+        val diagnosisDetailsProposal = IndySchemaBuilder()
+                .addAttr(DiagnosisDetails.Attributes.Stage, "4")
+                .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
+                .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
+                .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
+                .build()
+
+        val personalInfoProposal = IndySchemaBuilder()
+                .addAttr(PersonalInformation.Attributes.Age, "20")
+                .addAttr(PersonalInformation.Attributes.Nationality, "eu")
+                .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
+                .build()
+    }
+
+    @PostConstruct
+    fun init() {
         val timeout = Duration.ofSeconds(1000L)
 
         val user = User("user1", "test", permissions = setOf())
@@ -49,13 +67,22 @@ class IndyInitializer {
 
         logger.info("Created all needed rpc clients")
 
-        val treatmentCenterIdentityService = IdentityService(treatment, timeout)
-        treatmentCenterIdentityService.initTreatmentIndy()
+        val treatmentCenterIdentityService = IdentityInitService(treatment, timeout)
+        treatmentCenterIdentityService.initTreatmentIndyMeta()
+        treatmentCenterIdentityService.issueClaimTo(agentCert,
+                diagnosisDetailsProposal,
+                DiagnosisDetails.schemaName,
+                DiagnosisDetails.schemaVersion)
 
         logger.info("Treatment center indy stuff initialized")
 
-        val issuerIdentityService = IdentityService(issuer, timeout)
-        issuerIdentityService.initIssuerIndy()
+        val issuerIdentityService = IdentityInitService(issuer, timeout)
+        issuerIdentityService.assignPermissionsToMe(treatmentCert)
+        issuerIdentityService.initIssuerIndyMeta()
+        issuerIdentityService.issueClaimTo(agentCert,
+                personalInfoProposal,
+                PersonalInformation.schemaName,
+                PersonalInformation.schemaVersion)
 
         logger.info("Successfully initialized all indy stuff")
 
@@ -64,7 +91,6 @@ class IndyInitializer {
                 .add(BusinessEntity.Manufacturer, issuerCert)
                 .add(BusinessEntity.Insuranse, treatmentCert)
                 .add(BusinessEntity.Goverment, issuerCert)
-                .add(BusinessEntity.Artifactory, artifactoryCert)
 
         logger.info("Creating test package...")
 

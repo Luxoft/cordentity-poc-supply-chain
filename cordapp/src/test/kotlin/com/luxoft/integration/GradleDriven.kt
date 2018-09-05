@@ -1,9 +1,12 @@
 package com.luxoft.integration
 
-import com.luxoft.poc.supplychain.IdentityService
+import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.BusinessEntity
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
+import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
+import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.DeliverShipment
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
@@ -23,7 +26,19 @@ class GradleDriven: e2eBase {
     val agentCert = CordaX500Name("SovrinAgent", "London", "GB")
     val issuerCert  = CordaX500Name("Manufacture", "London", "GB")
     val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
-    val artifactoryCert = CordaX500Name("Artifactory", "London", "GB")
+
+    val diagnosisDetailsProposal = IndySchemaBuilder()
+            .addAttr(DiagnosisDetails.Attributes.Stage, "4")
+            .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
+            .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
+            .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
+            .build()
+
+    val personalInfoProposal = IndySchemaBuilder()
+            .addAttr(PersonalInformation.Attributes.Age, "20")
+            .addAttr(PersonalInformation.Attributes.Nationality, "eu")
+            .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
+            .build()
 
     override fun execute() {
 
@@ -40,18 +55,27 @@ class GradleDriven: e2eBase {
         val treatment = CordaRPCClient(NetworkHostAndPort(host, 10102))
                 .start(user.username, user.password).proxy
 
-        val treatmentCenterIdentityService = IdentityService(treatment)
-        treatmentCenterIdentityService.initTreatmentIndy()
+        val treatmentCenterIdentityService = IdentityInitService(treatment)
+        treatmentCenterIdentityService.initTreatmentIndyMeta()
+        treatmentCenterIdentityService.issueClaimTo(agentCert,
+                diagnosisDetailsProposal,
+                DiagnosisDetails.schemaName,
+                DiagnosisDetails.schemaVersion)
 
-        val manufactureIdentityService = IdentityService(issuer)
-        manufactureIdentityService.initIssuerIndy()
+        val issuerIdentityService = IdentityInitService(issuer)
+        issuerIdentityService.assignPermissionsToMe(treatmentCert)
+        issuerIdentityService.initIssuerIndyMeta()
+        issuerIdentityService.issueClaimTo(agentCert,
+                personalInfoProposal,
+                PersonalInformation.schemaName,
+                PersonalInformation.schemaVersion)
+
 
         val chainOfAuthority = ChainOfAuthority()
                 .add(BusinessEntity.Treatment, treatmentCert)
                 .add(BusinessEntity.Manufacturer, issuerCert)
                 .add(BusinessEntity.Insuranse, treatmentCert)
                 .add(BusinessEntity.Goverment, issuerCert)
-                .add(BusinessEntity.Artifactory, artifactoryCert)
 
         println("Indy step finished")
 

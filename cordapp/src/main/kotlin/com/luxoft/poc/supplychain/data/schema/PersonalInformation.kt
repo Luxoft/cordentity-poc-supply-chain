@@ -1,19 +1,10 @@
 package com.luxoft.poc.supplychain.data.schema
 
-class PersonalInformation: IndySchemaBuilder() {
-
+object PersonalInformation: IndySchema(schemaName = "personal_information", schemaVersion = "1.0") {
     object Attributes {
-        object Nationality : IndySchemaBuilder.AttrTypes by Attribute("nationality")
-        object Forename : IndySchemaBuilder.AttrTypes by Attribute("forename")
-        object Age : IndySchemaBuilder.AttrTypes by Attribute("age")
-    }
-
-    companion object {
-
-        val schemaName = "personal_information"
-        val schemaVersion = "1.0"
-
-        val schemaKey = "{ \"name\":\"${schemaName}\",\"version\":\"${schemaVersion}\",\"did\":\"%s\"}"
+        object Nationality : IndySchemaBuilder.AttrTypes by IndySchemaBuilder.Attribute("nationality")
+        object Forename : IndySchemaBuilder.AttrTypes by IndySchemaBuilder.Attribute("forename")
+        object Age : IndySchemaBuilder.AttrTypes by IndySchemaBuilder.Attribute("age")
     }
 
     override fun getSchemaAttrs(): List<IndySchemaBuilder.AttrTypes> = listOf(

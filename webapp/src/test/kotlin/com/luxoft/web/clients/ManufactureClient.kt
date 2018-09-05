@@ -17,8 +17,6 @@ import org.springframework.http.MediaType
 enum class ManufactureEndpoint(val url: String) {
     LIST("/api/mf/package/list"),
     PROCESS("/api/mf/request/process"),
-    QP_START("/api/mf/qp/start"),
-    QP_FINISH("/api/mf/qp/finish")
 }
 
 class ManufactureClient(private val restTemplate: TestRestTemplate) {

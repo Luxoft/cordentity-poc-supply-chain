@@ -1,11 +1,14 @@
 package com.luxoft.flow
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.poc.supplychain.IndyArtifactsRegistry
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
+import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
+import com.luxoft.poc.supplychain.flow.ArtifactsManagement
 import net.corda.core.utilities.getOrThrow
+import net.corda.core.utilities.loggerFor
 import net.corda.node.internal.StartedNode
 import net.corda.testing.node.internal.InternalMockNetwork
 import net.corda.testing.node.internal.startFlow
@@ -17,20 +20,22 @@ import java.util.*
 
 abstract class IdentityBase(val config: NetworkConfiguration) {
 
-    data class ClaimDescriptor(val proposal: String,
-                               val name: String,
-                               val version: String,
-                               val issuer: StartedNode<InternalMockNetwork.MockNode>) {
-        fun getSchema() = IndyUser.SchemaDetails(name, version,  issuer.getPartyDid())
+    companion object {
+        val logger = loggerFor<IdentityBase>()
     }
+
+
+    data class CredentialDesc(val credProposal: String,
+                              val credDefId: String,
+                              val issuer: StartedNode<InternalMockNetwork.MockNode>)
 
     @Before
     fun setup() {
         config.up()
 
-        createDiagnosisMeta()
-        createPackageMeta()
-        createPersonalMeta()
+        createIndyMeta(config.treatment, PackageReceipt)
+        createIndyMeta(config.insurance, DiagnosisDetails)
+        createIndyMeta(config.goverment, PersonalInformation)
 
         onUp()
     }
@@ -44,89 +49,77 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
     abstract fun onUp()
     abstract fun onDown()
 
-    private fun createPackageMeta() {
-        val schemaResFuture = config.treatment.services.startFlow(
-                CreateSchemaFlow.Authority(
-                        PackageReceipt.schemaName,
-                        PackageReceipt.schemaVersion,
-                        PackageReceipt().getSchemaAttrs().map { it.name },
-                        config.artifactory.getName())).resultFuture
+    private fun createIndyMeta(issuer: StartedNode<InternalMockNetwork.MockNode>,
+                               schema: IndySchema) {
+
+        logger.info("creating new Indy Meta for: ${schema}, Issuer ${issuer.getName().organisation}")
+
+        var putRequest: IndyArtifactsRegistry.PutRequest
+
+        // create schema
+        val schemaRequest = IndyArtifactsRegistry.IndySchema(schema.schemaName,
+                schema.schemaVersion, schema.getSchemaAttrs().map { it.name })
+
+        putRequest = IndyArtifactsRegistry.PutRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Schema,
+                SerializationUtils.anyToJSON(schemaRequest))
+
+        val schemaResFuture = issuer.services.startFlow(
+                ArtifactsManagement.Creator(putRequest)).resultFuture
+
+        logger.info("Request for new schema is submitted: ${putRequest}")
 
         config.runNetwork()
-        schemaResFuture.getOrThrow(Duration.ofSeconds(30))
+        val schemaId = schemaResFuture.getOrThrow(Duration.ofSeconds(30))
 
-        val schemaDetails = IndyUser.SchemaDetails(
-                PackageReceipt.schemaName,
-                PackageReceipt.schemaVersion,
-                config.treatment.getPartyDid())
+        // create definition
+        val credDefRequest = IndyArtifactsRegistry.IndyCredDef(schemaId)
+        putRequest = IndyArtifactsRegistry.PutRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Definition,
+                SerializationUtils.anyToJSON(credDefRequest))
 
-        val future = config.treatment.services.startFlow(
-                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
+        val credDefResFuture = issuer.services.startFlow(
+                ArtifactsManagement.Creator(putRequest)).resultFuture
+
+        logger.info("Request for new definition is submitted: ${putRequest}")
 
         config.runNetwork()
-        future.getOrThrow(Duration.ofSeconds(30))
+        credDefResFuture.getOrThrow(Duration.ofSeconds(30))
     }
 
-    private fun createDiagnosisMeta() {
-        val schemaResFuture = config.insurance.services.startFlow(
-                CreateSchemaFlow.Authority(
-                        DiagnosisDetails.schemaName,
-                        DiagnosisDetails.schemaVersion,
-                        DiagnosisDetails().getSchemaAttrs().map { it.name },
-                        config.artifactory.getName())).resultFuture
-
-        config.runNetwork()
-        schemaResFuture.getOrThrow(Duration.ofSeconds(30))
-
-        val schemaDetails = IndyUser.SchemaDetails(
-                DiagnosisDetails.schemaName,
-                DiagnosisDetails.schemaVersion,
-                config.insurance.getPartyDid())
-
-        val future = config.insurance.services.startFlow(
-                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
-
-        config.runNetwork()
-        future.getOrThrow(Duration.ofSeconds(30))
-    }
-
-    private fun createPersonalMeta() {
-        val schemaResFuture = config.goverment.services.startFlow(
-                CreateSchemaFlow.Authority(
-                        PersonalInformation.schemaName,
-                        PersonalInformation.schemaVersion,
-                        PersonalInformation().getSchemaAttrs().map { it.name },
-                        config.artifactory.getName())).resultFuture
-
-        config.runNetwork()
-        schemaResFuture.getOrThrow(Duration.ofSeconds(30))
-
-        val schemaDetails = IndyUser.SchemaDetails(
-                PersonalInformation.schemaName,
-                PersonalInformation.schemaVersion,
-                config.goverment.getPartyDid())
-
-        val future = config.goverment.services.startFlow(
-                CreateClaimDefFlow.Authority(schemaDetails, config.artifactory.getName())).resultFuture
-
-        config.runNetwork()
-        future.getOrThrow(Duration.ofSeconds(30))
-
-    }
-
-    fun issueClaim(claimDesc: ClaimDescriptor,
+    fun issueClaim(credDesc: CredentialDesc,
                    to: StartedNode<InternalMockNetwork.MockNode>) {
+
+        logger.info("creating new credentials " +
+                "${credDesc.issuer.getName().organisation} -> ${to.getName().organisation}:" +
+                "${credDesc.credDefId}:${credDesc.credProposal}: ")
+
         val uid = UUID.randomUUID().toString()
 
-        val future = claimDesc.issuer.services.startFlow(
+        val future = credDesc.issuer.services.startFlow(
                 IssueClaimFlow.Issuer(uid,
-                        claimDesc.getSchema(),
-                        claimDesc.proposal,
-                        to.getName(),
-                        config.artifactory.getName())
-        ).resultFuture
+                        credDesc.credDefId,
+                        credDesc.credProposal,
+                        to.getName())).resultFuture
+
+        logger.info("Request for new credentials is submitted: ${uid}")
 
         config.runNetwork()
         future.getOrThrow(Duration.ofSeconds(30))
+    }
+
+    fun getCredDefId(owner: StartedNode<InternalMockNetwork.MockNode>,
+                     schema: IndySchema): String {
+        logger.info("getting existing credentials definition id from the registry " +
+                "${owner.getName().organisation}: {$schema}")
+
+        val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Definition,
+                schema.schemaName, schema.schemaVersion)
+
+        val schemaResFuture = owner.services.startFlow(
+                ArtifactsManagement.Accessor(queryRequest)).resultFuture
+
+        logger.info("Request for credential definition id is submitted")
+
+        config.runNetwork()
+        return schemaResFuture.getOrThrow(Duration.ofSeconds(30))
     }
 }

@@ -6,12 +6,11 @@ import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
-import com.luxoft.poc.supplychain.issuerCert
-import com.luxoft.poc.supplychain.treatmentCert
+import com.luxoft.web.components.IndyInitializer.Companion.issuerCert
+import com.luxoft.web.components.IndyInitializer.Companion.treatmentCert
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
-import com.luxoft.web.data.PushToken
 import com.luxoft.web.data.Serial
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.loggerFor
