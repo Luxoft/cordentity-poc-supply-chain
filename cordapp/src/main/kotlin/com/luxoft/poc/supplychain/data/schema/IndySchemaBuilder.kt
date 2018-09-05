@@ -7,7 +7,7 @@ class IndySchemaBuilder {
     }
     data class Attribute(override val name: String) : AttrTypes
 
-    private var builder: StringBuilder = StringBuilder()
+    private val builder: StringBuilder = StringBuilder()
 
     fun addAttr(type: AttrTypes, attr: String): IndySchemaBuilder {
         if(!builder.isEmpty()) builder.append(",")
@@ -16,7 +16,5 @@ class IndySchemaBuilder {
         return this
     }
 
-    fun build(): String {
-        return String.format("{%s}", builder.toString())
-    }
+    fun build(): String = String.format("{%s}", builder.toString())
 }
