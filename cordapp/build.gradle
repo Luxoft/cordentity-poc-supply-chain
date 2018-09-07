@@ -29,17 +29,10 @@ sourceSets {
     }
 }
 
-repositories {
-    maven {
-        url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
-    }
-}
-
 dependencies {
-    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp:$indy_cordapp_version"
-    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp-contracts-states:$indy_cordapp_version"
-    compile "com.luxoft.blockchainlab:indy-utils:$indy_utils_version"
-//    cordapp files('../devops/indy-cordapp-0.3.5.jar')
+    cordapp "com.github.Luxoft.cordentity:cordapp:$cordentity_version"
+    cordapp "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
+    cordapp "com.github.Luxoft.cordentity:indy-utils:$cordentity_version"
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'

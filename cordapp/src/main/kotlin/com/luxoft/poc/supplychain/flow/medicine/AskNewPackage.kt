@@ -109,8 +109,7 @@ class AskNewPackage {
         private fun requestNewPackage(serial: String, packageRequest: PackageRequest) {
             require(packageRequest.authorities.chain.containsKey(BusinessEntity.Manufacturer)) { "Manufacturer has to be specified" }
 
-            val proof = getClaimProof(serial).state.data.proof
-            val proofReq = getClaimProof(serial).state.data.proofReq.json.toString()
+            val revealedAttrs = getClaimProof(serial).state.data.proof.proofData.requestedProof.revealedAttrs
 
             val patientAgent = flowSession.counterparty.name
 
@@ -120,9 +119,9 @@ class AskNewPackage {
                     state = PackageState.NEW,
                     patientDid = packageRequest.patientDid,
                     patientAgent = patientAgent,
-                    patientDiagnosis = proof.getAttributeValue(DiagnosisDetails.Attributes.Disease.name, proofReq),
-                    medicineName = proof.getAttributeValue(DiagnosisDetails.Attributes.MedicineName.name, proofReq),
-                    medicineDescription = proof.getAttributeValue(DiagnosisDetails.Attributes.Recommendation.name, proofReq),
+                    patientDiagnosis = revealedAttrs[DiagnosisDetails.Attributes.Disease.name]?.raw,
+                    medicineName = revealedAttrs[DiagnosisDetails.Attributes.MedicineName.name]?.raw,
+                    medicineDescription = revealedAttrs[DiagnosisDetails.Attributes.Recommendation.name]?.raw,
                     requestedBy = ourIdentity.name,
                     processedBy = packageRequest.authorities.chain[BusinessEntity.Manufacturer]!!)
 

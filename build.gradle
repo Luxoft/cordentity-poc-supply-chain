@@ -3,7 +3,8 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.5.0"
-  ext.indy_cordapp_version = '0.4.9'
+  ext.cordentity_version = '0.4.10'
+  ext.cordentity_jar_version = '0.4.9'
   ext.indy_utils_version = '0.2.7'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
@@ -29,7 +30,6 @@ allprojects {
     mavenLocal()
     mavenCentral()
     jcenter()
-    maven { url 'http://172.26.147.116:8081/repository/luxoft.blockchainlab/' }
     maven { url 'https://repo.evernym.com/artifactory/libindy-maven-local' }
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://jitpack.io' }
