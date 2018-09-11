@@ -66,14 +66,29 @@ deployNodes.initializeConfiguration()
 def cordaNodes = deployNodes.nodes
 
 
+configurations {
+    /** Dependencies that must be deployed into running Corda nodes */
+    cordappDeploy
+}
+
+task deployJarsToNodes(group: RUN_CORDA_GROUP) {
+    doLast {
+        def cordaDeployConfiguration = configurations.cordappDeploy
+        def cordaDeployDependencies = cordaDeployConfiguration.resolvedConfiguration.firstLevelModuleDependencies
+        def cordaDeployArtifacts = cordaDeployDependencies.collectMany { it.moduleArtifacts }
+        def cordaDeployFiles = cordaDeployArtifacts*.file
+        
+        for(nodeDir in cordaNodes*.nodeDir) {
+            copy {
+                from cordaDeployFiles
+                into "$nodeDir/cordapps"
+            }
+        }
+    }
+}
+
 task deployCordappToNodes(group: RUN_CORDA_GROUP) {
     for(nodeDir in cordaNodes*.nodeDir) {
-        copy {
-            from("devops")
-            into("$nodeDir/cordapps")
-            include("cordapp-${cordentity_jar_version}.jar")
-            include("cordapp-contracts-states-${cordentity_jar_version}.jar")
-        }
         copy {
             from('devops/Dockerfile-corda')
             into(nodeDir)
@@ -100,12 +115,14 @@ task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
 
 task deployCordaNetwork(group: RUN_CORDA_GROUP) {
     dependsOn deployNodes
+    dependsOn deployJarsToNodes
     dependsOn deployCordappToNodes
     dependsOn deployConfigsToNodes
 }
 
 /* DEPRECATED! Use `deployCordaNetwork` task */
 task deployStuffToNodes(group: RUN_CORDA_GROUP) {
+    dependsOn deployJarsToNodes
     dependsOn deployCordappToNodes
     dependsOn deployConfigsToNodes
 }

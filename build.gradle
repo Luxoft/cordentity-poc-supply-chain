@@ -56,6 +56,7 @@ allprojects {
 
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
+apply from: "corda-run.gradle"
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
@@ -64,6 +65,9 @@ dependencies {
   // CorDapp dependencies
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
+
+  cordappDeploy "com.github.Luxoft.cordentity:cordapp:$cordentity_version"
+  cordappDeploy "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
 }
 
 task copyWebappJar(type: Copy, dependsOn: ['webapp:assemble']) {
@@ -72,5 +76,4 @@ task copyWebappJar(type: Copy, dependsOn: ['webapp:assemble']) {
   include "*.jar"
 }
 
-apply from: "corda-run.gradle"
 apply from: "indy-run.gradle"
