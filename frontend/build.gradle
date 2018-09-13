@@ -1,0 +1,36 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url "https://plugins.gradle.org/m2/" }
+  }
+
+  dependencies {
+    classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+  }
+}
+
+
+apply plugin: 'com.moowork.node'
+
+node {
+  version = '10.1.0'
+  download = true
+
+  workDir = file("$projectDir/node")
+  npmWorkDir = file(projectDir)
+  nodeModulesDir = file(projectDir)
+}
+
+
+task buildFrontend(type: NpmTask, dependsOn: npm_install) {
+  args = ['run', 'build']
+}
+assemble.dependsOn(buildFrontend)
+
+
+task cleanWebpack(type: Delete) {
+  delete 'dist'
+}
+clean.dependsOn(cleanWebpack)

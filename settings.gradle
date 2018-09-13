@@ -1,2 +1,3 @@
 include 'cordapp'
 include 'webapp'
+include 'frontend'

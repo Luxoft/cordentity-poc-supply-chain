@@ -3,9 +3,7 @@ Steps to set up local environment:
 
 Build artifacts
 
-`./gradlew buildAndCopyFrontend`
-
-`./gradlew webapp:jar`
+`./gradlew webapp:assemble`
 
 `./gradlew deployCordaNetwork`
 
