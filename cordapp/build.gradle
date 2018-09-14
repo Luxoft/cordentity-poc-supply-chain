@@ -4,6 +4,12 @@ buildscript {
         mavenCentral()
         jcenter()
     }
+
+    dependencies {
+        classpath "net.corda.plugins:cordapp:${corda_gradle_plugins_version}"
+        classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
+        classpath "net.corda.plugins:quasar-utils:${corda_gradle_plugins_version}"
+    }
 }
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'

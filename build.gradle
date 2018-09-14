@@ -17,14 +17,11 @@ buildscript {
 
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "net.corda.plugins:cordapp:${corda_gradle_plugins_version}"
     classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
-    classpath "net.corda.plugins:quasar-utils:${corda_gradle_plugins_version}"
-    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
   }
 }
 
-allprojects {
+subprojects {
   repositories {
     mavenLocal()
     mavenCentral()
@@ -53,14 +50,16 @@ allprojects {
   }
 }
 
-apply plugin: 'net.corda.plugins.cordformation'
-apply plugin: 'net.corda.plugins.quasar-utils'
+repositories {
+  jcenter()
+  maven { url 'https://repo.evernym.com/artifactory/libindy-maven-local' }
+  maven { url 'https://jitpack.io' }
+}
+
+
 apply from: "corda-run.gradle"
 
 dependencies {
-  compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-  compile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
-
   // CorDapp dependencies
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
@@ -70,3 +69,7 @@ dependencies {
 }
 
 apply from: "indy-run.gradle"
+
+assemble {
+  dependsOn deployCordaNetwork
+}

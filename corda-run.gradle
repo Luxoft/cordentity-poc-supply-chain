@@ -4,11 +4,15 @@ buildscript {
     }
 
     dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
     }
 }
 
 def RUN_CORDA_GROUP = "corda"
+
+apply plugin: 'kotlin'
+apply plugin: 'net.corda.plugins.cordformation'
 
 task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     dependsOn 'cordapp:jar'
