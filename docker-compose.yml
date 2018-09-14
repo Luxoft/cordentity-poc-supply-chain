@@ -28,6 +28,11 @@ services:
       - INDYUSER_ROLE=trustee
       - INDYUSER_SEED=000000000000000000000000Trustee1
       - RUST_LOG=trace
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+
 
   mfcorda:
     network_mode: host
@@ -44,6 +49,11 @@ services:
       - INDYUSER_DID=CzSfMVfq7U5pjTVtzd5uop
       - INDYUSER_ROLE=trustee
       - INDYUSER_SEED=00000000000000000000000Insurance
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+
 
 
   sacorda:
@@ -59,6 +69,10 @@ services:
     environment:
       - INDYUSER_WALLETNAME=SovrinAgent
       - RUST_LOG=trace
+    deploy:
+      resources:
+        limits:
+          memory: 500m
 
   notary:
     network_mode: host
@@ -70,6 +84,11 @@ services:
       - "10702:10702"
       - "10703:10703"
     container_name: notary
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+
 
 
 # -------------------- Spring nodes -----------------------
@@ -85,6 +104,10 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=manufacture"
     container_name: mfweb
+    deploy:
+      resources:
+        limits:
+          memory: 50m
 
 
   tcweb:
@@ -97,6 +120,11 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=treatmentcenter"
     container_name: tcweb
+    deploy:
+      resources:
+        limits:
+          memory: 50m
+
 
 
   saweb:
@@ -111,3 +139,7 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=sovrinagent"
     container_name: saweb
+    deploy:
+      resources:
+        limits:
+          memory: 50m
