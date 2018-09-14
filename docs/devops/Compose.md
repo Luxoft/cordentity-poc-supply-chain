@@ -14,10 +14,6 @@ Start Corda nodes
 `docker-compose up -d notary mfcorda tccorda sacorda`
 
 Start web servers (after Corda nodes are properly up)
-
-Make sure that:
-- webapp.jar is fresh in 'devops' folder (??)
-- xterm is installed
-- ports 10001+ are free
+Make sure that ports 10001+ are free.
 
 `docker-compose up -d tcweb mfweb saweb`

@@ -11,7 +11,8 @@ Start local Indy pool
 `docker-compose up -d indypool`
 
 
-Start Corda nodes
+Start Corda nodes.
+Make sure you have xterm installed.
 
 `./gradlew runNodes`
 
@@ -22,5 +23,6 @@ Start Corda nodes
 
 
 Start web servers (after Corda nodes are properly up)
+Make sure that ports 10001+ are free.
 
 `docker-compose up -d tcweb mfweb saweb`
