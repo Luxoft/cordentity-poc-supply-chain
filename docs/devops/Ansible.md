@@ -3,13 +3,9 @@ Steps to set up remote environment:
 
 #####ON LOCAL MACHINE:
 
-Build artifacts
+Build artifacts and put them in `/build` and `/webapp/build`
 
-`./gradlew buildAndCopyFrontend`
-
-`./gradlew deployNodes`
-
-`./gradlew deployStuffToNodes`
+`./gradlew clean assemble`
 
 
 Send stuff to remote server

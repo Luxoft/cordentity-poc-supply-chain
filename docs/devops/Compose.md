@@ -1,12 +1,9 @@
 Steps to set up local environment:
 
 
-Build artifacts
+Build artifacts and put them in `/build` and `/webapp/build`
 
-`./gradlew webapp:assemble`
-
-`./gradlew deployCordaNetwork`
-
+`./gradlew clean assemble`
 
 Start local Indy pool
 

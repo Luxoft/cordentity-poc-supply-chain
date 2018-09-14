@@ -1,20 +1,9 @@
 Steps to set up local environment:
 
 
-Clean Indy
+Build artifacts and put them in `/build` and `/webapp/build`
 
-`docker rm -f indypool`
-
-`./gradlew cleanDefaultPool`
-
-
-Build artifacts
-
-`./gradlew buildAndCopyFrontend`
-
-`./gradlew deployNodes`
-
-`./gradlew deployStuffToNodes`
+`./gradlew clean assemble`
 
 
 Start local Indy pool
