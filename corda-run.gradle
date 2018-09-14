@@ -124,13 +124,6 @@ task deployCordaNetwork(group: RUN_CORDA_GROUP) {
     dependsOn deployConfigsToNodes
 }
 
-/* DEPRECATED! Use `deployCordaNetwork` task */
-task deployStuffToNodes(group: RUN_CORDA_GROUP) {
-    dependsOn deployJarsToNodes
-    dependsOn deployCordappToNodes
-    dependsOn deployConfigsToNodes
-}
-
 task runNodes(type: Exec, group: RUN_CORDA_GROUP) {
     dependsOn deployCordaNetwork
 

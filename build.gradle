@@ -69,10 +69,4 @@ dependencies {
   cordappDeploy "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
 }
 
-task copyWebappJar(type: Copy, dependsOn: ['webapp:assemble']) {
-  from "webapp/build/libs"
-  into "devops"
-  include "*.jar"
-}
-
 apply from: "indy-run.gradle"
