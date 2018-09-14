@@ -88,10 +88,12 @@ task deployJarsToNodes(group: RUN_CORDA_GROUP) {
 }
 
 task deployCordappToNodes(group: RUN_CORDA_GROUP) {
-    for(nodeDir in cordaNodes*.nodeDir) {
-        copy {
-            from('devops/Dockerfile-corda')
-            into(nodeDir)
+    doLast {
+        for(nodeDir in cordaNodes*.nodeDir) {
+            copy {
+                from('devops/Dockerfile-corda')
+                into(nodeDir)
+            }
         }
     }
 }
@@ -101,14 +103,16 @@ task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
                              "SovrinAgent"    : "agent",
                              "Manufacture"    : "issuer"]
 
-    indyConfigMapping.each { nodeName, configName ->
-        def node = cordaNodes.find { it.nodeDir.name == nodeName }
+    doLast {
+        indyConfigMapping.each { nodeName, configName ->
+            def node = cordaNodes.find { it.nodeDir.name == nodeName }
 
-        copy {
-            from("config/test/indyconfig")
-            into("${node.nodeDir}/indyconfig")
-            include("${configName}.properties")
-            rename("${configName}.properties", 'indy.properties')
+            copy {
+                from("config/test/indyconfig")
+                into("${node.nodeDir}/indyconfig")
+                include("${configName}.properties")
+                rename("${configName}.properties", 'indy.properties')
+            }
         }
     }
 }
