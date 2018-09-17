@@ -82,3 +82,5 @@ task initInventoryLocalhost(type: JavaExec) {
     args = ['127.0.0.1:10009'/*, '127.0.0.1:10109'*/]
 }
 
+apply from: "$rootDir/indy-run.gradle"
+
