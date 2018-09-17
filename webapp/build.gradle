@@ -38,14 +38,14 @@ sourceSets {
   }
 }
 
-task copyStaticFrontend(type: Copy) {
+task copyFrontendArtifacts(type: Copy) {
   dependsOn ':frontend:assemble'
 
   from "$rootDir/frontend/dist"
   into "${processResources.destinationDir}/static"
 }
 
-processResources.dependsOn(copyStaticFrontend)
+processResources.dependsOn(copyFrontendArtifacts)
 
 dependencies {
 

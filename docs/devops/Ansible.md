@@ -3,7 +3,7 @@ Steps to set up remote environment:
 
 #####ON LOCAL MACHINE:
 
-Build artifacts and put them in `/build` and `/webapp/build`
+Build the project. Core artifacts are put in `/build` and `/webapp/build`
 
 `./gradlew clean assemble`
 

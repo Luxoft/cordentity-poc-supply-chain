@@ -30,7 +30,7 @@ task buildFrontend(type: NpmTask, dependsOn: npm_install) {
 assemble.dependsOn(buildFrontend)
 
 
-task cleanWebpack(type: Delete) {
+task cleanFrontendDist(type: Delete) {
   delete 'dist'
 }
-clean.dependsOn(cleanWebpack)
+clean.dependsOn(cleanFrontendDist)

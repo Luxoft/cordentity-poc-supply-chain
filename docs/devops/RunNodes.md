@@ -1,7 +1,7 @@
 Steps to set up local environment:
 
 
-Build artifacts and put them in `/build` and `/webapp/build`
+Build the project. Core artifacts are put in `/build` and `/webapp/build`
 
 `./gradlew clean assemble`
 
