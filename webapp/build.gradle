@@ -13,7 +13,6 @@ buildscript {
   dependencies {
     classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
     classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
-    classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
   }
 }
 
@@ -25,7 +24,6 @@ repositories {
 apply plugin: 'kotlin-spring'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'com.moowork.node'
 
 sourceSets {
   main {
@@ -40,6 +38,14 @@ sourceSets {
   }
 }
 
+task copyFrontendArtifacts(type: Copy) {
+  dependsOn ':frontend:assemble'
+
+  from "$rootDir/frontend/dist"
+  into "${processResources.destinationDir}/static"
+}
+
+processResources.dependsOn(copyFrontendArtifacts)
 
 dependencies {
 
@@ -57,29 +63,3 @@ dependencies {
   testCompile('org.springframework.boot:spring-boot-starter-test')
   testCompile('org.springframework.boot:spring-boot-test')
 }
-
-node {
-  version = '10.1.0'
-  download = true
-
-  workDir = file("${project.projectDir}/../frontend/node")
-  npmWorkDir = file("${project.projectDir}/../frontend")
-  nodeModulesDir = file("${project.projectDir}/../frontend")
-}
-
-
-task buildFrontend(type: NpmTask) {
-  args = ['run', 'build']
-}
-buildFrontend.dependsOn(npm_install)
-
-task cleanFrontendDir(type: Delete) {
-  delete 'src/main/resources/static'
-}
-cleanFrontendDir.dependsOn(buildFrontend)
-
-task buildAndCopyFrontend(type: Copy) {
-  from '../frontend/dist/'
-  into 'src/main/resources/static/'
-}
-buildAndCopyFrontend.dependsOn(cleanFrontendDir)

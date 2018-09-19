@@ -4,6 +4,12 @@ buildscript {
         mavenCentral()
         jcenter()
     }
+
+    dependencies {
+        classpath "net.corda.plugins:cordapp:${corda_gradle_plugins_version}"
+        classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
+        classpath "net.corda.plugins:quasar-utils:${corda_gradle_plugins_version}"
+    }
 }
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
@@ -29,17 +35,10 @@ sourceSets {
     }
 }
 
-repositories {
-    maven {
-        url "http://172.26.147.116:8081/repository/luxoft.blockchainlab/"
-    }
-}
-
 dependencies {
-    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp:$indy_cordapp_version"
-    cordapp "com.luxoft.blockchainlab.corda.hyperledger.indy:cordapp-contracts-states:$indy_cordapp_version"
-    compile "com.luxoft.blockchainlab:indy-utils:$indy_utils_version"
-//    cordapp files('../devops/indy-cordapp-0.3.5.jar')
+    cordapp "com.github.Luxoft.cordentity:cordapp:$cordentity_version"
+    cordapp "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
+    cordapp "com.github.Luxoft.cordentity:indy-utils:$cordentity_version"
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
@@ -82,4 +81,6 @@ task initInventoryLocalhost(type: JavaExec) {
     main = 'com.luxoft.rpc.RPCClient'
     args = ['127.0.0.1:10009'/*, '127.0.0.1:10109'*/]
 }
+
+apply from: "$rootDir/indy-run.gradle"
 

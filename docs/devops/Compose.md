@@ -1,14 +1,9 @@
 Steps to set up local environment:
 
 
-Build artifacts
+Build the project. Core artifacts are put in `/build` and `/webapp/build`
 
-`./gradlew buildAndCopyFrontend`
-
-`./gradlew deployNodes`
-
-`./gradlew deployStuffToNodes`
-
+`./gradlew clean assemble`
 
 Start local Indy pool
 
@@ -19,6 +14,6 @@ Start Corda nodes
 `docker-compose up -d notary mfcorda tccorda sacorda`
 
 Start web servers (after Corda nodes are properly up)
-Make sure webapp.jar is fresh in 'devops' folder
+Make sure that ports 10001+ are free.
 
 `docker-compose up -d tcweb mfweb saweb`

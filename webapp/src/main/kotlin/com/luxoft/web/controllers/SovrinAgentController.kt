@@ -98,7 +98,9 @@ class SovrinAgentController(rpc: RPCComponent) {
     @GetMapping("claim/list")
     fun getClaims(): Any {
         return try {
-            services.vaultQueryBy<IndyClaim>().states.map { it.state.data.claim.json }
+            services.vaultQueryBy<IndyClaim>().states
+                    .map { it.state.data.claimInfo.claim }
+                    .map { SerializationUtils.anyToJSON(it) }
 
         } catch (e: Exception) {
             logger.error("", e)
