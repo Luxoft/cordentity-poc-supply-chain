@@ -30,7 +30,6 @@ interface SovrinAgentService  {
     @GET("/api/sa/claim/list")
     fun getClaims(): Observable<List<String>>
 
-
     @GET("/api/sa/package/list")
     fun getPackages(): Observable<List<Product>>
 

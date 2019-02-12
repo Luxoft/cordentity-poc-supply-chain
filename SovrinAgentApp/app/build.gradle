@@ -9,16 +9,24 @@ android {
     buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.luxoft.supplychain.sovrinagentapp"
-        minSdkVersion 17
+        minSdkVersion 26
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        ndk {
+            abiFilters 'x86'
+        }
         javaCompileOptions {
             annotationProcessorOptions {
                 includeCompileClasspath false
             }
+        }
+        packagingOptions {
+            exclude 'META-INF/simplifiers-default'
+            exclude 'META-INF/detectors-default'
+            exclude 'log4j.xml'
         }
     }
     buildTypes {
@@ -34,7 +42,10 @@ kapt {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api name: "indy-1.7.0"
+    implementation 'net.java.dev.jna:jna:4.5.1@aar'
+    implementation project(path: ':indy-utils')
+    //implementation "com.github.seniorjoinu.cordentity:cordentity-indy-utils:1.7.0"
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'
@@ -44,9 +55,9 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation 'org.koin:koin-android:0.9.2'
+    implementation 'org.koin:koin-android:1.0.2'
 
     //RxAndroid
     implementation 'io.reactivex:rxandroid:1.1.0'
@@ -67,7 +78,10 @@ dependencies {
     // QR code scanning
     implementation 'me.dm7.barcodescanner:zbar:1.9.8'
 
-    compile 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 }
 
 apply plugin: 'com.google.gms.google-services'

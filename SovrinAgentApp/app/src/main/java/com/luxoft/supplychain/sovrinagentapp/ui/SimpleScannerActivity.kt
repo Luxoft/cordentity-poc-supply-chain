@@ -34,6 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
+import com.luxoft.supplychain.sovrinagentapp.indy.IndyAgentService
 
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
@@ -46,6 +47,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private val requestCode = 117
     private var mScannerView: ZBarScannerView? = null
     private val api: SovrinAgentService by inject()
+    private val agentService: IndyAgentService by inject()
 
 
     override fun onCreate(state: Bundle?) {
@@ -100,34 +102,38 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         when (state) {
             PackageState.NEW.name -> {
 
-                ContextCompat.startActivity(this, Intent().setClass(this, AskClaimsActivity::class.java)
-                        .putExtra("result", rawResult.contents)
-                        .putExtra("serial", intent?.getStringExtra("serial"))
-                        ,
-                        null)
+                ContextCompat.startActivity(
+                        this,
+                        Intent().setClass(this, AskClaimsActivity::class.java)
+                                .putExtra("result", rawResult.contents)
+                                .putExtra("serial", intent?.getStringExtra("serial")),
+                        null
+                )
                 finish()
-
             }
+
             PackageState.DELIVERED.name -> {
 
-                ContextCompat.startActivity(this, Intent().setClass(this,
-                        MainActivity::class.java),
-                        null)
+                ContextCompat.startActivity(
+                        this,
+                        Intent().setClass(this, MainActivity::class.java),
+                        null
+                )
 
                 api.collectPackage(Serial(serial!!)).subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            finish()
-                        }, { error ->
+                        .subscribe({ finish() }) { error ->
                             Log.e("", error.message)
                             finish()
-                        })
+                        }
 
-                ContextCompat.startActivity(this, Intent().setClass(this, MainActivity::class.java)
-                        .putExtra("result", rawResult.contents)
-                        .putExtra("serial", intent?.getStringExtra("serial"))
-                        ,
-                        null)
+                ContextCompat.startActivity(
+                        this,
+                        Intent().setClass(this, MainActivity::class.java)
+                                .putExtra("result", rawResult.contents)
+                                .putExtra("serial", intent?.getStringExtra("serial")),
+                        null
+                )
                 finish()
             }
             else -> finish()

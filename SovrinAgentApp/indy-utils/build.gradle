@@ -1,0 +1,22 @@
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation name: "indy-1.7.0"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.9.5"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5"
+
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+    testCompile 'junit:junit:4.12'
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
