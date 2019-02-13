@@ -32,7 +32,7 @@ import kotlinx.android.synthetic.main.claim_list_item.view.*
 class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
 
 
-   var realmChangeListener = RealmChangeListener<RealmResults<ClaimAttribute>> {
+    var realmChangeListener = RealmChangeListener<RealmResults<ClaimAttribute>> {
         Log.i("TAG", "Change occurred!")
         this.notifyDataSetChanged()
     }

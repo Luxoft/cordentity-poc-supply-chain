@@ -36,6 +36,7 @@ import net.corda.core.serialization.CordaSerializable
 import net.corda.core.utilities.unwrap
 import java.util.*
 
+// TODO: this flow should be rearranged and renamed to be called from Treatment Center side
 class AskNewPackage {
 
     @CordaSerializable
@@ -89,7 +90,7 @@ class AskNewPackage {
                     patientDid = packageRequest.patientDid,
                     patientAgent = patientAgent,
                     patientDiagnosis = "leukemia",
-                    medicineName = "package-name",
+                    medicineName = "Santorium",
                     medicineDescription = "package-required",
                     requestedBy = ourIdentity.name,
                     processedBy = getManufacturer().name

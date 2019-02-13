@@ -65,10 +65,20 @@ class AskClaimsActivity : AppCompatActivity() {
             api.createRequest(AskForPackageRequest("TreatmentCenter")).subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
+
+                        // TODO: this api call should return immediately
+                        // TODO: after this you should listen to new ingoing credential offer
+                        // TODO: when offer appears, you should show a popup with something like "Treatment Center wants to issue you a new credential which will be used as a token for the package, agree?"
+                        // TODO: if agree you should send new credential request and listen to new credential
+                        // TODO: only when credential is sent Corda-side should commit transaction
+
                         realm.beginTransaction()
                         realm.where(Product::class.java).equalTo("serial", "N/A").findAll().deleteAllFromRealm()
                         realm.commitTransaction()
                         finish()
+
+                        // TODO:
+
                     }, {
                         error ->
                         Log.e("", error.message)

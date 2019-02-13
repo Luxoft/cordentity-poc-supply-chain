@@ -38,6 +38,10 @@ import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.lang.Exception
+import com.luxoft.supplychain.sovrinagentapp.R.id.recyclerView
+import android.widget.TextView
+
+
 
 
 class ClaimsFragment : Fragment() {
@@ -52,15 +56,25 @@ class ClaimsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment, container, false)
 
         val recyclerView = view.findViewById(R.id.fragment_list_rv) as RecyclerView
+        val emptyView = view.findViewById(R.id.empty_view) as TextView
 
         val linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.setHasFixedSize(true)
 
-        recyclerView.addItemDecoration( DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
+        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        mAdapter = ClaimsAdapter(Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll())
+        val claims = Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll()
+        mAdapter = ClaimsAdapter(claims)
         recyclerView.adapter = mAdapter
+
+        if (claims.isEmpty()) {
+            recyclerView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+        }
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)
         mSwipeRefreshLayout.setOnRefreshListener { updateMyClaims() }

@@ -69,7 +69,8 @@
                 android:autoLink="map"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="Visit your Treatment center to claim it: \n Zeehofstrasse 21, Zurich"
+                android:lines="2"
+                android:text="@string/qr_message"
         />
 
 

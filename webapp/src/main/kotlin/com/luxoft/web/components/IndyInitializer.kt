@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import javax.annotation.PostConstruct
 
+// TODO: this component should be called from treatment center webapp
 @Component
 @Profile("sovrinagent")
 class IndyInitializer {

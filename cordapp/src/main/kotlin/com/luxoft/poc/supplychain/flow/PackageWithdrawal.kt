@@ -45,6 +45,7 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 
+// TODO: this flow should be rearranged to be called from Treatment Center side
 class PackageWithdrawal {
 
     @InitiatingFlow

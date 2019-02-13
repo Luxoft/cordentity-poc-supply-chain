@@ -57,13 +57,13 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
 
         val order = orders[position]
 
-        if(order == null) {
+        if (order == null) {
             Log.i("TAG", "Item not found for index $position")
-        } else when(holder) {
+        } else when (holder) {
             is OrderViewHolder -> bindNormalItem(order, holder)
             is QROrderViewHolder -> bindQRItem(order, holder)
         }
-     }
+    }
 
     private fun bindQRItem(order: Product, holder: QROrderViewHolder) {
         holder.title.text = order.medicineName
@@ -92,7 +92,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-        return if(viewType == QR) {
+        return if (viewType == QR) {
             val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.qr_list_item, viewGroup, false)
             QROrderViewHolder(view)
         } else {
@@ -107,7 +107,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
 
     override fun getItemViewType(position: Int): Int {
         val order = orders[position]
-        return if(order?.state == PackageState.NEW.name || order?.state == PackageState.DELIVERED.name) QR else plain
+        return if (order?.state == PackageState.NEW.name || order?.state == PackageState.DELIVERED.name) QR else plain
     }
 
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

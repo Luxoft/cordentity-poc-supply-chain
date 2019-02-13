@@ -102,6 +102,8 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         when (state) {
             PackageState.NEW.name -> {
 
+                // TODO: start new connection if there is no any using qr code content (there should be invite)
+
                 ContextCompat.startActivity(
                         this,
                         Intent().setClass(this, AskClaimsActivity::class.java)
@@ -122,7 +124,15 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
                 api.collectPackage(Serial(serial!!)).subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ finish() }) { error ->
+                        .subscribe({
+                            // TODO: this call should return immediately
+                            // TODO: after this you should listen to new ingoing proof request
+                            // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
+                            // TODO: if agree you should generate proof out of the proof request and send it back
+                            // TODO: only if the proof is valid Corda-side should commit transaction
+
+                            finish()
+                        }) { error ->
                             Log.e("", error.message)
                             finish()
                         }

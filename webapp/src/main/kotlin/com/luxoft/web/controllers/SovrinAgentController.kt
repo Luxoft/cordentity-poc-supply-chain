@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
 
 
+// TODO: this controller is not needed anymore
 @RestController
 @RequestMapping("api/sa")
 @CrossOrigin
@@ -44,9 +45,15 @@ class SovrinAgentController(rpc: RPCComponent) {
     }
 
 
+    // TODO: this call should be moved to [TreatmentCenterController]
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest): Any? {
         return try {
+            // TODO: this call should return immediately
+            // TODO: then it should start EstablishConnectionFlowB2C if there is no any with this client
+            // TODO: then it should start IssueCredentialFlowB2C
+            // TODO: then is should start AskNewPackageFlow
+
             val flowHandle = services.startFlowDynamic(AskNewPackage.Patient::class.java)
 
             flowHandle.returnValue.get()
@@ -56,11 +63,14 @@ class SovrinAgentController(rpc: RPCComponent) {
         }
     }
 
-
+    // TODO: this call should be moved to [TreatmentCenterController]
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial): Any? {
 
         return try {
+            // TODO: this call should return immediately
+            // TODO: then it should start VerifyProofFlowB2C
+            // TODO: then is should start PackageWithdrawalFlow
 
             val flowHandle = services.startFlowDynamic(PackageWithdrawal.Owner::class.java, request.serial)
             flowHandle.returnValue.get()
@@ -72,6 +82,7 @@ class SovrinAgentController(rpc: RPCComponent) {
         }
     }
 
+    // TODO: this call should be moved to [TreatmentCenterController]
     @GetMapping("package/list")
     fun getPackageRequests(): Any {
         return try {
@@ -83,6 +94,7 @@ class SovrinAgentController(rpc: RPCComponent) {
         }
     }
 
+    // TODO: this call is not needed anymore
     @GetMapping("claim/list")
     fun getClaims(): Any {
         return try {
