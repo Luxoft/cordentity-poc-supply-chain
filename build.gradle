@@ -2,9 +2,9 @@ buildscript {
   ext.corda_release_group = 'net.corda'
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
-  ext.indy_version = "1.5.0"
-  ext.cordentity_version = '0.4.10'
-  ext.indy_utils_version = '0.2.7'
+  ext.indy_version = "1.7.0"
+  ext.cordentity_version = '0.5.0'
+  ext.indy_utils_version = '0.3.0'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
   ext.kotlin_version = '1.2.41'
@@ -29,6 +29,9 @@ subprojects {
     maven { url 'https://repo.evernym.com/artifactory/libindy-maven-local' }
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://jitpack.io' }
+    flatDir {
+      dirs '../lib'
+    }
   }
 
   apply plugin: 'kotlin'
@@ -54,6 +57,9 @@ repositories {
   jcenter()
   maven { url 'https://repo.evernym.com/artifactory/libindy-maven-local' }
   maven { url 'https://jitpack.io' }
+  flatDir {
+    dirs 'lib'
+  }
 }
 
 
@@ -64,8 +70,8 @@ dependencies {
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
 
-  cordappDeploy "com.github.Luxoft.cordentity:cordapp:$cordentity_version"
-  cordappDeploy "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
+  cordappDeploy name: "cordentity-cordapp-$cordentity_version"
+  cordappDeploy name: "cordentity-cordapp-contracts-states-$cordentity_version"
 }
 
 apply from: "indy-run.gradle"

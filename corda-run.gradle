@@ -103,9 +103,12 @@ task deployCordappToNodes(group: RUN_CORDA_GROUP) {
 }
 
 task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
-    def indyConfigMapping = ["TreatmentCenter": "treatment",
-                             "SovrinAgent"    : "agent",
-                             "Manufacture"    : "issuer"]
+    def indyConfigMapping = [
+            "TreatmentCenter"   : "treatment",
+            "SovrinAgent"       : "agent",
+            "Manufacture"       : "issuer",
+            "Notary"            : "notary"
+    ]
 
     doLast {
         indyConfigMapping.each { nodeName, configName ->

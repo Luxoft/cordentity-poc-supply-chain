@@ -77,7 +77,7 @@ fun provideApiClient(gson: Gson): SovrinAgentService {
     val retrofit: Retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl("http://10.0.2.2:8083")
+            .baseUrl("http://10.255.255.21:8083")
             .build()
 
     return retrofit.create(SovrinAgentService::class.java)

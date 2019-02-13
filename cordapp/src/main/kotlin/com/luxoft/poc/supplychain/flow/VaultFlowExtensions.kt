@@ -17,10 +17,10 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.ClaimProofSchemaV1
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.ClaimSchemaV1
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaim
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaimProof
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.*
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
 import com.luxoft.poc.supplychain.IndyArtifactsRegistry
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.IndySchema
@@ -38,13 +38,9 @@ import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.Builder.equal
 import net.corda.core.node.services.vault.QueryCriteria
 
-fun FlowLogic<Any>.whoIsNotary(): Party {
-    return serviceHub.networkMapCache.notaryIdentities.single()
-}
-
-fun FlowLogic<Any>.whoIs(x509: CordaX500Name): Party {
-    return serviceHub.identityService.wellKnownPartyFromX500Name(x509)!!
-}
+fun FlowLogic<Any>.getTreatment() = whoIs(CordaX500Name("TreatmentCenter", "London", "GB"))
+fun FlowLogic<Any>.getManufacturer() = whoIs(CordaX500Name("Manufacture", "London", "GB"))
+fun FlowLogic<Any>.getSovrinAgent() = whoIs(CordaX500Name("SovrinAgent", "London", "GB"))
 
 fun FlowLogic<Any>.getPackageState(serial: String, owner: AbstractParty): StateAndRef<Package> {
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
@@ -87,54 +83,25 @@ fun FlowLogic<Any>.getShipmentState(serial: String, isConsumed: Boolean = false)
     return results.states.singleOrNull()!!
 }
 
-fun FlowLogic<Any>.getClaimFrom(serial: String, issuer: String): StateAndRef<IndyClaim> {
+fun FlowLogic<Any>.getClaimFrom(serial: String, issuer: String): StateAndRef<IndyCredential> {
 
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
-    val issuer = QueryCriteria.VaultCustomQueryCriteria(ClaimSchemaV1.PersistentClaim::issuerDid.equal(issuer))
-    val serial = QueryCriteria.VaultCustomQueryCriteria(ClaimSchemaV1.PersistentClaim::id.equal(serial))
+    val issuer = QueryCriteria.VaultCustomQueryCriteria(CredentialSchemaV1.PersistentCredential::issuerDid.equal(issuer))
+    val serial = QueryCriteria.VaultCustomQueryCriteria(CredentialSchemaV1.PersistentCredential::id.equal(serial))
 
     val criteria = generalCriteria.and(issuer).and(serial)
 
-    val results = serviceHub.vaultService.queryBy<IndyClaim>(criteria)
+    val results = serviceHub.vaultService.queryBy<IndyCredential>(criteria)
     return results.states.singleOrNull()!!
 }
 
-fun FlowLogic<Any>.getClaimProof(serial: String): StateAndRef<IndyClaimProof> {
+fun FlowLogic<Any>.getClaimProof(serial: String): StateAndRef<IndyCredentialProof> {
 
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
-    val serial = QueryCriteria.VaultCustomQueryCriteria(ClaimProofSchemaV1.PersistentProof::id.equal(serial))
+    val serial = QueryCriteria.VaultCustomQueryCriteria(CredentialProofSchemaV1.PersistentProof::id.equal(serial))
 
     val criteria = generalCriteria.and(serial)
 
-    val results = serviceHub.vaultService.queryBy<IndyClaimProof>(criteria)
+    val results = serviceHub.vaultService.queryBy<IndyCredentialProof>(criteria)
     return results.states.singleOrNull()!!
 }
-
-@Suspendable
-fun FlowLogic<Any>.getCacheSchemaId(schema: IndySchema): String {
-    val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Schema,
-            schema.schemaName, schema.schemaVersion)
-    return subFlow(ArtifactsManagement.Accessor(queryRequest))
-}
-
-@Suspendable
-fun FlowLogic<Any>.getCacheCredDefId(schema: IndySchema): String {
-    val queryRequest = IndyArtifactsRegistry.QueryRequest(IndyArtifactsRegistry.ARTIFACT_TYPE.Definition,
-            schema.schemaName, schema.schemaVersion)
-    return subFlow(ArtifactsManagement.Accessor(queryRequest))
-}
-
-@Suspendable
-fun FlowLogic<Any>.getArtifactId(type: IndyArtifactsRegistry.ARTIFACT_TYPE, schema: IndySchema, ownerName: CordaX500Name): String  =
-        try {
-            when (type) {
-                IndyArtifactsRegistry.ARTIFACT_TYPE.Schema -> getCacheSchemaId(schema)
-                IndyArtifactsRegistry.ARTIFACT_TYPE.Definition -> getCacheCredDefId(schema)
-            }
-        } catch(ex: Exception) {
-            logger.info("Artifact ${type} for ${schema} is missed in local cache. " +
-                    "Set connection to ${ownerName.organisation}")
-
-            val queryRequest = IndyArtifactsRegistry.QueryRequest(type, schema.schemaName, schema.schemaVersion)
-            subFlow(ArtifactsManagement.LocalCacheRefresher(queryRequest, ownerName))
-        }

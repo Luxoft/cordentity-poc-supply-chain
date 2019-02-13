@@ -16,14 +16,10 @@
 
 package com.luxoft.web.controllers
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaim
-import com.luxoft.poc.supplychain.data.BusinessEntity
-import com.luxoft.poc.supplychain.data.ChainOfAuthority
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
-import com.luxoft.web.components.IndyInitializer.Companion.issuerCert
-import com.luxoft.web.components.IndyInitializer.Companion.treatmentCert
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
@@ -50,18 +46,10 @@ class SovrinAgentController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest): Any? {
-
         return try {
-            val chainOfAuthority = ChainOfAuthority()
-                    .add(BusinessEntity.Treatment, treatmentCert)
-                    .add(BusinessEntity.Manufacturer, issuerCert)
-                    .add(BusinessEntity.Insuranse, treatmentCert)
-                    .add(BusinessEntity.Goverment, issuerCert)
+            val flowHandle = services.startFlowDynamic(AskNewPackage.Patient::class.java)
 
-            val flowHandle = services.startFlowDynamic(AskNewPackage.Patient::class.java, chainOfAuthority)
-            val result = flowHandle.returnValue.get()
-            return result
-
+            flowHandle.returnValue.get()
         } catch (e: Exception) {
             logger.error("", e)
             FAILURE.plus("error" to e.message)
@@ -98,8 +86,8 @@ class SovrinAgentController(rpc: RPCComponent) {
     @GetMapping("claim/list")
     fun getClaims(): Any {
         return try {
-            services.vaultQueryBy<IndyClaim>().states
-                    .map { it.state.data.claimInfo.claim }
+            services.vaultQueryBy<IndyCredential>().states
+                    .map { it.state.data.credentialInfo.credential }
                     .map { SerializationUtils.anyToJSON(it) }
 
         } catch (e: Exception) {

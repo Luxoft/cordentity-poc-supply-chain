@@ -17,8 +17,9 @@
 package com.luxoft.poc.supplychain
 
 import SerializationUtils
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateClaimDefFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateCredentialDefinitionFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
+import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.node.AppServiceHub
@@ -92,14 +93,14 @@ object IndyArtifactsRegistry {
                     val payload = SerializationUtils.jSONToAny<IndySchema>(putRequest.payloadJson)
                             ?: throw RuntimeException("Unable to parse schema from json")
 
-                    artifactId = subFlow(CreateSchemaFlow.Authority(payload.name, payload.version, payload.attrs))
+                    artifactId = subFlow(CreateSchemaFlow.Authority(payload.name, payload.version, payload.attrs)).toString()
                     artifacts.put(payload.filter(), artifactId)
                 }
                 ARTIFACT_TYPE.Definition -> {
                     val payload = SerializationUtils.jSONToAny<IndyCredDef>(putRequest.payloadJson)
                             ?: throw RuntimeException("Unable to parse definition from json")
 
-                    artifactId = subFlow(CreateClaimDefFlow.Authority(payload.schemaid))
+                    artifactId = subFlow(CreateCredentialDefinitionFlow.Authority(SchemaId.fromString(payload.schemaid))).toString()
                     artifacts.put(payload.schemaid, artifactId)
                 }
                 else -> throw FlowException("unknown indy artifact put request: " +

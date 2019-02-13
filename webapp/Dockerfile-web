@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-oraclejdk8
+FROM frolvlad/alpine-java:jdk8-slim
 MAINTAINER Alexey Koren
 COPY ./build/libs/webapp.jar webapp.jar
 ENTRYPOINT ["/usr/bin/java"]

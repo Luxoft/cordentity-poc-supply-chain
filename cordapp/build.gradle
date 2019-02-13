@@ -36,9 +36,9 @@ sourceSets {
 }
 
 dependencies {
-    cordapp "com.github.Luxoft.cordentity:cordapp:$cordentity_version"
-    cordapp "com.github.Luxoft.cordentity:cordapp-contracts-states:$cordentity_version"
-    cordapp "com.github.Luxoft.cordentity:indy-utils:$cordentity_version"
+    cordaCompile name: "cordentity-cordlib-$cordentity_version"
+    cordaCompile name: "cordentity-cordlib-contracts-states-$cordentity_version"
+    cordaCompile name: "cordentity-indy-utils-$cordentity_version"
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'

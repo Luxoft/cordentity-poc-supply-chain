@@ -17,6 +17,8 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.contract.ShipmentContract
 import com.luxoft.poc.supplychain.data.PackageState

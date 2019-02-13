@@ -17,6 +17,8 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
@@ -36,11 +38,11 @@ object RequestForPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val packageInfo: PackageInfo, val manufacturerName: CordaX500Name) : FlowLogic<Unit>() {
+    class Initiator(val packageInfo: PackageInfo) : FlowLogic<Unit>() {
 
         @Suspendable
         override fun call() {
-            val manufacturer = whoIs(manufacturerName)
+            val manufacturer = getManufacturer()
 
             val observers = listOf<AbstractParty>(whoIs(packageInfo.patientAgent))
             val signers = listOf(manufacturer, ourIdentity)
@@ -49,7 +51,8 @@ object RequestForPackage {
             val info = packageInfo.copy(
                     state = PackageState.ISSUED,
                     issuedAt = System.currentTimeMillis(),
-                    issuedBy = manufacturerName)
+                    issuedBy = manufacturer.name
+            )
 
             // Initiator should be in list of participant on Issuing phase, only on pending
             // However we skipped real package issuing.

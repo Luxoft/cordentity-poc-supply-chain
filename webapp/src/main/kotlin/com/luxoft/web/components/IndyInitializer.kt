@@ -16,12 +16,12 @@
 
 package com.luxoft.web.components
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.AcceptanceResult
-import com.luxoft.poc.supplychain.data.BusinessEntity
-import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
+import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.DeliverShipment
@@ -83,34 +83,16 @@ class IndyInitializer {
 
         logger.info("Created all needed rpc clients")
 
-        val treatmentCenterIdentityService = IdentityInitService(treatment, timeout)
-        treatmentCenterIdentityService.initTreatmentIndyMeta()
-        treatmentCenterIdentityService.issueClaimTo(agentCert,
-                diagnosisDetailsProposal,
-                DiagnosisDetails.schemaName,
-                DiagnosisDetails.schemaVersion)
+        if (treatment.vaultQuery(IndySchema::class.java).states.isEmpty()) {
+            val treatmentCenterIdentityService = IdentityInitService(treatment, timeout)
+            treatmentCenterIdentityService.issueIndyMeta(PackageReceipt)
 
-        logger.info("Treatment center indy stuff initialized")
-
-        val issuerIdentityService = IdentityInitService(issuer, timeout)
-        issuerIdentityService.assignPermissionsToMe(treatmentCert)
-        issuerIdentityService.initIssuerIndyMeta()
-        issuerIdentityService.issueClaimTo(agentCert,
-                personalInfoProposal,
-                PersonalInformation.schemaName,
-                PersonalInformation.schemaVersion)
-
-        logger.info("Successfully initialized all indy stuff")
-
-        val chainOfAuthority = ChainOfAuthority()
-                .add(BusinessEntity.Treatment, treatmentCert)
-                .add(BusinessEntity.Manufacturer, issuerCert)
-                .add(BusinessEntity.Insuranse, treatmentCert)
-                .add(BusinessEntity.Goverment, issuerCert)
+            logger.info("Treatment center indy stuff initialized")
+        }
 
         logger.info("Creating test package...")
 
-        val askNewPackageRes = agent.startFlowDynamic(AskNewPackage.Patient::class.java, chainOfAuthority)
+        val askNewPackageRes = agent.startFlowDynamic(AskNewPackage.Patient::class.java)
         val serial = askNewPackageRes.returnValue.getOrThrow(timeout)
 
         logger.info("1. Package request created")

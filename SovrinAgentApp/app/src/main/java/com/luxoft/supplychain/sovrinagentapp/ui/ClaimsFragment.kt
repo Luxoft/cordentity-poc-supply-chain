@@ -37,6 +37,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.lang.Exception
 
 
 class ClaimsFragment : Fragment() {
@@ -76,15 +77,19 @@ class ClaimsFragment : Fragment() {
                 .subscribe({ claims ->
                     mSwipeRefreshLayout.isRefreshing = false
 
-                    val claimJson = Gson().fromJson<JsonObject>(claims[0], JsonObject::class.java)
-
-                    val claimAttrs = claimJson.get("values").asJsonObject.entrySet().map {
-                            val claim = ClaimAttribute()
-                            claim.key = it.key
-                            claim.value = it.value.asJsonArray[0].asString
-                            claim.issuer = claimJson.get("schema_key").asJsonObject.get("did").asString
-                            claim
+                    val claimJson = try {
+                        Gson().fromJson<JsonObject>(claims[0], JsonObject::class.java)
+                    } catch (e: Exception) {
+                        null
                     }
+
+                    val claimAttrs = claimJson?.get("values")?.asJsonObject?.entrySet()?.map {
+                        val claim = ClaimAttribute()
+                        claim.key = it.key
+                        claim.value = it.value.asJsonArray[0].asString
+                        claim.issuer = claimJson.get("schema_key").asJsonObject.get("did").asString
+                        claim
+                    } ?: return@subscribe
 
                     if (claimAttrs.isNotEmpty()) {
                         realm.beginTransaction()

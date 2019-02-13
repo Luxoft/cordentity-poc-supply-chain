@@ -18,9 +18,12 @@ package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.GetDidFlow
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.VerifyClaimFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.VerifyCredentialFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
@@ -55,8 +58,8 @@ class PackageWithdrawal {
             val receiptOwner = packageIn.getInfo().requestedBy
             val receiptOwnerDid = subFlow(GetDidFlow.Initiator(receiptOwner))
 
-            val clientWasAuthenticatedIn = getClaimProof(serial)
-            val clientGotPackageReceiptIn = getClaimFrom(serial, receiptOwnerDid)
+            //val clientWasAuthenticatedIn = getClaimProof(serial)
+            //val clientGotPackageReceiptIn = getClaimFrom(serial, receiptOwnerDid)
             //val authCommand = Command(ClaimChecker.Commands.Verify())
 
             val info = packageIn.getInfo().copy(
@@ -106,18 +109,23 @@ class PackageWithdrawal {
             subFlow(signTransactionFlow)
         }
 
-        @Suspendable
+       /* @Suspendable
         private fun checkReceipt(serial: String): Boolean {
-            val packageSchemaId = getCacheSchemaId(PackageReceipt)
+            val packageSchemaId = SchemaId(PackageReceipt)
             val packageCredDefId = getCacheCredDefId(PackageReceipt)
 
             val attributes = listOf(
-                    VerifyClaimFlow.ProofAttribute(packageSchemaId, packageCredDefId, PackageReceipt.Attributes.Serial.name, serial)
+                    VerifyCredentialFlow.ProofAttribute(
+                            SchemaId.fromString(packageSchemaId),
+                            CredentialDefinitionId.fromString(packageCredDefId),
+                            PackageReceipt.Attributes.Serial.name,
+                            serial
+                    )
             )
 
             val proverName = flowSession.counterparty.name
 
-            return subFlow(VerifyClaimFlow.Verifier(serial, attributes, emptyList(), proverName))
-        }
+            return subFlow(VerifyCredentialFlow.Verifier(serial, attributes, emptyList(), proverName))
+        }*/
     }
 }
