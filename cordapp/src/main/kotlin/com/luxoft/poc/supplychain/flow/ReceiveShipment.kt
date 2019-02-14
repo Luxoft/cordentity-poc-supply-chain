@@ -23,7 +23,6 @@ import com.luxoft.poc.supplychain.contract.ShipmentContract
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.state.getInfo
-import com.luxoft.poc.supplychain.data.state.getObservers
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
 import com.luxoft.poc.supplychain.mapToKeys
@@ -86,10 +85,6 @@ object ReceiveShipment {
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
             waitForLedgerCommit(finalTrx.id)
-
-            // Notify observers about quality Check status
-            //subFlow(ShipmentStatus.Notifier(acceptanceCheck))
-            subFlow(BroadcastToObservers(packageIn.getObservers().except(ourIdentity), finalTrx))
         }
     }
 

@@ -55,25 +55,6 @@ services:
           memory: 500m
 
 
-
-  sacorda:
-    network_mode: host
-    build:
-      context: ./build/nodes/SovrinAgent
-      dockerfile: Dockerfile-corda
-    ports:
-      - "10201:10201"
-      - "10202:10202"
-      - "10203:10203"
-    container_name: sacorda
-    environment:
-      - INDYUSER_WALLETNAME=SovrinAgent
-      - RUST_LOG=trace
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-
   notary:
     network_mode: host
     build:
@@ -120,25 +101,6 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=treatmentcenter"
     container_name: tcweb
-    deploy:
-      resources:
-        limits:
-          memory: 50m
-
-
-
-  saweb:
-#    networks:
-#      - supplychain
-    network_mode: host
-    build:
-      context: ./webapp
-      dockerfile: Dockerfile-web
-    ports:
-      - "8083:8083"
-    environment:
-      - "SPRING_PROFILES_ACTIVE=sovrinagent"
-    container_name: saweb
     deploy:
       resources:
         limits:

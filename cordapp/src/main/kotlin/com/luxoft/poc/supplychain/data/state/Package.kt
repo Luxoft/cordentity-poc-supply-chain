@@ -29,7 +29,6 @@ import net.corda.core.schemas.QueryableState
 data class Package(
         val info: PackageInfo,
         val owner: AbstractParty,
-        val observers: List<AbstractParty>,
         override val participants: List<AbstractParty> = listOf(owner),
         override val linearId: UniqueIdentifier = UniqueIdentifier()) : LinearState, QueryableState {
 
@@ -55,4 +54,3 @@ data class Package(
 
 fun StateAndRef<Package>.getInfo() = this.state.data.info
 fun StateAndRef<Package>.getParties() = this.state.data.participants
-fun StateAndRef<Package>.getObservers() = this.state.data.observers

@@ -12,12 +12,13 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaim
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaimProof
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.poc.supplychain.data.BusinessEntity
 import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
@@ -65,13 +66,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
 
         meta.forEach { issueClaim(it, config.agent) }
 
-        val chainOfAuthority = ChainOfAuthority()
-                .add(BusinessEntity.Treatment, config.treatment.getName())
-                .add(BusinessEntity.Manufacturer, config.issuer.getName())
-                .add(BusinessEntity.Insuranse, config.insurance.getName())
-                .add(BusinessEntity.Goverment, config.goverment.getName())
-
-        val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
+        val flowAskForPackage = AskNewPackage.Treatment(config.agent.getPartyDid())
         val askForPackageFuture = config.agent.services.startFlow(flowAskForPackage).resultFuture
 
         config.runNetwork()
@@ -102,13 +97,7 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
 
         meta.forEach { issueClaim(it, config.agent) }
 
-        val chainOfAuthority = ChainOfAuthority()
-                .add(BusinessEntity.Treatment, config.treatment.getName())
-                .add(BusinessEntity.Manufacturer, config.issuer.getName())
-                .add(BusinessEntity.Insuranse, config.insurance.getName())
-                .add(BusinessEntity.Goverment, config.goverment.getName())
-
-        val flowAskForPackage = AskNewPackage.Patient(chainOfAuthority)
+        val flowAskForPackage = AskNewPackage.Treatment(config.agent.getPartyDid())
 
         val askForPackageFuture = config.agent.services.startFlow(flowAskForPackage).resultFuture
 
@@ -173,3 +162,4 @@ class AskForPackageFlowTests: IdentityBase(NetworkConfiguration()) {
         }
     }
 }
+*/

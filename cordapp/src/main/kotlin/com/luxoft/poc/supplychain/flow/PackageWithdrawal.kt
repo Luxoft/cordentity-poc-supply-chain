@@ -25,13 +25,11 @@ import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
-import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.data.state.getInfo
-import com.luxoft.poc.supplychain.data.state.getObservers
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
 import com.luxoft.poc.supplychain.mapToKeys
@@ -39,13 +37,9 @@ import com.luxoft.poc.supplychain.runSessions
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.*
-import net.corda.core.identity.CordaX500Name
-import net.corda.core.node.services.queryBy
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 
-// TODO: this flow should be rearranged to be called from Treatment Center side
+
 class PackageWithdrawal {
 
     @InitiatingFlow
@@ -88,45 +82,6 @@ class PackageWithdrawal {
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
             waitForLedgerCommit(finalTrx.id)
-            subFlow(BroadcastToObservers(packageIn.getObservers(), finalTrx))
         }
-    }
-
-    @InitiatedBy(Owner::class)
-    open class Holder(val flowSession: FlowSession) : FlowLogic<Unit>() {
-
-        @Suspendable
-        override fun call() {
-            val signTransactionFlow = object : SignTransactionFlow(flowSession) {
-                override fun checkTransaction(stx: SignedTransaction) {
-                    val filter = QueryCriteria.VaultQueryCriteria(stateRefs = stx.inputs)
-                    val packageIn = serviceHub.vaultService.queryBy<Package>(filter).states.singleOrNull()
-
-                    // TODO: ask developers about cheque usecase
-                    //require(checkReceipt(packageIn!!.getInfo().serial)) { "Owner doesnt have digital receipt on package" }
-                }
-            }
-
-            subFlow(signTransactionFlow)
-        }
-
-       /* @Suspendable
-        private fun checkReceipt(serial: String): Boolean {
-            val packageSchemaId = SchemaId(PackageReceipt)
-            val packageCredDefId = getCacheCredDefId(PackageReceipt)
-
-            val attributes = listOf(
-                    VerifyCredentialFlow.ProofAttribute(
-                            SchemaId.fromString(packageSchemaId),
-                            CredentialDefinitionId.fromString(packageCredDefId),
-                            PackageReceipt.Attributes.Serial.name,
-                            serial
-                    )
-            )
-
-            val proverName = flowSession.counterparty.name
-
-            return subFlow(VerifyCredentialFlow.Verifier(serial, attributes, emptyList(), proverName))
-        }*/
     }
 }

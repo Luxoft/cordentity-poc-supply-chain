@@ -30,6 +30,7 @@ import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.indy.IndyAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
@@ -41,7 +42,7 @@ class AskClaimsActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
     private val api: SovrinAgentService by inject()
-
+    private val indyUser: IndyAgentService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +63,7 @@ class AskClaimsActivity : AppCompatActivity() {
                     MainActivity::class.java),
                     null)
 
-            api.createRequest(AskForPackageRequest("TreatmentCenter")).subscribeOn(Schedulers.newThread())
+            api.createRequest(AskForPackageRequest(indyUser.me.did)).subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
 

@@ -20,9 +20,6 @@ import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
 import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
-import com.luxoft.poc.supplychain.IndyArtifactsRegistry.ARTIFACT_TYPE
-import com.luxoft.poc.supplychain.data.BusinessEntity
-import com.luxoft.poc.supplychain.data.ChainOfAuthority
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
@@ -36,7 +33,7 @@ import net.corda.core.serialization.CordaSerializable
 import net.corda.core.utilities.unwrap
 import java.util.*
 
-// TODO: this flow should be rearranged and renamed to be called from Treatment Center side
+
 class AskNewPackage {
 
     @CordaSerializable
@@ -44,51 +41,32 @@ class AskNewPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    class Patient : FlowLogic<String>() {
+    open class Treatment(val patientDid: String) : FlowLogic<String>() {
 
         @Suspendable
         override fun call(): String {
-            val flowSession: FlowSession = initiateFlow(getTreatment())
+            val packageRequest = PackageRequest(patientDid)
 
             try {
-                val packageRequest = PackageRequest(indyUser().did)
-                return flowSession.sendAndReceive<String>(packageRequest).unwrap{ it }
+                val serial = UUID.randomUUID().toString()
 
-            } catch (e: FlowException) {
-                logger.error("Package request can't be processed", e)
-                throw FlowException("Request wasnt accepted")
-            }
-        }
-    }
+                requestNewPackage(serial, packageRequest)
 
-    @InitiatedBy(Patient::class)
-    open class Treatment(val flowSession: FlowSession) : FlowLogic<Unit>() {
+                return serial
 
-        @Suspendable
-        override fun call() {
-            flowSession.receive<PackageRequest>().unwrap { packageRequest ->
-                try {
-                    val serial = UUID.randomUUID().toString()
-
-                    requestNewPackage(serial, packageRequest)
-
-                } catch (e: Exception) {
-                    logger.error("Patient cant be authenticated", e)
-                    throw FlowException(e.message)
-                }
+            } catch (e: Exception) {
+                logger.error("Patient cant be authenticated", e)
+                throw FlowException(e.message)
             }
         }
 
         @Suspendable
         private fun requestNewPackage(serial: String, packageRequest: PackageRequest) {
-            val patientAgent = flowSession.counterparty.name
-
             // create new package request
             val packageInfo = PackageInfo(
                     serial = serial,
                     state = PackageState.NEW,
                     patientDid = packageRequest.patientDid,
-                    patientAgent = patientAgent,
                     patientDiagnosis = "leukemia",
                     medicineName = "Santorium",
                     medicineDescription = "package-required",
@@ -105,9 +83,8 @@ class AskNewPackage {
             val receiptSchemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
             val receiptCredDef = getCredentialDefinitionBySchemaId(receiptSchemaId)!!
 
-            subFlow(IssueCredentialFlow.Issuer(serial, receiptProposal, receiptCredDef.state.data.credentialDefinitionId, patientAgent))
-
-            flowSession.send(serial)
+            //subFlow(IssueCredentialFlow.Issuer(serial, receiptProposal, receiptCredDef.state.data.credentialDefinitionId, patientAgent))
+            // TODO: IssuerCredentialFlowB2C
         }
     }
 }

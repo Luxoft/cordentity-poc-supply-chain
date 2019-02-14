@@ -18,8 +18,11 @@ package com.luxoft.web.controllers
 
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
+import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.ReceiveShipment
+import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
 import com.luxoft.web.components.RPCComponent
+import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Serial
 import net.corda.core.messaging.vaultQueryBy
@@ -40,7 +43,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
 
     @PostMapping("package/receive")
-    fun receivePackage(@RequestBody request: Serial): Any? {
+    fun receiveShipment(@RequestBody request: Serial): Any? {
 
         return try {
 
@@ -59,11 +62,44 @@ class TreatmentCenterController(rpc: RPCComponent) {
         return services.nodeInfo().legalIdentities.first().name.organisation
     }
 
-    @GetMapping("package/list")
-    fun getPackageRequests(): Any {
+    @PostMapping("request/create")
+    fun createPackageRequest(@RequestBody tc: AskForPackageRequest): Any? {
+        return try {
+            // TODO: this call should return immediately
+            // TODO: then it should start EstablishConnectionFlowB2C if there is no any with this client
+            // TODO: then it should start IssueCredentialFlowB2C
+            // TODO: then is should start AskNewPackageFlow
+
+            val flowHandle = services.startFlowDynamic(AskNewPackage.Treatment::class.java, tc.tcName)
+
+            flowHandle.returnValue.get()
+        } catch (e: Exception) {
+            logger.error("", e)
+            FAILURE.plus("error" to e.message)
+        }
+    }
+
+    @PostMapping("package/withdraw")
+    fun receivePackage(@RequestBody request: Serial): Any? {
 
         return try {
-            val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
+            // TODO: this call should return immediately
+            // TODO: then it should start VerifyProofFlowB2C
+            // TODO: then is should start PackageWithdrawalFlow
+
+            val flowHandle = services.startFlowDynamic(PackageWithdrawal.Owner::class.java, request.serial)
+            flowHandle.returnValue.get()
+            null
+
+        } catch (e: Exception) {
+            logger.error("", e)
+            FAILURE.plus("error" to e.message)
+        }
+    }
+
+    @GetMapping("package/list")
+    fun getPackageRequests(): Any {
+        return try {
             services.vaultQueryBy<Package>().states.map { it.state.data.info }
 
         } catch (e: Exception) {
@@ -71,4 +107,5 @@ class TreatmentCenterController(rpc: RPCComponent) {
             FAILURE.plus("error" to e.message)
         }
     }
+
 }

@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
@@ -79,3 +80,4 @@ open class ShipmentBase(config: NetworkConfiguration): IdentityBase(config)  {
         future.getOrThrow()
     }
 }
+*/

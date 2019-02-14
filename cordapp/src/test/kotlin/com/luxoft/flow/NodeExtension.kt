@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
@@ -33,3 +34,4 @@ fun CordaX500Name.getNodeByName(net: InternalMockNetwork) =
 
 fun StartedNode<InternalMockNetwork.MockNode>.getPartyDid() =
         this.services.cordaService(IndyService::class.java).indyUser.did
+*/

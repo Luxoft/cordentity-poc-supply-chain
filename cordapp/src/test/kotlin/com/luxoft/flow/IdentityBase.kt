@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
@@ -22,7 +23,6 @@ import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
 import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
-import com.luxoft.poc.supplychain.flow.ArtifactsManagement
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import net.corda.node.internal.StartedNode
@@ -139,3 +139,4 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
         return schemaResFuture.getOrThrow(Duration.ofSeconds(30))
     }
 }
+*/

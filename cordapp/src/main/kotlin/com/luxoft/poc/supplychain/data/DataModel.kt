@@ -26,7 +26,6 @@ data class PackageInfo (
         val state: PackageState,
 
         val patientDid: String,
-        val patientAgent: CordaX500Name,
         val patientDiagnosis: String?,
 
         val medicineName: String?,
@@ -57,17 +56,11 @@ data class AcceptanceResult (
 )
 
 @CordaSerializable
-enum class BusinessEntity {
-    Treatment,
-    Manufacturer,
-    Goverment,
-    Insuranse
-}
-
-@CordaSerializable
-data class ChainOfAuthority(val chain: MutableMap<BusinessEntity, CordaX500Name> = mutableMapOf()) {
-    fun add(type: BusinessEntity, name: CordaX500Name): ChainOfAuthority {
-        chain[type] = name
-        return this
-    }
+enum class PackageState {
+    NEW,
+    ISSUED,
+    PROCESSED,
+    DELIVERED,
+    QP_PASSED,
+    COLLECTED
 }

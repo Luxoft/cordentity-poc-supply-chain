@@ -12,18 +12,6 @@ node:
 ---
 
 spring:
-  profiles: sovrinagent
-server:
-  port: 8083
-node:
-  address: localhost
-  rpcPort: 10202
-  rpcUser: user1
-  rpcPassword: test
-
----
-
-spring:
   profiles: treatmentcenter
 server:
   port: 8082

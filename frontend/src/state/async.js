@@ -39,7 +39,7 @@ const manufactureUrls = {
 };
 
 const patientAgentUrls = {
-    LIST: `http://${host[CURRENT_ENV]}:8083/api/sa/package/list`
+    LIST: `http://${host[CURRENT_ENV]}:8082/api/tc/package/list`
 };
 
 const treatmentCenterUrls = {

@@ -17,6 +17,8 @@
 package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.GetDidFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyService
 import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
@@ -30,6 +32,7 @@ import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
@@ -40,32 +43,11 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import javax.annotation.PostConstruct
 
-// TODO: this component should be called from treatment center webapp
+
 @Component
-@Profile("sovrinagent")
+@Profile("treatmentcenter")
 class IndyInitializer {
     private final val logger = loggerFor<IndyInitializer>()
-
-    companion object {
-
-        // TODO: How can we rewrite these names to make them look nice like "Marina Bay Hospital" etc???
-        val agentCert = CordaX500Name("SovrinAgent", "London", "GB")
-        val issuerCert = CordaX500Name("Manufacture", "London", "GB")
-        val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
-
-        val diagnosisDetailsProposal = IndySchemaBuilder()
-                .addAttr(DiagnosisDetails.Attributes.Stage, "4")
-                .addAttr(DiagnosisDetails.Attributes.Disease, "leukemia")
-                .addAttr(DiagnosisDetails.Attributes.MedicineName, "package-name")
-                .addAttr(DiagnosisDetails.Attributes.Recommendation, "package-required")
-                .build()
-
-        val personalInfoProposal = IndySchemaBuilder()
-                .addAttr(PersonalInformation.Attributes.Age, "20")
-                .addAttr(PersonalInformation.Attributes.Nationality, "eu")
-                .addAttr(PersonalInformation.Attributes.Forename, "Mike J")
-                .build()
-    }
 
     @PostConstruct
     fun init() {
@@ -73,8 +55,7 @@ class IndyInitializer {
 
         val user = User("user1", "test", permissions = setOf())
 
-        val agent = CordaRPCClient(NetworkHostAndPort("localhost", 10202))
-                .start(user.username, user.password).proxy
+        val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
 
         val issuer = CordaRPCClient(NetworkHostAndPort("localhost", 10002))
                 .start(user.username, user.password).proxy
@@ -93,7 +74,11 @@ class IndyInitializer {
 
         logger.info("Creating test package...")
 
-        val askNewPackageRes = agent.startFlowDynamic(AskNewPackage.Patient::class.java)
+        // TODO: fix hardcode
+
+        val treatmentDid = "V4SGRU86Z58d6TV7PBUe6f"
+
+        val askNewPackageRes = treatment.startFlowDynamic(AskNewPackage.Treatment::class.java, treatmentDid)
         val serial = askNewPackageRes.returnValue.getOrThrow(timeout)
 
         logger.info("1. Package request created")
@@ -109,12 +94,12 @@ class IndyInitializer {
 
         logger.info("3. Package shipped")
 
-        val packageWithdrawalRes = agent.startFlowDynamic(PackageWithdrawal.Owner::class.java, serial)
+        val packageWithdrawalRes = treatment.startFlowDynamic(PackageWithdrawal.Owner::class.java, serial)
         packageWithdrawalRes.returnValue.getOrThrow(timeout)
 
         logger.info("4. Package withdrawal success")
 
-        val packages = agent.vaultQueryBy<Package>().states.map { it.state.data.info }
+        val packages = treatment.vaultQueryBy<Package>().states.map { it.state.data.info }
         logger.info("Packages in vault: $packages")
         logger.info("Initialization passed")
     }

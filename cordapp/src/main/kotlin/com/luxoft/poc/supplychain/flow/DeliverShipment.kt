@@ -24,8 +24,6 @@ import com.luxoft.poc.supplychain.contract.ShipmentContract
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.state.Shipment
 import com.luxoft.poc.supplychain.data.state.getInfo
-import com.luxoft.poc.supplychain.data.state.getObservers
-import com.luxoft.poc.supplychain.except
 import com.luxoft.poc.supplychain.mapToKeys
 import net.corda.confidential.IdentitySyncFlow
 import net.corda.core.contracts.*
@@ -77,7 +75,7 @@ object DeliverShipment {
             val signedTrx = subFlow(CollectSignaturesFlow(selfSignedTx, listOf(flowSession)))
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
-            subFlow(BroadcastToObservers(packageIn.getObservers().except(ourIdentity), finalTrx))
+            waitForLedgerCommit(finalTrx.id)
         }
     }
 

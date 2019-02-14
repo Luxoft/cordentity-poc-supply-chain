@@ -27,16 +27,16 @@ import rx.Observable
 
 interface SovrinAgentService  {
 
-    @GET("/api/sa/claim/list")
+    @GET("/api/tc/claim/list")
     fun getClaims(): Observable<List<String>>
 
-    @GET("/api/sa/package/list")
+    @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>
 
-    @POST("/api/sa/request/create")
+    @POST("/api/tc/request/create")
     fun createRequest(@Body tcname: AskForPackageRequest): Observable<String>
 
-    @POST("/api/sa/package/withdraw")
+    @POST("/api/tc/package/withdraw")
     fun collectPackage(@Body serial: Serial): Observable<Response>
 
 }

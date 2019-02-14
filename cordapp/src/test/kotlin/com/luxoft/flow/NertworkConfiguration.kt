@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
@@ -78,12 +79,11 @@ open class NetworkConfiguration {
             it.registerInitiatedFlow(DeliverShipment.Receiver::class.java)
             it.registerInitiatedFlow(ShipmentStatus.Observer::class.java)
             it.registerInitiatedFlow(ReceiveShipment.Counterparty::class.java)
-            it.registerInitiatedFlow(Observers.Observer::class.java)
 
             it.registerInitiatedFlow(AssignPermissionsFlow.Authority::class.java)
             it.registerInitiatedFlow(CreatePairwiseFlow.Issuer::class.java)
-            it.registerInitiatedFlow(IssueClaimFlow.Prover::class.java)
-            it.registerInitiatedFlow(VerifyClaimFlow.Prover::class.java)
+            it.registerInitiatedFlow(IssueCredentialFlow.Prover::class.java)
+            it.registerInitiatedFlow(VerifyCredentialFlow.Prover::class.java)
             it.registerInitiatedFlow(GetDidFlow.Authority::class.java)
         }
 
@@ -134,3 +134,4 @@ open class NetworkConfiguration {
 
     fun runNetwork() = net.runNetwork()
 }
+*/

@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.flow
 
@@ -294,6 +295,7 @@ class ReceiveShipmentFlowTests : ShipmentBase(NetworkConfiguration()) {
             assertEquals(0, config.issuer.services.vaultService.queryBy<IndyClaim>(criteria).states.size)
             assertEquals(0, config.issuer.services.vaultService.queryBy<IndyClaimProof>(criteria).states.size)
         }
+*/
 /*
         config.carrier.database.transaction {
             val packageStates = config.carrier.services.vaultService.queryBy<Package>(criteria).states
@@ -333,6 +335,8 @@ class ReceiveShipmentFlowTests : ShipmentBase(NetworkConfiguration()) {
             assertEquals(0, config.treatment.services.vaultService.queryBy<IndyClaim>(criteria).states.size)
             assertEquals(0, config.treatment.services.vaultService.queryBy<IndyClaimProof>(criteria).states.size)
         }
-       */
+       *//*
+
     }
 }
+*/

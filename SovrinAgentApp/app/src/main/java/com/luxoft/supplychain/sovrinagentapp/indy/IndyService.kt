@@ -34,6 +34,8 @@ interface Connection {
 }
 
 interface IndyAgentService {
+    val me: IndyUser
+
     fun provision(config: ProvisionConfig)
     fun establishConnection(with: Did): Connection
 }
@@ -124,7 +126,7 @@ class DummyConnection(val partyIndyUser: IndyUser): Connection {
     }
 }
 
-class DummyIndyAgentService(val me: IndyUser, private val counterParty: IndyUser): IndyAgentService {
+class DummyIndyAgentService(override val me: IndyUser, private val counterParty: IndyUser): IndyAgentService {
     private var isProvisioned: Boolean = false
 
     override fun provision(config: ProvisionConfig) {

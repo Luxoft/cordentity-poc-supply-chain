@@ -44,7 +44,6 @@ object RequestForPackage {
         override fun call() {
             val manufacturer = getManufacturer()
 
-            val observers = listOf<AbstractParty>(whoIs(packageInfo.patientAgent))
             val signers = listOf(manufacturer, ourIdentity)
 
             // TODO: we skipped production phase. Status should be Pending
@@ -56,7 +55,7 @@ object RequestForPackage {
 
             // Initiator should be in list of participant on Issuing phase, only on pending
             // However we skipped real package issuing.
-            val newPackage = Package(info, manufacturer, observers, listOf(manufacturer, ourIdentity))
+            val newPackage = Package(info, manufacturer, listOf(manufacturer, ourIdentity))
             val newPackageOut = StateAndContract(newPackage, PackageContract::class.java.name)
             val newPackageCmd = Command(PackageContract.Request(), signers.mapToKeys())
 
@@ -69,7 +68,6 @@ object RequestForPackage {
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
             waitForLedgerCommit(finalTrx.id)
-            subFlow(BroadcastToObservers(observers, finalTrx))
         }
     }
 

@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.integration
 
@@ -127,3 +128,4 @@ class GradleDriven: e2eBase {
         }
     }
 }
+*/
