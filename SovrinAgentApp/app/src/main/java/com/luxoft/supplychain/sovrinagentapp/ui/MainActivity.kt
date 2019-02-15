@@ -22,14 +22,19 @@ import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.utils.PoolManager
+import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hyperledger.indy.sdk.wallet.Wallet
 import org.koin.android.ext.android.inject
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import java.io.File
 import java.lang.RuntimeException
 import java.util.*
@@ -48,6 +53,7 @@ val GENESIS_CONTENT = """{"reqSignature":{},"txn":{"data":{"data":{"alias":"Node
 class MainActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
+    private val api: SovrinAgentService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
                     initGenesis()
+                    connectToAgent()
                 }
             }
         }
@@ -114,6 +121,16 @@ class MainActivity : AppCompatActivity() {
 //            else -> super.onOptionsItemSelected(item)
 //        }
 //    }
+
+    private fun connectToAgent() {
+        api.getInvite()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { inviteMsg ->
+                    val connection = AgentConnection("ws://10.255.255.21:8094/ws", inviteMsg.invite)
+                    (application as Application).setConnection(connection)
+                }
+    }
 
     private fun initGenesis() {
         val genesis = File(GENESIS_PATH)

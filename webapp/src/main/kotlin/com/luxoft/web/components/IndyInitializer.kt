@@ -72,7 +72,7 @@ class IndyInitializer {
             logger.info("Treatment center indy stuff initialized")
         }
 
-        logger.info("Creating test package...")
+        /*logger.info("Creating test package...")
 
         // TODO: fix hardcode
 
@@ -100,7 +100,7 @@ class IndyInitializer {
         logger.info("4. Package withdrawal success")
 
         val packages = treatment.vaultQueryBy<Package>().states.map { it.state.data.info }
-        logger.info("Packages in vault: $packages")
+        logger.info("Packages in vault: $packages")*/
         logger.info("Initialization passed")
     }
 }

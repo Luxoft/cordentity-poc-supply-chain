@@ -16,8 +16,10 @@
 
 package com.luxoft.web.controllers
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
+import com.luxoft.poc.supplychain.flow.GetInviteFlow
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
@@ -25,9 +27,8 @@ import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Serial
+import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
-import net.corda.core.node.services.Vault
-import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.utilities.loggerFor
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
@@ -40,7 +41,6 @@ import org.springframework.web.bind.annotation.*
 class TreatmentCenterController(rpc: RPCComponent) {
     private final val services = rpc.services
     private final val logger = loggerFor<TreatmentCenterController>()
-
 
     @PostMapping("package/receive")
     fun receiveShipment(@RequestBody request: Serial): Any? {
@@ -62,39 +62,19 @@ class TreatmentCenterController(rpc: RPCComponent) {
         return services.nodeInfo().legalIdentities.first().name.organisation
     }
 
+    @GetMapping("invite")
+    fun getInvite(): AgentConnection.ReceiveInviteMessage {
+        return services.startFlow(GetInviteFlow::Treatment).returnValue.get()
+    }
+
     @PostMapping("request/create")
-    fun createPackageRequest(@RequestBody tc: AskForPackageRequest): Any? {
-        return try {
-            // TODO: this call should return immediately
-            // TODO: then it should start EstablishConnectionFlowB2C if there is no any with this client
-            // TODO: then it should start IssueCredentialFlowB2C
-            // TODO: then is should start AskNewPackageFlow
-
-            val flowHandle = services.startFlowDynamic(AskNewPackage.Treatment::class.java, tc.tcName)
-
-            flowHandle.returnValue.get()
-        } catch (e: Exception) {
-            logger.error("", e)
-            FAILURE.plus("error" to e.message)
-        }
+    fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
+        services.startFlow(AskNewPackage::Treatment)
     }
 
     @PostMapping("package/withdraw")
-    fun receivePackage(@RequestBody request: Serial): Any? {
-
-        return try {
-            // TODO: this call should return immediately
-            // TODO: then it should start VerifyProofFlowB2C
-            // TODO: then is should start PackageWithdrawalFlow
-
-            val flowHandle = services.startFlowDynamic(PackageWithdrawal.Owner::class.java, request.serial)
-            flowHandle.returnValue.get()
-            null
-
-        } catch (e: Exception) {
-            logger.error("", e)
-            FAILURE.plus("error" to e.message)
-        }
+    fun receivePackage(@RequestBody request: Serial) {
+        services.startFlow(PackageWithdrawal::Owner, request.serial)
     }
 
     @GetMapping("package/list")

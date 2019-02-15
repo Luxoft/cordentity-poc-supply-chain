@@ -17,18 +17,16 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.GetDidFlowB2B
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.VerifyCredentialFlowB2B
+import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.getCredentialDefinitionBySchemaId
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
-import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
-import com.luxoft.poc.supplychain.data.schema.PersonalInformation
-import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
@@ -48,14 +46,29 @@ class PackageWithdrawal {
 
         @Suspendable
         override fun call() {
+            try {
+                val connection = serviceHub.cordaService(ConnectionService::class.java).getConnection()
+
+                verifyReceipt(connection)
+                withdrawPackage()
+            } catch (e: Exception) {
+                logger.error("Patient cant be authenticated", e)
+                throw FlowException(e.message)
+            }
+        }
+
+        @Suspendable
+        private fun verifyReceipt(connection: Connection) {
+            val schemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
+            val credDef = getCredentialDefinitionBySchemaId(schemaId)
+
+            val serialProof = ProofAttribute(schemaId, credDef!!.state.data.credentialDefinitionId, "serial", serial)
+            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), null, connection))
+        }
+
+        @Suspendable
+        private fun withdrawPackage() {
             val packageIn = getPackageState(serial, PackageState.DELIVERED)
-
-            val receiptOwner = packageIn.getInfo().requestedBy
-            val receiptOwnerDid = subFlow(GetDidFlowB2B.Initiator(receiptOwner))
-
-            //val clientWasAuthenticatedIn = getClaimProof(serial)
-            //val clientGotPackageReceiptIn = getClaimFrom(serial, receiptOwnerDid)
-            //val authCommand = Command(ClaimChecker.Commands.Verify())
 
             val info = packageIn.getInfo().copy(
                     state = PackageState.COLLECTED,
@@ -65,13 +78,12 @@ class PackageWithdrawal {
             val packageOut = StateAndContract(collectedPackage, PackageContract::class.java.name)
             val packageCmd = Command(PackageContract.Collect(), packageIn.getParties().mapToKeys())
 
-            val trxBuilder = TransactionBuilder(whoIsNotary()).withItems(
-                    //clientWasAuthenticatedIn,
-                    //clientGotPackageReceiptIn,
-                    packageIn,
-                    packageOut,
-                    packageCmd
-            )
+            val trxBuilder = TransactionBuilder(whoIsNotary())
+                    .withItems(
+                            packageIn,
+                            packageOut,
+                            packageCmd
+                    )
 
             val flowSessions = packageIn.getParties()
                     .except(ourIdentity)

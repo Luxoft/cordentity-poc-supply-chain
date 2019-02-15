@@ -28,6 +28,8 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
@@ -43,6 +45,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private val requestCode = 117
     private var mScannerView: ZBarScannerView? = null
     private val api: SovrinAgentService by inject()
+    private val indyUser: IndyUser by inject()
 
 
     override fun onCreate(state: Bundle?) {
@@ -55,7 +58,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         contentFrame.addView(mScannerView)
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this,  arrayOf(Manifest.permission.CAMERA), requestCode)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), requestCode)
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
@@ -72,7 +75,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
             } else {
                 Toast.makeText(this, "Camera permission denied. Barcode scanning will not work", Toast.LENGTH_LONG).show()
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-                    ActivityCompat.requestPermissions(this,  arrayOf(Manifest.permission.CAMERA), requestCode)
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), requestCode)
                 }
             }
         }
@@ -125,6 +128,12 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                             // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
                             // TODO: if agree you should generate proof out of the proof request and send it back
                             // TODO: only if the proof is valid Corda-side should commit transaction
+
+                            val connection = (application as Application).getConnection()
+
+                            val proofRequest = connection.receiveProofRequest()
+                            val proof = indyUser.createProof(proofRequest, "main")
+                            connection.sendProof(proof)
 
                             finish()
                         }) { error ->

@@ -2,6 +2,8 @@
 
 buildscript {
     ext.kotlin_version = '1.2.41'
+    ext.cordentity_version = 'b2c-1'
+    
     repositories {
         google()
         jcenter()

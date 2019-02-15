@@ -26,6 +26,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
@@ -46,6 +47,7 @@ class AskClaimsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        indyUser.createMasterSecret("main")
         setContentView(R.layout.activity_ask_claims)
 
         val recyclerView = findViewById<RecyclerView>(R.id.fragment_list_rv)
@@ -54,7 +56,7 @@ class AskClaimsActivity : AppCompatActivity() {
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.setHasFixedSize(true)
 
-        recyclerView.addItemDecoration( DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
+        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
         recyclerView.adapter = ClaimsAdapter(Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll())
 
@@ -63,7 +65,8 @@ class AskClaimsActivity : AppCompatActivity() {
                     MainActivity::class.java),
                     null)
 
-            api.createRequest(AskForPackageRequest(indyUser.did)).subscribeOn(Schedulers.newThread())
+            api.createRequest(AskForPackageRequest(indyUser.did))
+                    .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
 
@@ -76,12 +79,19 @@ class AskClaimsActivity : AppCompatActivity() {
                         realm.beginTransaction()
                         realm.where(Product::class.java).equalTo("serial", "N/A").findAll().deleteAllFromRealm()
                         realm.commitTransaction()
+
+                        val connection = (application as Application).getConnection()
+
+                        val credentialOffer = connection.receiveCredentialOffer()
+
+                        val credentialRequest = indyUser.createCredentialRequest(indyUser.did, credentialOffer, "main")
+                        connection.sendCredentialRequest(credentialRequest)
+
+                        val credential = connection.receiveCredential()
+                        indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
+
                         finish()
-
-                        // TODO:
-
-                    }, {
-                        error ->
+                    }, { error ->
                         Log.e("", error.message)
                         finish()
                     })

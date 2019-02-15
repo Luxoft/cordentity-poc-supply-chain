@@ -38,8 +38,10 @@ sourceSets {
 dependencies {
     cordaCompile "com.github.seniorjoinu.cordentity:cordentity-cordlib:$cordentity_version"
     cordaCompile "com.github.seniorjoinu.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
-    implementation "com.github.seniorjoinu.cordentity:cordentity-indy-utils:$cordentity_version"
-    implementation "com.github.seniorjoinu.cordentity:cordentity-agent-connection:$cordentity_version"
+    
+    compile "com.github.seniorjoinu.cordentity:cordentity-indy-utils:$cordentity_version"
+    compile "com.github.seniorjoinu.cordentity:cordentity-agent-connection:$cordentity_version"
+    compile 'net.java.dev.jna:jna:4.5.1'
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'

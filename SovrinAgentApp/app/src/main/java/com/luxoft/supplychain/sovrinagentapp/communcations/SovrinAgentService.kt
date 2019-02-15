@@ -17,6 +17,7 @@
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
@@ -27,16 +28,16 @@ import rx.Observable
 
 interface SovrinAgentService  {
 
-    @GET("/api/tc/claim/list")
-    fun getClaims(): Observable<List<String>>
+    @GET("/api/tc/invite")
+    fun getInvite(): Observable<AgentConnection.ReceiveInviteMessage>
 
     @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>
 
     @POST("/api/tc/request/create")
-    fun createRequest(@Body tcname: AskForPackageRequest): Observable<String>
+    fun createRequest(@Body tcname: AskForPackageRequest): Observable<Unit>
 
     @POST("/api/tc/package/withdraw")
-    fun collectPackage(@Body serial: Serial): Observable<Response>
+    fun collectPackage(@Body serial: Serial): Observable<Unit>
 
 }

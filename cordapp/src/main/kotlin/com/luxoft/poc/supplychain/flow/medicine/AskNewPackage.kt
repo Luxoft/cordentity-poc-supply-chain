@@ -17,20 +17,17 @@
 package com.luxoft.poc.supplychain.flow.medicine
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
-import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
-import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.flow.*
 import net.corda.core.flows.*
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.serialization.CordaSerializable
-import net.corda.core.utilities.unwrap
 import java.util.*
 
 
@@ -41,23 +38,35 @@ class AskNewPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    open class Treatment(val patientDid: String) : FlowLogic<String>() {
+    open class Treatment : FlowLogic<Unit>() {
 
         @Suspendable
-        override fun call(): String {
-            val packageRequest = PackageRequest(patientDid)
+        override fun call() {
+            val connection = serviceHub.cordaService(ConnectionService::class.java).getConnection()
+            val packageRequest = PackageRequest(connection.getCounterParty()!!.did)
 
             try {
                 val serial = UUID.randomUUID().toString()
 
+                issueReceipt(serial, connection)
                 requestNewPackage(serial, packageRequest)
-
-                return serial
 
             } catch (e: Exception) {
                 logger.error("Patient cant be authenticated", e)
                 throw FlowException(e.message)
             }
+        }
+
+        @Suspendable
+        private fun issueReceipt(serial: String, connection: Connection) {
+            val receiptProposal = IndySchemaBuilder()
+                    .addAttr(PackageReceipt.Attributes.Serial, serial)
+                    .build()
+
+            val schemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
+            val credDef = getCredentialDefinitionBySchemaId(schemaId)
+
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef!!.state.data.credentialDefinitionId, connection))
         }
 
         @Suspendable
@@ -75,16 +84,6 @@ class AskNewPackage {
             )
 
             subFlow(RequestForPackage.Initiator(packageInfo))
-
-            // create confirmation receipt
-            val receiptProposal = IndySchemaBuilder()
-                    .addAttr(PackageReceipt.Attributes.Serial, serial)
-                    .build()
-            val receiptSchemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
-            val receiptCredDef = getCredentialDefinitionBySchemaId(receiptSchemaId)!!
-
-            //subFlow(IssueCredentialFlow.Issuer(serial, receiptProposal, receiptCredDef.state.data.credentialDefinitionId, patientAgent))
-            // TODO: IssuerCredentialFlowB2C
         }
     }
 }
