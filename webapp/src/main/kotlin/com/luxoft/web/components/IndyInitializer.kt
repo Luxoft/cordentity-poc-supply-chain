@@ -17,7 +17,7 @@
 package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.GetDidFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.GetDidFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyService
 import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.AcceptanceResult

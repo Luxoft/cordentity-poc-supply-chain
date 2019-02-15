@@ -25,8 +25,6 @@ import com.luxoft.blockchainlab.hyperledger.indy.WalletConfig
 import com.luxoft.blockchainlab.hyperledger.indy.utils.PoolManager
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.indy.DummyIndyAgentService
-import com.luxoft.supplychain.sovrinagentapp.indy.IndyAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
@@ -47,11 +45,8 @@ val myModule: Module = module {
     single { provideGson() }
     single { provideApiClient(get()) } // get() will resolve Service instance
     factory { provideWalletAndPool() }
-    factory { provideIndyUser(get()) }
-    single { provideIndyService(get(), get()) }
+    single { provideIndyUser(get()) }
 }
-
-fun provideIndyService(you: IndyUser, counterParty: IndyUser): IndyAgentService = DummyIndyAgentService(you, counterParty)
 
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
     val walletConfig = SerializationUtils.anyToJSON(WalletConfig("wallet-${Random().nextInt().absoluteValue}"))

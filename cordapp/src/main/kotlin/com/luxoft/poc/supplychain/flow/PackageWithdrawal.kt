@@ -17,8 +17,8 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.GetDidFlow
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.VerifyCredentialFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.GetDidFlowB2B
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.VerifyCredentialFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
@@ -51,7 +51,7 @@ class PackageWithdrawal {
             val packageIn = getPackageState(serial, PackageState.DELIVERED)
 
             val receiptOwner = packageIn.getInfo().requestedBy
-            val receiptOwnerDid = subFlow(GetDidFlow.Initiator(receiptOwner))
+            val receiptOwnerDid = subFlow(GetDidFlowB2B.Initiator(receiptOwner))
 
             //val clientWasAuthenticatedIn = getClaimProof(serial)
             //val clientGotPackageReceiptIn = getClaimFrom(serial, receiptOwnerDid)

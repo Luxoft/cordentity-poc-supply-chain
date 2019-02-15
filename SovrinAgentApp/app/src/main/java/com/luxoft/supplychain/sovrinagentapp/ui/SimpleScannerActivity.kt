@@ -30,12 +30,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
-import com.luxoft.supplychain.sovrinagentapp.indy.IndyAgentService
-
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
@@ -47,7 +43,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private val requestCode = 117
     private var mScannerView: ZBarScannerView? = null
     private val api: SovrinAgentService by inject()
-    private val agentService: IndyAgentService by inject()
 
 
     override fun onCreate(state: Bundle?) {

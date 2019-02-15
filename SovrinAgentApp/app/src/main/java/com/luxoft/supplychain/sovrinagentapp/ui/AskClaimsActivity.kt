@@ -25,12 +25,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.indy.IndyAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
@@ -42,7 +42,7 @@ class AskClaimsActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
     private val api: SovrinAgentService by inject()
-    private val indyUser: IndyAgentService by inject()
+    private val indyUser: IndyUser by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +63,7 @@ class AskClaimsActivity : AppCompatActivity() {
                     MainActivity::class.java),
                     null)
 
-            api.createRequest(AskForPackageRequest(indyUser.me.did)).subscribeOn(Schedulers.newThread())
+            api.createRequest(AskForPackageRequest(indyUser.did)).subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
 

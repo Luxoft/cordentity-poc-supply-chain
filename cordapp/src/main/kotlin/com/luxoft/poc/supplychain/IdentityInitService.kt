@@ -16,36 +16,20 @@
 
 package com.luxoft.poc.supplychain
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.AssignPermissionsFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.AssignPermissionsFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateCredentialDefinitionFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.IssueCredentialFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.IssueCredentialFlowB2B
 import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.data.schema.IndySchema
-import com.luxoft.poc.supplychain.data.schema.PersonalInformation
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
 import java.time.Duration
-import java.util.*
+
 
 class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Duration = Duration.ofSeconds(30)) {
-
-    fun assignPermissionsToMe(authority: CordaX500Name) {
-        val name = rpc.nodeInfo().legalIdentities.first().name.commonName
-        rpc.startFlow(AssignPermissionsFlow::Issuer, name, "TRUSTEE", authority).returnValue.getOrThrow(timeout)
-    }
-
-
-    fun initIssuerIndyMeta() = issueIndyMeta(PersonalInformation)
-
-    fun issueClaimTo(toName: CordaX500Name, credProposal: String, credDefId: CredentialDefinitionId) {
-
-        val uid = UUID.randomUUID().toString()
-        rpc.startFlow(IssueCredentialFlow::Issuer, uid, credProposal, credDefId, toName).returnValue.getOrThrow(timeout)
-    }
 
     fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, CredentialDefinitionId> {
         val schemaId = rpc.startFlow(
