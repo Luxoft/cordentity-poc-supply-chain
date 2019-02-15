@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe { inviteMsg ->
                     val connection = AgentConnection("ws://10.255.255.21:8094/ws", inviteMsg.invite)
                     (application as Application).setConnection(connection)
+                    println("CONNECTION ESTABLISHED")
                 }
     }
 

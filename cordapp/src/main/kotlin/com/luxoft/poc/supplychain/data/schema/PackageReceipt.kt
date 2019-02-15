@@ -18,8 +18,12 @@ package com.luxoft.poc.supplychain.data.schema
 
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder.AttrTypes
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder.Attribute
+import java.util.*
 
-object PackageReceipt: IndySchema(schemaName = "package_receipt", schemaVersion = "1.0") {
+val name = "package_receipt-${Math.abs(Random().nextInt())}"
+val version = "${Math.abs(Random().nextInt())}.${Math.abs(Random().nextInt())}.${Math.abs(Random().nextInt())}"
+
+object PackageReceipt: IndySchema(name, version) {
     object Attributes {
         object Serial : AttrTypes by Attribute("serial")
     }
