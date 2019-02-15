@@ -28,6 +28,7 @@ android {
             exclude 'META-INF/detectors-default'
             exclude 'log4j.xml'
         }
+        multiDexEnabled false
     }
     buildTypes {
         release {
@@ -37,20 +38,20 @@ android {
     }
 }
 
-kapt {
-    generateStubs = true
-}
-
 dependencies {
-    api name: "indy-1.7.0"
+    /*implementation("com.github.seniorjoinu.cordentity:cordentity-indy-utils:indy-1.7.0-android-compat-3") {
+        transitive = false
+    }*/
+    //implementation name: 'indy-utils'
+    compile project(":indy-utils")
+    
     implementation 'net.java.dev.jna:jna:4.5.1@aar'
-    implementation project(path: ':indy-utils')
-    //implementation "com.github.seniorjoinu.cordentity:cordentity-indy-utils:1.7.0"
+
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'
     //noinspection GradleCompatible
-    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+  
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -79,9 +80,4 @@ dependencies {
     implementation 'me.dm7.barcodescanner:zbar:1.9.8'
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 }
-
-apply plugin: 'com.google.gms.google-services'

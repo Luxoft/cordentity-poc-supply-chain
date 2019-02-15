@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
@@ -43,3 +44,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
 }
+*/

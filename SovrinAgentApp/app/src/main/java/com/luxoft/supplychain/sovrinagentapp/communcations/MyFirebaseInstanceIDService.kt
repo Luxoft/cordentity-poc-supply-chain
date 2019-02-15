@@ -12,7 +12,8 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- */
+ *//*
+
 
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
@@ -23,11 +24,13 @@ import com.google.firebase.iid.FirebaseInstanceIdService
 
 class MyFirebaseInstanceIDService : FirebaseInstanceIdService() {
 
-    /**
+    */
+/**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
-     */
+     *//*
+
     // [START refresh_token]
     override fun onTokenRefresh() {
 
@@ -39,3 +42,4 @@ class MyFirebaseInstanceIDService : FirebaseInstanceIdService() {
         // TODO sendRegistrationToServer(refreshedToken)
     }
 }
+*/
