@@ -18,15 +18,15 @@ package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.getCredentialDefinitionBySchemaId
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
@@ -47,9 +47,7 @@ class PackageWithdrawal {
         @Suspendable
         override fun call() {
             try {
-                val connection = serviceHub.cordaService(ConnectionService::class.java).getConnection()
-
-                verifyReceipt(connection)
+                verifyReceipt()
                 withdrawPackage()
             } catch (e: Exception) {
                 logger.error("Patient cant be authenticated", e)
@@ -58,12 +56,12 @@ class PackageWithdrawal {
         }
 
         @Suspendable
-        private fun verifyReceipt(connection: Connection) {
-            val schemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
-            val credDef = getCredentialDefinitionBySchemaId(schemaId)
+        private fun verifyReceipt() {
+            val schema = serviceHub.vaultService.queryBy(IndySchema::class.java).states.first().state.data
+            val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            val serialProof = ProofAttribute(schemaId, credDef!!.state.data.credentialDefinitionId, "serial", serial)
-            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), null, connection))
+            val serialProof = ProofAttribute(SchemaId.fromString(schema.id), credDef.credentialDefinitionId, "serial", serial)
+            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), null))
         }
 
         @Suspendable

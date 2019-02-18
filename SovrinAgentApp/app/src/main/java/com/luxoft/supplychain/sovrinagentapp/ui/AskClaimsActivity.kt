@@ -66,7 +66,7 @@ class AskClaimsActivity : AppCompatActivity() {
                     null)
 
             api.createRequest(AskForPackageRequest(indyUser.did))
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
 

@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.2.41'
-    ext.cordentity_version = 'b2c-1'
+    ext.cordentity_version = 'b2c-8'
     
     repositories {
         google()
@@ -23,10 +23,6 @@ subprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
-        
-        flatDir {
-            dirs '../lib'
-        }
     }
 }
 

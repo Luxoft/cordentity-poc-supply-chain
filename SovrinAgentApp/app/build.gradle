@@ -44,6 +44,8 @@ dependencies {
     
     implementation ('net.java.dev.jna:jna:4.5.1@aar')
 
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'

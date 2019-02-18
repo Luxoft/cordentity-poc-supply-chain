@@ -37,6 +37,7 @@ import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 
@@ -74,6 +75,8 @@ fun provideApiClient(gson: Gson): SovrinAgentService {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .baseUrl("http://10.255.255.21:8082")
             .build()
+
+    retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
 
     return retrofit.create(SovrinAgentService::class.java)
 }

@@ -18,9 +18,9 @@ package com.luxoft.poc.supplychain.flow.medicine
 
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
-import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
@@ -42,31 +42,29 @@ class AskNewPackage {
 
         @Suspendable
         override fun call() {
-            val connection = serviceHub.cordaService(ConnectionService::class.java).getConnection()
-            val packageRequest = PackageRequest(connection.getCounterParty()!!.did)
+            val packageRequest = PackageRequest(connectionService().getConnection().getCounterParty()!!.did)
 
             try {
                 val serial = UUID.randomUUID().toString()
 
-                issueReceipt(serial, connection)
+                issueReceipt(serial)
                 requestNewPackage(serial, packageRequest)
 
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error("Patient cant be authenticated", e)
                 throw FlowException(e.message)
             }
         }
 
         @Suspendable
-        private fun issueReceipt(serial: String, connection: Connection) {
+        private fun issueReceipt(serial: String) {
             val receiptProposal = IndySchemaBuilder()
                     .addAttr(PackageReceipt.Attributes.Serial, serial)
                     .build()
 
-            val schemaId = SchemaId(indyUser().did, PackageReceipt.schemaName, PackageReceipt.schemaVersion)
-            val credDef = getCredentialDefinitionBySchemaId(schemaId)
+            val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef!!.state.data.credentialDefinitionId, connection))
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef.credentialDefinitionId))
         }
 
         @Suspendable

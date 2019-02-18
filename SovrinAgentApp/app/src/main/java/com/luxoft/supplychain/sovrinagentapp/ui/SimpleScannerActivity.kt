@@ -120,7 +120,8 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                         null
                 )
 
-                api.collectPackage(Serial(serial!!)).subscribeOn(Schedulers.newThread())
+                api.collectPackage(Serial(serial!!))
+                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
                             // TODO: this call should return immediately

@@ -29,7 +29,7 @@ import rx.Observable
 interface SovrinAgentService  {
 
     @GET("/api/tc/invite")
-    fun getInvite(): Observable<AgentConnection.ReceiveInviteMessage>
+    fun getInvite(): Observable<String>
 
     @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>

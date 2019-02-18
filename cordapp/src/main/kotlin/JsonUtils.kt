@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import ch.qos.logback.classic.Level
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -26,6 +27,9 @@ object SerializationUtils {
 
     init {
         mapper.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
+        /*(org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME) as ch.qos.logback.classic.Logger)
+                .level = Level.TRACE*/
     }
 
     fun anyToJSON(obj: Any?): String = mapper.writeValueAsString(obj)

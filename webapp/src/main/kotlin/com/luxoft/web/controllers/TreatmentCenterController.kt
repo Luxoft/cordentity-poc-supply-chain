@@ -29,9 +29,11 @@ import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Serial
 import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
+import java.time.Duration
 
 
 @RestController
@@ -43,28 +45,23 @@ class TreatmentCenterController(rpc: RPCComponent) {
     private final val logger = loggerFor<TreatmentCenterController>()
 
     @PostMapping("package/receive")
-    fun receiveShipment(@RequestBody request: Serial): Any? {
-
-        return try {
-
-            val flowHandle = services.startFlowDynamic(ReceiveShipment.Receiver::class.java, AcceptanceResult(request.serial))
-            flowHandle.returnValue.get()
-            null
-
-        } catch (e: Exception) {
-            logger.error("", e)
-            FAILURE.plus("error" to e.message)
-        }
+    fun receiveShipment(@RequestBody request: Serial) {
+        services.startFlowDynamic(ReceiveShipment.Receiver::class.java, AcceptanceResult(request.serial))
     }
 
     @GetMapping("whoami")
+
     fun getWhoAmI(): Any {
         return services.nodeInfo().legalIdentities.first().name.organisation
     }
 
     @GetMapping("invite")
-    fun getInvite(): AgentConnection.ReceiveInviteMessage {
-        return services.startFlow(GetInviteFlow::Treatment).returnValue.get()
+    fun getInvite(): String {
+        println("Get request to /api/tc/invite")
+        val response = services.startFlow(GetInviteFlow::Treatment).returnValue.getOrThrow(Duration.ofSeconds(15))
+        println("Responding to /api/tc/invite with $response")
+
+        return "\"$response\""
     }
 
     @PostMapping("request/create")

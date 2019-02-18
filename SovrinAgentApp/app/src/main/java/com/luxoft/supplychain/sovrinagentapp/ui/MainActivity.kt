@@ -20,6 +20,7 @@ import android.Manifest
 import android.os.Bundle
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
@@ -33,6 +34,7 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hyperledger.indy.sdk.wallet.Wallet
 import org.koin.android.ext.android.inject
+import org.slf4j.event.Level
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
         System.setProperty("jna.debug_load", "true")
 
         setContentView(R.layout.activity_main)
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             REQUEST_CODE -> {
-                if (grantResults.all { it != PermissionChecker.PERMISSION_GRANTED })
+                if (grantResults.any { it != PermissionChecker.PERMISSION_GRANTED })
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
                     initGenesis()
@@ -124,13 +126,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectToAgent() {
         api.getInvite()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { inviteMsg ->
-                    val connection = AgentConnection("ws://10.255.255.21:8094/ws", inviteMsg.invite)
-                    (application as Application).setConnection(connection)
-                    println("CONNECTION ESTABLISHED")
-                }
+                .subscribe(
+                        { invite ->
+                            val connection = AgentConnection("ws://10.255.255.21:8094/ws", invite, userName = "user${Random().nextInt()}")
+                            (application as Application).setConnection(connection)
+                            println("CONNECTION ESTABLISHED")
+                        },
+                        { er -> Log.e("Get Invite Error: ", er.message, er) }
+                )
     }
 
     private fun initGenesis() {
