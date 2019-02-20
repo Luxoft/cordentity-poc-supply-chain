@@ -16,6 +16,9 @@
 
 package com.luxoft.poc.supplychain.data.schema
 
+import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
+import java.util.*
+
 class IndySchemaBuilder {
 
     interface AttrTypes {
@@ -26,7 +29,7 @@ class IndySchemaBuilder {
     private val builder: MutableMap<String, List<String>> =  mutableMapOf()
 
     fun addAttr(type: AttrTypes, attr: String): IndySchemaBuilder {
-        builder[type.name] = listOf(attr, "22")
+        builder[type.name] = listOf(attr, UUID.fromString(attr).mostSignificantBits.toString())
         return this
     }
 

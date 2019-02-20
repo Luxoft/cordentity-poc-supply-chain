@@ -37,6 +37,8 @@ import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.io.File
+import java.nio.file.Paths
 
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -47,7 +49,6 @@ class AskClaimsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        indyUser.createMasterSecret("main")
         setContentView(R.layout.activity_ask_claims)
 
         val recyclerView = findViewById<RecyclerView>(R.id.fragment_list_rv)
@@ -61,9 +62,11 @@ class AskClaimsActivity : AppCompatActivity() {
         recyclerView.adapter = ClaimsAdapter(Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll())
 
         findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
-            ContextCompat.startActivity(this, Intent().setClass(this,
-                    MainActivity::class.java),
-                    null)
+            ContextCompat.startActivity(
+                    this,
+                    Intent().setClass(this, MainActivity::class.java),
+                    null
+            )
 
             api.createRequest(AskForPackageRequest(indyUser.did))
                     .subscribeOn(Schedulers.io())
@@ -76,10 +79,6 @@ class AskClaimsActivity : AppCompatActivity() {
                         // TODO: if agree you should send new credential request and listen to new credential
                         // TODO: only when credential is sent Corda-side should commit transaction
 
-                        realm.beginTransaction()
-                        realm.where(Product::class.java).equalTo("serial", "N/A").findAll().deleteAllFromRealm()
-                        realm.commitTransaction()
-
                         val connection = (application as Application).getConnection()
 
                         val credentialOffer = connection.receiveCredentialOffer()
@@ -90,13 +89,34 @@ class AskClaimsActivity : AppCompatActivity() {
                         val credential = connection.receiveCredential()
                         indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
 
-                        finish()
-                    }, { error ->
-                        Log.e("", error.message)
+                        api.getTails()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        { tails ->
+                                            val dir = File(indyUser.tailsPath)
+                                            if (!dir.exists())
+                                                dir.mkdirs()
+
+                                            tails.forEach { name, content ->
+                                                val file = Paths.get(indyUser.tailsPath, name).toFile()
+                                                if (file.exists())
+                                                    file.delete()
+                                                file.createNewFile()
+                                                file.writeText(content)
+                                            }
+                                            println("TAILS WRITTEN")
+                                            finish()
+                                        },
+                                        {
+                                            er -> Log.e("Get Tails Error: ", er.message, er)
+                                            finish()
+                                        }
+                                )
+                    }, {
+                        er -> Log.e("Get Request Error: ", er.message, er)
                         finish()
                     })
-
-
         }
     }
 

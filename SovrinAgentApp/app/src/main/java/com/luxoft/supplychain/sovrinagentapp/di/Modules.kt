@@ -16,6 +16,7 @@
 
 package com.luxoft.supplychain.sovrinagentapp.di
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -66,10 +67,14 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
     return Pair(wallet, pool)
 }
 
-fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>) = IndyUser(walletAndPool.second, walletAndPool.first, null, """{"seed": "000000000000000000000000Trustee1"}""")
+fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
+    val indyUser = IndyUser(walletAndPool.second, walletAndPool.first, null, """{"seed": "000000000000000000000000Trustee1"}""", "/sdcard/tails")
+    indyUser.createMasterSecret("main")
+
+    return indyUser
+}
 
 fun provideApiClient(gson: Gson): SovrinAgentService {
-
     val retrofit: Retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))

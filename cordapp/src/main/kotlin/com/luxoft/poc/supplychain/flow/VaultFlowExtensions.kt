@@ -21,7 +21,6 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.*
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
-import com.luxoft.poc.supplychain.IndyArtifactsRegistry
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageSchemaV1

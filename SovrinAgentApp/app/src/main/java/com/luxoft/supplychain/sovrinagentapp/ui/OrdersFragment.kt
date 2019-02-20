@@ -76,7 +76,7 @@ class OrdersFragment : Fragment() {
                 }, {
                     error ->
                     mSwipeRefreshLayout.isRefreshing = false
-                    Log.e("", error.message)
+                    Log.e("Get Invite Error: ", error.message, error)
                 })
     }
 

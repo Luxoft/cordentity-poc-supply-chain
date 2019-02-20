@@ -6,6 +6,6 @@ docker-compose down
 ./gradlew cleanDefaultPool
 ./gradlew clean assemble
 ./gradlew runNodes
-sleep 40
+sleep 30
 docker-compose build tcweb mfweb
 docker-compose up -d tcweb mfweb

@@ -24,6 +24,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.Interval
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
@@ -61,7 +62,7 @@ class PackageWithdrawal {
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
             val serialProof = ProofAttribute(SchemaId.fromString(schema.id), credDef.credentialDefinitionId, "serial", serial)
-            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), null))
+            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), Interval.allTime()))
         }
 
         @Suspendable

@@ -29,6 +29,7 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.ProofRequest
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
@@ -132,13 +133,13 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
                             val connection = (application as Application).getConnection()
 
-                            val proofRequest = connection.receiveProofRequest()
+                            val proofRequest: ProofRequest = connection.receiveProofRequest()
                             val proof = indyUser.createProof(proofRequest, "main")
                             connection.sendProof(proof)
 
                             finish()
-                        }) { error ->
-                            Log.e("", error.message)
+                        }) {
+                            er -> Log.e("Get Invite Error: ", er.message, er)
                             finish()
                         }
 

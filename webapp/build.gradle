@@ -59,7 +59,6 @@ dependencies {
   // Spring Boot
   compile('org.springframework.boot:spring-boot-starter')
   compile('org.springframework.boot:spring-boot-starter-web')
-  compile("com.fasterxml.jackson.module:jackson-module-kotlin")
   testCompile('org.springframework.boot:spring-boot-starter-test')
   testCompile('org.springframework.boot:spring-boot-test')
 }

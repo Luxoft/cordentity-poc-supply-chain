@@ -29,6 +29,9 @@ import com.luxoft.blockchainlab.hyperledger.indy.utils.PoolManager
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
