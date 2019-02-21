@@ -78,7 +78,7 @@ fun provideApiClient(gson: Gson): SovrinAgentService {
     val retrofit: Retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl("http://10.255.255.21:8082")
+            .baseUrl("http://3.17.65.252:8082")
             .build()
 
     retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
