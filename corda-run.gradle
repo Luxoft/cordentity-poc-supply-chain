@@ -90,6 +90,17 @@ task deployCordappToNodes(group: RUN_CORDA_GROUP) {
     }
 }
 
+task deployGenesisToNodes(group: RUN_CORDA_GROUP) {
+    doLast {
+        for (nodeDir in cordaNodes*.nodeDir) {
+            copy {
+                from ('cordapp/src/main/resources/genesis')
+                into("$nodeDir/genesis")
+            }
+        }
+    }
+}
+
 task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
     def indyConfigMapping = [
             "TreatmentCenter"   : "treatment",
@@ -116,6 +127,7 @@ task deployCordaNetwork(group: RUN_CORDA_GROUP) {
     dependsOn deployJarsToNodes
     dependsOn deployCordappToNodes
     dependsOn deployConfigsToNodes
+    dependsOn deployGenesisToNodes
 }
 
 task runNodes(type: Exec, group: RUN_CORDA_GROUP) {
