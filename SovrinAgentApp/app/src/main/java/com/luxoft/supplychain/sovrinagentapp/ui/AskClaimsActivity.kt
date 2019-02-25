@@ -99,7 +99,7 @@ class AskClaimsActivity : AppCompatActivity() {
                                                 dir.mkdirs()
 
                                             tails.forEach { name, content ->
-                                                val file = Paths.get(indyUser.tailsPath, name).toFile()
+                                                val file = File("${indyUser.tailsPath}/$name")
                                                 if (file.exists())
                                                     file.delete()
                                                 file.createNewFile()

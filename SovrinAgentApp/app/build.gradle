@@ -7,9 +7,13 @@ apply plugin: 'realm-android'
 android {
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
     defaultConfig {
         applicationId "com.luxoft.supplychain.sovrinagentapp"
-        minSdkVersion 26
+        minSdkVersion 24
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -28,7 +32,7 @@ android {
             exclude 'META-INF/detectors-default'
             exclude 'log4j.xml'
         }
-        multiDexEnabled false
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -39,8 +43,8 @@ android {
 }
 
 dependencies {
-    implementation ("com.github.seniorjoinu.cordentity:cordentity-indy-utils:$cordentity_version")
-    implementation ("com.github.seniorjoinu.cordentity:cordentity-agent-connection:$cordentity_version")
+    implementation ("com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version")
+    implementation ("com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version")
     
     implementation ('net.java.dev.jna:jna:4.5.1@aar')
 
