@@ -17,12 +17,10 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.blockchainlab.hyperledger.indy.Interval
 import com.luxoft.blockchainlab.hyperledger.indy.SchemaId

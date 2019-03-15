@@ -17,7 +17,7 @@
 package com.luxoft.supplychain.sovrinagentapp
 
 import android.app.Application
-import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import com.luxoft.supplychain.sovrinagentapp.di.*
 import io.realm.Realm
@@ -27,13 +27,13 @@ import java.lang.RuntimeException
 
 class Application : Application() {
 
-    private var connection: Connection? = null
+    private var connection: AgentConnection? = null
 
-    fun setConnection(conn: Connection) {
+    fun setConnection(conn: AgentConnection) {
         connection = conn
     }
 
-    fun getConnection(): Connection {
+    fun getConnection(): AgentConnection {
         if (connection == null)
             throw RuntimeException("Connection is not established yet")
 

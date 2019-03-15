@@ -16,9 +16,9 @@ class GetInviteFlow {
 
         @Suspendable
         override fun call(): String {
-            CompletableFuture.runAsync { connectionService().getConnection().waitForCounterParty() }
+            CompletableFuture.runAsync { connectionService().getConnection().waitForInvitedParty() }
 
-            return connectionService().getConnection().genInvite().invite
+            return connectionService().getConnection().generateInvite()
         }
     }
 }

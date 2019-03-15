@@ -17,7 +17,6 @@
 package com.luxoft.poc.supplychain.flow.medicine
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.Connection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
