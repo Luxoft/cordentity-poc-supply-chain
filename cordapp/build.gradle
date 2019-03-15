@@ -43,11 +43,7 @@ dependencies {
     compile "com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version"
     compile 'net.java.dev.jna:jna:4.5.1'
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation 'com.github.alexeykoren:konfig:2.0.4'
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
     // Corda integration dependencies
     cordaCompile "${corda_release_group}:corda-core:${corda_release_version}"
