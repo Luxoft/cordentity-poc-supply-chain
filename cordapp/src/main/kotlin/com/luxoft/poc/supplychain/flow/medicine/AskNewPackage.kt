@@ -19,13 +19,17 @@ package com.luxoft.poc.supplychain.flow.medicine
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.connectionService
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
-import com.luxoft.poc.supplychain.flow.*
-import net.corda.core.flows.*
+import com.luxoft.poc.supplychain.flow.RequestForPackage
+import com.luxoft.poc.supplychain.flow.getManufacturer
+import com.luxoft.poc.supplychain.service.clientResolverService
+import net.corda.core.flows.FlowException
+import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.InitiatingFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.serialization.CordaSerializable
 import java.util.*
 
@@ -37,11 +41,12 @@ class AskNewPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    open class Treatment : FlowLogic<Unit>() {
+    open class Treatment(clientId: UUID) : FlowLogic<Unit>() {
+        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!! }
 
         @Suspendable
         override fun call() {
-            val packageRequest = PackageRequest(connectionService().getConnection().getCounterParty()!!.did)
+            val packageRequest = PackageRequest(clientDid)
 
             try {
                 val serial = UUID.randomUUID().toString()
@@ -63,7 +68,7 @@ class AskNewPackage {
 
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef.credentialDefinitionId))
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef.credentialDefinitionId, clientDid))
         }
 
         @Suspendable

@@ -25,8 +25,8 @@ import android.view.Menu
 import android.view.MenuItem
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.blockchainlab.hyperledger.indy.utils.PoolManager
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
@@ -134,12 +134,17 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { invite ->
-                            val connection = PythonRefAgentConnection().apply {
-                                connect("ws://3.17.65.252:8094/ws", login = "user${Random().nextInt()}", password = "secretPassword")
-                                acceptInvite(invite)
+                            PythonRefAgentConnection().apply {
+                                connect("ws://3.17.65.252:8094/ws", login = "user${Random().nextInt()}", password = "secretPassword").toBlocking().value()
+                                acceptInvite(invite).handle { message, ex ->
+                                    if (ex != null) {
+                                        Log.e("Error processing invite", ex.message, ex)
+                                        return@handle
+                                    }
+                                    (application as Application).setConnection(message!!)
+                                    println("CONNECTION ESTABLISHED")
+                                }
                             }
-                            (application as Application).setConnection(connection)
-                            println("CONNECTION ESTABLISHED")
                         },
                         { er -> Log.e("Get Invite Error: ", er.message, er) }
                 )

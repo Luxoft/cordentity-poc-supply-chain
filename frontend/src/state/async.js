@@ -29,8 +29,8 @@ const envs = {
 const CURRENT_ENV = envs.dev;
 
 const host = {
-    [envs.dev]: 'localhost',
-    [envs.prod]: '18.196.100.2'
+    [envs.dev]: window.location.hostname,
+    [envs.prod]: window.location.hostname
 };
 
 const manufactureUrls = {

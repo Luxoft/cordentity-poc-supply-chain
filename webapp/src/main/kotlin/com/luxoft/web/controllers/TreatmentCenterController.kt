@@ -16,7 +16,6 @@
 
 package com.luxoft.web.controllers
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.GetInviteFlow
@@ -35,6 +34,7 @@ import net.corda.core.utilities.loggerFor
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
+import java.util.*
 
 
 @RestController
@@ -44,6 +44,7 @@ import java.time.Duration
 class TreatmentCenterController(rpc: RPCComponent) {
     private final val services = rpc.services
     private final val logger = loggerFor<TreatmentCenterController>()
+    private final val clientUUID: UUID = UUID.randomUUID()
 
     @PostMapping("package/receive")
     fun receiveShipment(@RequestBody request: Serial) {
@@ -59,7 +60,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
     @GetMapping("invite")
     fun getInvite(): String {
         println("Get request to /api/tc/invite")
-        val response = services.startFlow(GetInviteFlow::Treatment).returnValue.getOrThrow(Duration.ofSeconds(15))
+        val response = services.startFlow(GetInviteFlow::Treatment, clientUUID).returnValue.getOrThrow(Duration.ofSeconds(15))
         println("Responding to /api/tc/invite with $response")
 
         return "\"$response\""
@@ -74,12 +75,12 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment)
+        services.startFlow(AskNewPackage::Treatment, clientUUID)
     }
 
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial) {
-        services.startFlow(PackageWithdrawal::Owner, request.serial)
+        services.startFlow(PackageWithdrawal::Owner, request.serial, clientUUID)
     }
 
     @GetMapping("package/list")

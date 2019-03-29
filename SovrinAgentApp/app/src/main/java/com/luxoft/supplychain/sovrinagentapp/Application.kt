@@ -17,7 +17,9 @@
 package com.luxoft.supplychain.sovrinagentapp
 
 import android.app.Application
+import android.os.Environment
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import com.luxoft.supplychain.sovrinagentapp.di.*
 import io.realm.Realm
@@ -27,13 +29,13 @@ import java.lang.RuntimeException
 
 class Application : Application() {
 
-    private var connection: AgentConnection? = null
+    private var connection: IndyPartyConnection? = null
 
-    fun setConnection(conn: AgentConnection) {
+    fun setConnection(conn: IndyPartyConnection) {
         connection = conn
     }
 
-    fun getConnection(): AgentConnection {
+    fun getConnection(): IndyPartyConnection {
         if (connection == null)
             throw RuntimeException("Connection is not established yet")
 
@@ -42,6 +44,9 @@ class Application : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        System.setProperty("INDY_HOME", applicationContext.filesDir.absolutePath)
+        System.setProperty("INDY_POOL_PATH", "${Environment.getExternalStorageDirectory().absolutePath}/.indy_client")
 
         startKoin(this, listOf(myModule))
 

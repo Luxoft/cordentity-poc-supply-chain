@@ -20,8 +20,8 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.AssignPermission
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateCredentialDefinitionFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.IssueCredentialFlowB2B
-import com.luxoft.blockchainlab.hyperledger.indy.CredentialDefinitionId
-import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
+import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
 import com.luxoft.poc.supplychain.data.schema.IndySchema
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow

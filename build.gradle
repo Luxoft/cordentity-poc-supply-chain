@@ -3,7 +3,7 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.7.0"
-  ext.cordentity_version = 'a7488e2b6de7d62e0bed97525c86f8dd8caebbb5'
+  ext.cordentity_version = '74a0483d67'
   ext.indy_utils_version = '0.3.0'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
@@ -36,7 +36,6 @@ subprojects {
   dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.1'
   }
 
   tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
@@ -62,8 +61,8 @@ dependencies {
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
 
-  cordappDeploy "com.github.hyperledger-labs.cordentity:cordentity-cordapp:$cordentity_version"
-  cordappDeploy "com.github.hyperledger-labs.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
+  cordappDeploy "com.github.devalexey.cordentity:cordentity-cordapp:$cordentity_version"
+  cordappDeploy "com.github.devalexey.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
 }
 
 apply from: "indy-run.gradle"

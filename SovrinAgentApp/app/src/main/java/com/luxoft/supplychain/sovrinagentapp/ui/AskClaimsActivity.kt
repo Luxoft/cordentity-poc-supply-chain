@@ -81,12 +81,12 @@ class AskClaimsActivity : AppCompatActivity() {
 
                         val connection = (application as Application).getConnection()
 
-                        val credentialOffer = connection.receiveCredentialOffer()
+                        val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
 
-                        val credentialRequest = indyUser.createCredentialRequest(indyUser.did, credentialOffer, "main")
+                        val credentialRequest = indyUser.createCredentialRequest(indyUser.did, credentialOffer)
                         connection.sendCredentialRequest(credentialRequest)
 
-                        val credential = connection.receiveCredential()
+                        val credential = connection.receiveCredential().toBlocking().value()
                         indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
 
                         api.getTails()

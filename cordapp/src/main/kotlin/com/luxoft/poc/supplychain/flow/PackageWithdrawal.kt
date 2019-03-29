@@ -22,8 +22,8 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
-import com.luxoft.blockchainlab.hyperledger.indy.Interval
-import com.luxoft.blockchainlab.hyperledger.indy.SchemaId
+import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
+import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.state.getInfo
@@ -31,17 +31,20 @@ import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
 import com.luxoft.poc.supplychain.mapToKeys
 import com.luxoft.poc.supplychain.runSessions
+import com.luxoft.poc.supplychain.service.clientResolverService
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.*
 import net.corda.core.transactions.TransactionBuilder
+import java.util.*
 
 
 class PackageWithdrawal {
 
     @InitiatingFlow
     @StartableByRPC
-    class Owner(val serial: String) : FlowLogic<Unit>() {
+    class Owner(val serial: String, val clientId: UUID) : FlowLogic<Unit>() {
+        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!! }
 
         @Suspendable
         override fun call() {
@@ -60,7 +63,7 @@ class PackageWithdrawal {
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
             val serialProof = ProofAttribute(SchemaId.fromString(schema.id), credDef.credentialDefinitionId, "serial", serial)
-            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), Interval.allTime()))
+            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), clientDid, Interval.allTime()))
         }
 
         @Suspendable

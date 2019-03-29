@@ -36,11 +36,11 @@ sourceSets {
 }
 
 dependencies {
-    cordaCompile "com.github.hyperledger-labs.cordentity:cordentity-cordlib:$cordentity_version"
-    cordaCompile "com.github.hyperledger-labs.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
+    cordaCompile "com.github.devalexey.cordentity:cordentity-cordlib:$cordentity_version"
+    cordaCompile "com.github.devalexey.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
     
-    compile "com.github.hyperledger-labs.cordentity:cordentity-indy-utils:$cordentity_version"
-    compile "com.github.hyperledger-labs.cordentity:cordentity-agent-connection:$cordentity_version"
+    compile "com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version"
+    compile "com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version"
     compile 'net.java.dev.jna:jna:4.5.1'
 
     implementation 'com.github.alexeykoren:konfig:2.0.4'

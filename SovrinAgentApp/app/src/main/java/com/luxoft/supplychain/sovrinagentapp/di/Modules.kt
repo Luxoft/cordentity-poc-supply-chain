@@ -22,8 +22,8 @@ import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.blockchainlab.hyperledger.indy.WalletConfig
-import com.luxoft.blockchainlab.hyperledger.indy.utils.PoolManager
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletConfig
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
@@ -54,7 +54,7 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
     val walletConfig = SerializationUtils.anyToJSON(WalletConfig("wallet-${Random().nextInt().absoluteValue}"))
     val walletCredentials = """{"key": "123"}"""
 
-    val pool = PoolManager.openIndyPool(File(GENESIS_PATH), "pool-${Random().nextInt().absoluteValue}")
+    val pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool-${Random().nextInt().absoluteValue}")
 
     try {
         Wallet.createWallet(walletConfig, walletCredentials).get()
@@ -69,7 +69,6 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
 
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     val indyUser = IndyUser(walletAndPool.second, walletAndPool.first, null, """{"seed": "000000000000000000000000Trustee1"}""", "/sdcard/tails")
-    indyUser.createMasterSecret("main")
 
     return indyUser
 }
