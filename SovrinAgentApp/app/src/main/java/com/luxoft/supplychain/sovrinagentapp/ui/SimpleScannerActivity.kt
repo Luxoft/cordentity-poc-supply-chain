@@ -58,9 +58,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         mScannerView = ZBarScannerView(this)
         contentFrame.addView(mScannerView)
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), requestCode)
-        }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
     }
