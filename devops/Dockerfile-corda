@@ -10,6 +10,8 @@ LABEL net.corda.version = ${CORDA_VERSION}
 # RUN apt-get update && \
 #    apt-get install -y openjdk-8-jdk
 
+RUN apt-get update && apt-get install -y libindy=1.8.1
+
 # Add user
 RUN addgroup corda && \
     useradd -g corda corda && \
@@ -26,10 +28,11 @@ ADD additional-node-infos/  /opt/corda/additional-node-infos
 ADD certificates/           /opt/corda/certificates
 ADD drivers/                /opt/corda/drivers
 ADD persistence*            /opt/corda/
+ADD indyconfig/             /opt/corda/indyconfig
+ADD genesis/                /opt/corda/genesis
 
 # Working directory for Corda
 WORKDIR /opt/corda
-ENV HOME=/opt/corda
 
 # ENV RUST_LOG=trace
 

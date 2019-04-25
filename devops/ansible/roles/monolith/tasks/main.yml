@@ -55,15 +55,15 @@
     dest: "{{ ansible_env.HOME}}"
     delete: yes
 
-- name: Start Indypool
-  command: docker-compose up -d indypool
+#- name: Start Indypool
+#  command: docker-compose up -d indypool
 
 - name: Start Corda
-  command: docker-compose up -d notary tccorda sacorda mfcorda
+  command: docker-compose up -d notary tccorda mfcorda
 
 - pause:
     minutes: 2
 
 - name: Start Web
-  command: docker-compose up -d tcweb mfweb saweb
+  command: docker-compose up -d tcweb mfweb
 
