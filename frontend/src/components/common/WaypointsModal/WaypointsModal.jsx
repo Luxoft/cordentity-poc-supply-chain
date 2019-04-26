@@ -8,11 +8,11 @@ import classSet from 'react-classset';
 
 const waypointsComments = {
     [PackageStatus.NEW]: () => 'Insurer has confirmed the coverage for the personalized therapy treatment costs',
-    [PackageStatus.ISSUED]: () => ` Manufacturing request is created.`,
-    [PackageStatus.PROCESSED]: () => `Medicine is produced.`,
+    [PackageStatus.ISSUED]: () => 'Manufacturing request is created.',
+    [PackageStatus.PROCESSED]: () => 'Medicine is produced.',
     [PackageStatus.DELIVERED]: () => 'Medicine is delivered.',
-    [PackageStatus.QP_PASSED]: () => `Medicine is ready for pick up.`,
-    [PackageStatus.COLLECTED]: () => `Medicine is picked up`
+    [PackageStatus.QP_PASSED]: () => 'Medicine is ready for pick up.',
+    [PackageStatus.COLLECTED]: () => 'Medicine is picked up'
 };
 
 export default class WaypointsModal extends React.Component {

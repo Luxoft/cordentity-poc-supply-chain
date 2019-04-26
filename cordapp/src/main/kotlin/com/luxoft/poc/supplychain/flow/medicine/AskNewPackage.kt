@@ -81,6 +81,7 @@ class AskNewPackage {
                     patientDiagnosis = "leukemia",
                     medicineName = "Santorium",
                     medicineDescription = "package-required",
+                    requestedAt = System.currentTimeMillis(),
                     requestedBy = ourIdentity.name,
                     processedBy = getManufacturer().name
             )
