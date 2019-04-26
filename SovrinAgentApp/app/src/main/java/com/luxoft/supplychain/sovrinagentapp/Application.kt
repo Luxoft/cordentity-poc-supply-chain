@@ -61,18 +61,28 @@ class Application : Application() {
             val product2 = it.createObject(Product::class.java, "N/A")
             product2.state  = PackageState.NEW.name
             product2.medicineName = "Santorium"
-            product2.requestedAt = System.currentTimeMillis()
+            product2.requestedAt = Long.MAX_VALUE
 
             val claimAttrs = listOf(
                     ClaimAttribute().apply {
-                        key = "key A"
-                        value = "value A"
-                        issuer = "issuer A"
+                        key = "Full Name"
+                        value = "John Doe"
+                        issuer = "Official Authorities"
                     },
                     ClaimAttribute().apply {
-                        key = "key B"
-                        value = "value B"
-                        issuer = "issuer B"
+                        key = "Date of birth"
+                        value = "28.04.1985"
+                        issuer = "Official Authorities"
+                    },
+                    ClaimAttribute().apply {
+                        key = "Medical condition"
+                        value = "Neuroblastoma"
+                        issuer = "Medical center"
+                    },
+                    ClaimAttribute().apply {
+                        key = "Address"
+                        value = "14 Elm street, Zurich"
+                        issuer = "Official Authorities"
                     }
             )
             it.copyToRealmOrUpdate(claimAttrs)

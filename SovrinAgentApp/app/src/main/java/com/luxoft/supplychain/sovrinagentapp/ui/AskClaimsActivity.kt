@@ -16,29 +16,26 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui
 
-import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
+import android.widget.ProgressBar
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
-import java.nio.file.Paths
 
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -62,11 +59,7 @@ class AskClaimsActivity : AppCompatActivity() {
         recyclerView.adapter = ClaimsAdapter(Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll())
 
         findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
-            ContextCompat.startActivity(
-                    this,
-                    Intent().setClass(this, MainActivity::class.java),
-                    null
-            )
+            setContentView(ProgressBar(it.context, null, android.R.attr.progressBarStyleSmall))
 
             api.createRequest(AskForPackageRequest(indyUser.did))
                     .subscribeOn(Schedulers.io())

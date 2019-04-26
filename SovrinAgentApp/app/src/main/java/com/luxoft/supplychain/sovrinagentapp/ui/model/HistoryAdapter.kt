@@ -17,7 +17,6 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.model
 
 import android.content.Intent
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -28,7 +27,6 @@ import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
 import io.realm.Realm
 import io.realm.RealmChangeListener
@@ -38,7 +36,7 @@ import kotlinx.android.synthetic.main.order_list_item.view.*
 import kotlinx.android.synthetic.main.qr_list_item.view.*
 
 
-class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     var realmChangeListener = RealmChangeListener<Realm> {
@@ -50,7 +48,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         realm.addChangeListener(realmChangeListener)
     }
 
-    private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("requestedAt", Sort.DESCENDING).isNull("collectedAt").findAll()
+    private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("collectedAt", Sort.DESCENDING).isNotNull("collectedAt").findAll()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
@@ -71,13 +69,6 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         holder.title.setOnClickListener {
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
-        holder.qrButton.setOnClickListener {
-            ContextCompat.startActivity(holder.qrButton.context,
-                    Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
-                            .putExtra("serial", order.serial)
-                            .putExtra("state", order.state), null
-            )
-        }
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -90,14 +81,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
-        return if (viewType == QR) {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.qr_list_item, viewGroup, false)
-            QROrderViewHolder(view)
-        } else {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.order_list_item, viewGroup, false)
-            OrderViewHolder(view)
-        }
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.order_list_item, viewGroup, false)
+        return OrderViewHolder(view)
     }
 
     override fun getItemCount(): Int {
@@ -105,8 +90,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     override fun getItemViewType(position: Int): Int {
-        val order = orders[position]
-        return if (order?.state == PackageState.NEW.name || order?.state == PackageState.DELIVERED.name) QR else plain
+        return plain
     }
 
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

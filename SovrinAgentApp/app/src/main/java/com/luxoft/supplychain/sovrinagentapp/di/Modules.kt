@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.di
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -50,6 +49,9 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
 }
 
+val webServerEndpoint = "http://18.216.169.252:8082"
+val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
+
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
     val walletConfig = SerializationUtils.anyToJSON(WalletConfig("wallet-${Random().nextInt().absoluteValue}"))
     val walletCredentials = """{"key": "123"}"""
@@ -77,7 +79,7 @@ fun provideApiClient(gson: Gson): SovrinAgentService {
     val retrofit: Retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl("http://3.17.65.252:8082")
+            .baseUrl(webServerEndpoint)
             .build()
 
     retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
