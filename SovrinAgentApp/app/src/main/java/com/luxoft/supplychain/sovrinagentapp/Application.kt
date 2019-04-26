@@ -18,14 +18,14 @@ package com.luxoft.supplychain.sovrinagentapp
 
 import android.app.Application
 import android.os.Environment
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
-import com.luxoft.supplychain.sovrinagentapp.data.*
-import com.luxoft.supplychain.sovrinagentapp.di.*
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.di.myModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.koin.android.ext.android.startKoin
-import java.lang.RuntimeException
 
 class Application : Application() {
 
@@ -62,6 +62,20 @@ class Application : Application() {
             product2.state  = PackageState.NEW.name
             product2.medicineName = "Santorium"
             product2.requestedAt = System.currentTimeMillis()
+
+            val claimAttrs = listOf(
+                    ClaimAttribute().apply {
+                        key = "key A"
+                        value = "value A"
+                        issuer = "issuer A"
+                    },
+                    ClaimAttribute().apply {
+                        key = "key B"
+                        value = "value B"
+                        issuer = "issuer B"
+                    }
+            )
+            it.copyToRealmOrUpdate(claimAttrs)
         }
     }
 }
