@@ -29,6 +29,7 @@ import android.view.ViewGroup
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.HistoryAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
@@ -74,7 +75,8 @@ class HistoryFragment : Fragment() {
                     saveOrders(it)
                 }, { error ->
                     mSwipeRefreshLayout.isRefreshing = false
-                    Log.e("Get Invite Error: ", error.message, error)
+                    showAlertDialog(context!!, "Error loading history: ${error.message}")
+                    Log.e("Error loading history: ", error.message, error)
                 })
     }
 

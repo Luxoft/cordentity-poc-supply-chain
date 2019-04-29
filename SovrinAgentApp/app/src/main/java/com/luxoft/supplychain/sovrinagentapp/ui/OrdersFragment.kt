@@ -114,7 +114,7 @@ class OrdersFragment : Fragment() {
                                 acceptInvite(invite).handle { message, ex ->
                                     if (ex != null) {
                                         Log.e("Error processing invite", ex.message, ex)
-                                        showAlertDialog(context!!, "Error processing invite: ${ex.message}")
+                                        showAlertDialog(context!!, "Error processing invite: ${ex.message}") { loaded() }
                                         return@handle
                                     }
 
