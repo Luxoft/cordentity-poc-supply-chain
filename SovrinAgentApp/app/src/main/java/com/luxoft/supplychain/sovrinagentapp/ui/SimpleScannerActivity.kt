@@ -26,7 +26,6 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
@@ -35,6 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
@@ -93,7 +93,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
     override fun handleResult(rawResult: Result) {
         mScannerView!!.stopCamera()
-        setContentView(ProgressBar(baseContext, null, android.R.attr.progressBarStyleSmall))
+        drawProgressBar()
 
         val state = intent?.getStringExtra("state")
         val serial = intent?.getStringExtra("serial")
@@ -132,9 +132,9 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                             connection.sendProof(proof)
                             Thread.sleep(3000)
                             finish()
-                        }) {
-                            er -> Log.e("Get Invite Error: ", er.message, er)
-                            finish()
+                        }) { er ->
+                            Log.e("Collect Package Error: ", er.message, er)
+                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
                         }
             }
             else -> finish()

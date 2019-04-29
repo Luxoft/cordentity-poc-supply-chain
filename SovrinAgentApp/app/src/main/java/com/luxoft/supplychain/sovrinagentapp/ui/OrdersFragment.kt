@@ -33,6 +33,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.di.indyAgentWSEndpoint
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.OrdersAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
@@ -91,8 +92,8 @@ class OrdersFragment : Fragment() {
                     saveOrders(it)
                 }, {
                     error ->
-                    loaded()
-                    Log.e("Get Invite Error: ", error.message, error)
+                    Log.e("Get Packages Error: ", error.message, error)
+                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
                 })
     }
 
@@ -113,6 +114,7 @@ class OrdersFragment : Fragment() {
                                 acceptInvite(invite).handle { message, ex ->
                                     if (ex != null) {
                                         Log.e("Error processing invite", ex.message, ex)
+                                        showAlertDialog(context!!, "Error processing invite: ${ex.message}")
                                         return@handle
                                     }
 
@@ -122,7 +124,7 @@ class OrdersFragment : Fragment() {
                                 }
                             }
                         },
-                        { er -> Log.e("Get Invite Error: ", er.message, er); loaded() }
+                        { er -> Log.e("Get Invite Error: ", er.message, er); showAlertDialog(context!!, "Get Invite Error: ${er.message}") { loaded() } }
                 )
     }
 

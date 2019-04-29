@@ -23,13 +23,13 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
-import android.widget.ProgressBar
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
@@ -56,10 +56,10 @@ class AskClaimsActivity : AppCompatActivity() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        recyclerView.adapter = ClaimsAdapter(Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll())
+        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).findAll())
 
         findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
-            setContentView(ProgressBar(it.context, null, android.R.attr.progressBarStyleSmall))
+            drawProgressBar()
 
             api.createRequest(AskForPackageRequest(indyUser.did))
                     .subscribeOn(Schedulers.io())
@@ -103,12 +103,12 @@ class AskClaimsActivity : AppCompatActivity() {
                                         },
                                         {
                                             er -> Log.e("Get Tails Error: ", er.message, er)
-                                            finish()
+                                            showAlertDialog(baseContext, "Get Tails Error: ${er.message}") { finish() }
                                         }
                                 )
                     }, {
                         er -> Log.e("Get Request Error: ", er.message, er)
-                        finish()
+                        showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
                     })
         }
     }

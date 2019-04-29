@@ -17,14 +17,20 @@
 package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import kotlin.math.roundToInt
 
 
 const val REQUEST_CODE = 101
@@ -120,4 +126,28 @@ class MainActivity : AppCompatActivity() {
         realm.removeAllChangeListeners()
         realm.close()
     }
+
+    companion object {
+        fun progressBarFactory(context: Context) = ProgressBar(context, null, android.R.attr.progressBarStyleSmall)
+
+        fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
+                .setTitle("Error")
+                .setMessage(cause)
+                .setCancelable(false)
+                .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which: Int) {
+                        callback()
+                    }
+                }).show()
+    }
+}
+
+fun AppCompatActivity.drawProgressBar(sizeInDP: Int = 100) {
+    val dpDensity = getResources().getDisplayMetrics().density
+    val layout = RelativeLayout(this)
+    val params = RelativeLayout.LayoutParams((sizeInDP * dpDensity).roundToInt(), (sizeInDP * dpDensity).roundToInt())
+    params.addRule(RelativeLayout.CENTER_IN_PARENT)
+    layout.addView(MainActivity.progressBarFactory(baseContext), params)
+
+    setContentView(layout)
 }

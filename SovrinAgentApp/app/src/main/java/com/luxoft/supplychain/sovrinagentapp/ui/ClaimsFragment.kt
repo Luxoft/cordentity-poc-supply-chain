@@ -28,18 +28,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
-import org.koin.android.ext.android.inject
 
 
 class ClaimsFragment : Fragment() {
 
     private var mAdapter: ClaimsAdapter? = null
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private val api: SovrinAgentService by inject()
     private val realm: Realm = Realm.getDefaultInstance()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +52,7 @@ class ClaimsFragment : Fragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        val claims = Realm.getDefaultInstance().where(ClaimAttribute::class.java).findAll()
+        val claims = realm.where(ClaimAttribute::class.java).findAll()
         mAdapter = ClaimsAdapter(claims)
         recyclerView.adapter = mAdapter
 
