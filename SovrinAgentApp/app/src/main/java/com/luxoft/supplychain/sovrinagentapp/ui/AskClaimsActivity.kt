@@ -33,6 +33,7 @@ import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlert
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
+import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
@@ -60,8 +61,9 @@ class AskClaimsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
             drawProgressBar()
-
-            api.createRequest(AskForPackageRequest(indyUser.did))
+            //Hack for Retrofit blocking UI thread
+            Completable.complete().observeOn(Schedulers.io()).subscribe {
+                api.createRequest(AskForPackageRequest(indyUser.did))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -110,6 +112,7 @@ class AskClaimsActivity : AppCompatActivity() {
                         er -> Log.e("Get Request Error: ", er.message, er)
                         showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
                     })
+            }
         }
     }
 
