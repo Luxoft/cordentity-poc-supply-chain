@@ -50,7 +50,25 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         realm.addChangeListener(realmChangeListener)
     }
 
-    private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("requestedAt", Sort.DESCENDING).isNull("collectedAt").findAll()
+    //Dirty hack to hide first hardcoded value if there are pending orders
+    private val orders = object {
+        private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("requestedAt", Sort.DESCENDING).isNull("collectedAt").findAll()
+        val size: Int
+            get() {
+                var size = orders.size
+                if (size > 1)
+                    size -= 1
+                return size
+            }
+
+        operator fun get(index: Int): Product? {
+            var position: Int = index
+            if (orders.size > 1) {
+                position += 1
+            }
+            return orders[position]
+        }
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
