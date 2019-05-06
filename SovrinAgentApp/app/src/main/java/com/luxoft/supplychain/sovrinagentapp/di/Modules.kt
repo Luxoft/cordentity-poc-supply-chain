@@ -49,7 +49,7 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
 }
 
-val webServerEndpoint = "http://18.216.169.252:8082"
+val webServerEndpoint = "http://3.17.65.252:8082"
 val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
 
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
