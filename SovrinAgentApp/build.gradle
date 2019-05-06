@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.2.41'
-    ext.cordentity_version = '74a0483d67'
+    ext.cordentity_version = 'bb1aa1142d'
     
     repositories {
         google()
