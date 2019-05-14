@@ -37,7 +37,7 @@ class IndyInitializer {
 
     @PostConstruct
     fun init() {
-        val timeout = Duration.ofSeconds(120L)
+        val timeout = Duration.ofSeconds(180L)
 
         val user = User("user1", "test", permissions = setOf())
 
