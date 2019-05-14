@@ -24,6 +24,9 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.TailsHelper
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
+import com.luxoft.blockchainlab.hyperledger.indy.models.RevocationRegistryInfo
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
@@ -36,7 +39,6 @@ import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.io.File
 
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -82,32 +84,22 @@ class AskClaimsActivity : AppCompatActivity() {
                         connection.sendCredentialRequest(credentialRequest)
 
                         val credential = connection.receiveCredential().toBlocking().value()
+                        val revocationRegistryInfo : RevocationRegistryInfo? =
+                            indyUser.getRevocationRegistryInfo(
+                                CredentialDefinitionId.fromString(
+                                    credential.credential.credentialDefinitionIdRaw
+                                ))
+                        val tailsHash = revocationRegistryInfo!!.definition.value["tailsHash"].toString()
                         indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
+                        connection.requestTails(tailsHash)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                TailsHelper.DefaultWriter(indyUser.tailsPath).write(it)
+                                println("TAILS WRITTEN")
+                                finish()
+                            }
 
-                        api.getTails()
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        { tails ->
-                                            val dir = File(indyUser.tailsPath)
-                                            if (!dir.exists())
-                                                dir.mkdirs()
-
-                                            tails.forEach { name, content ->
-                                                val file = File("${indyUser.tailsPath}/$name")
-                                                if (file.exists())
-                                                    file.delete()
-                                                file.createNewFile()
-                                                file.writeText(content)
-                                            }
-                                            println("TAILS WRITTEN")
-                                            finish()
-                                        },
-                                        {
-                                            er -> Log.e("Get Tails Error: ", er.message, er)
-                                            showAlertDialog(baseContext, "Get Tails Error: ${er.message}") { finish() }
-                                        }
-                                )
                     }, {
                         er -> Log.e("Get Request Error: ", er.message, er)
                         showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
