@@ -45,8 +45,7 @@ class Application : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        System.setProperty("INDY_HOME", applicationContext.filesDir.absolutePath)
-        System.setProperty("INDY_POOL_PATH", "${Environment.getExternalStorageDirectory().absolutePath}/.indy_client")
+        System.setProperty("INDY_HOME", Environment.getExternalStorageDirectory().absolutePath)
 
         startKoin(this, listOf(myModule))
 
@@ -62,30 +61,6 @@ class Application : Application() {
             product2.state  = PackageState.NEW.name
             product2.medicineName = "Santorium"
             product2.requestedAt = Long.MAX_VALUE
-
-            val claimAttrs = listOf(
-                    ClaimAttribute().apply {
-                        key = "Full Name"
-                        value = "John Doe"
-                        issuer = "Official Authorities"
-                    },
-                    ClaimAttribute().apply {
-                        key = "Date of birth"
-                        value = "28.04.1985"
-                        issuer = "Official Authorities"
-                    },
-                    ClaimAttribute().apply {
-                        key = "Medical condition"
-                        value = "Neuroblastoma"
-                        issuer = "Medical center"
-                    },
-                    ClaimAttribute().apply {
-                        key = "Address"
-                        value = "14 Elm street, Zurich"
-                        issuer = "Official Authorities"
-                    }
-            )
-            it.copyToRealmOrUpdate(claimAttrs)
         }
     }
 }

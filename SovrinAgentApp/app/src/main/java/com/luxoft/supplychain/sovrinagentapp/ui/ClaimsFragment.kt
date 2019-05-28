@@ -17,8 +17,12 @@
 package com.luxoft.supplychain.sovrinagentapp.ui
 
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -26,11 +30,15 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Button
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
+import org.koin.android.ext.android.inject
 
 
 class ClaimsFragment : Fragment() {
@@ -38,13 +46,21 @@ class ClaimsFragment : Fragment() {
     private var mAdapter: ClaimsAdapter? = null
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private val realm: Realm = Realm.getDefaultInstance()
+    private val indyUser: IndyUser by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment, container, false)
 
         val recyclerView = view.findViewById(R.id.fragment_list_rv) as RecyclerView
-        val emptyView = view.findViewById(R.id.empty_view) as TextView
+        val getClaimButton = view.findViewById(R.id.get_claims) as Button
+        getClaimButton.setOnClickListener {
+            ContextCompat.startActivity(getClaimButton.context,
+                    Intent().setClass(getClaimButton.context, SimpleScannerActivity::class.java)
+                            .putExtra("state", PackageState.GETPROOFS.name), null
+            )
+        }
+        getClaimButton.visibility = View.VISIBLE
 
         val linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
@@ -52,28 +68,24 @@ class ClaimsFragment : Fragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        val claims = realm.where(ClaimAttribute::class.java).findAll()
-        mAdapter = ClaimsAdapter(claims)
+        mAdapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").findAll())
         recyclerView.adapter = mAdapter
-
-        if (claims.isEmpty()) {
-            recyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
-        }
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)
         mSwipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
 
-        updateMyClaims()
+        if (ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            //TODO: Breaks async UX
+            updateMyClaims()
+        }
 
         return view
     }
 
     private fun updateMyClaims() {
         mSwipeRefreshLayout.isRefreshing = true
+
+        indyUser.walletUser.updateCredentialsInRealm()
 
         mSwipeRefreshLayout.isRefreshing = false
     }

@@ -45,7 +45,7 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
     override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
         holder.name.text = claims[position]?.key
         holder.value.text = claims[position]?.value
-        holder.issuer.text = claims[position]?.issuer
+        holder.schemaId.text = claims[position]?.schemaId
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ClaimViewHolder {
@@ -61,7 +61,7 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
         var name: TextView = itemView.tv_claim_attr_name as TextView
         var value: TextView = itemView.tv_claim_attr_value as TextView
-        var issuer: TextView = itemView.tv_claim_issuer as TextView
+        var schemaId: TextView = itemView.tv_schema_id as TextView
 
     }
 }

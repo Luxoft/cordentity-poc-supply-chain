@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.di.indyInitialize
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
@@ -70,6 +71,7 @@ class MainActivity : AppCompatActivity() {
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
                     initGenesis()
+                    indyInitialize
                 }
             }
         }

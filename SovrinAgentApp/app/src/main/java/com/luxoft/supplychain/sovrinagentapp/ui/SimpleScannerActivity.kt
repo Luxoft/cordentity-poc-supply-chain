@@ -27,6 +27,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Toast
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.supplychain.sovrinagentapp.Application
@@ -34,12 +35,16 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
+import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
+import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler {
 
@@ -47,6 +52,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private var mScannerView: ZBarScannerView? = null
     private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
+    private val agentConnection: AgentConnection by inject()
 
 
     override fun onCreate(state: Bundle?) {
@@ -91,7 +97,11 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         mScannerView?.stopCamera()
     }
 
+    val correct = Regex(".+\\/indy\\?c_i=.+")
+
     override fun handleResult(rawResult: Result) {
+        val content = rawResult.contents
+        if (!correct.matches(content)) return
         mScannerView!!.stopCamera()
         drawProgressBar()
 
@@ -99,6 +109,35 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         val serial = intent?.getStringExtra("serial")
 
         when (state) {
+            PackageState.GETPROOFS.name -> {
+                Completable.complete().observeOn(Schedulers.io()).subscribe {
+                    try {
+                        agentConnection.acceptInvite(content).toBlocking().value().apply {
+                            do {
+                                val credOffer = try {
+                                    receiveCredentialOffer().timeout(5, TimeUnit.SECONDS).toBlocking().value()
+                                } catch (e: RuntimeException) {
+                                    //End of waiting for new credentials
+                                    if (e.cause !is TimeoutException)
+                                        throw e
+                                    null
+                                }?.apply {
+                                    val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, this)
+                                    sendCredentialRequest(credentialRequest)
+                                    val credential = receiveCredential().toBlocking().value()
+                                    indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
+                                }
+                            } while (credOffer != null)
+                            indyUser.walletUser.updateCredentialsInRealm()
+                            finish()
+                        }
+                    } catch (er: Exception) {
+                        Log.e("Get Claims Error: ", er.message, er)
+                        showAlertDialog(baseContext, "Get Claims Error: ${er.message}") { finish() }
+                    }
+                }
+            }
+
             PackageState.NEW.name -> {
 
                 // TODO: start new connection if there is no any using qr code content (there should be invite)
@@ -128,7 +167,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                             val connection = (application as Application).getConnection()
 
                             val proofRequest: ProofRequest = connection.receiveProofRequest().toBlocking().value()
-                            val proof = indyUser.createProof(proofRequest)
+                            val proof = indyUser.createProofFromLedgerData(proofRequest)
                             connection.sendProof(proof)
                             Thread.sleep(3000)
                             finish()

@@ -18,21 +18,21 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.55">
 
-    <TextView
-            android:id="@+id/tv_claim_attr_name"
-            tools:text="Claim Attribute Name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <TextView
+                android:id="@+id/tv_claim_attr_name"
+                tools:text="Claim Attribute Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-    <TextView
-            tools:text="Claim Attribute Value "
-            android:textSize="15.5sp"
-            android:fontFamily="sans-serif"
-            android:textStyle="normal"
-            android:textColor="#5a564e"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_claim_attr_value"/>
+        <TextView
+                tools:text="Claim Attribute Value "
+                android:textSize="15.5sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                android:textColor="#5a564e"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_claim_attr_value"/>
     </LinearLayout>
 
     <LinearLayout
@@ -45,14 +45,14 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="issued by"
+                android:text="schema id"
                 android:id="@+id/tv_verified_by"/>
         <TextView
                 tools:text="V4SGRU86Z58d6TV7PBUe6f"
                 android:textSize="10sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/tv_claim_issuer"
+                android:id="@+id/tv_schema_id"
         />
     </LinearLayout>
 </LinearLayout>

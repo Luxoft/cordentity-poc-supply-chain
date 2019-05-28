@@ -4,26 +4,31 @@
              android:layout_height="match_parent"
              android:background="#f4f4f4"
              xmlns:tools="http://schemas.android.com/tools">
-    <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/fragment_list_rv"
+    <LinearLayout android:layout_height="match_parent" android:layout_width="match_parent"
+                  xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:gravity="center_horizontal"
+                  android:orientation="vertical">
+        <Button
+                android:id="@+id/get_claims"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                tools:listitem="@layout/claim_list_item"/>
+                android:layout_height="wrap_content"
+                android:text="Get claims"
+                android:background="@drawable/gradient"
+                android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
-            android:text="You have no claims current" />
+        <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/fragment_list_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    tools:listitem="@layout/claim_list_item"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
 </FrameLayout>

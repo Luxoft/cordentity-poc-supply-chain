@@ -26,7 +26,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class OrdersFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
+    private val agentConnection: AgentConnection by inject()
     private var mAdapter: OrdersAdapter? = null
     private val realm: Realm = Realm.getDefaultInstance()
 
@@ -109,7 +110,7 @@ class OrdersFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { invite ->
-                            PythonRefAgentConnection().apply {
+                            agentConnection.apply {
                                 connect(indyAgentWSEndpoint, login = "user${Random().nextInt()}", password = "secretPassword").toBlocking().value()
                                 acceptInvite(invite).handle { message, ex ->
                                     if (ex != null) {

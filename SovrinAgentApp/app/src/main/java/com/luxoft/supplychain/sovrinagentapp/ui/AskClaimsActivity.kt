@@ -29,6 +29,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.di.tailsPath
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
@@ -63,7 +64,7 @@ class AskClaimsActivity : AppCompatActivity() {
             drawProgressBar()
             //Hack for Retrofit blocking UI thread
             Completable.complete().observeOn(Schedulers.io()).subscribe {
-                api.createRequest(AskForPackageRequest(indyUser.did))
+                api.createRequest(AskForPackageRequest(indyUser.walletUser.did))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -78,23 +79,23 @@ class AskClaimsActivity : AppCompatActivity() {
 
                         val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
 
-                        val credentialRequest = indyUser.createCredentialRequest(indyUser.did, credentialOffer)
+                        val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, credentialOffer)
                         connection.sendCredentialRequest(credentialRequest)
 
                         val credential = connection.receiveCredential().toBlocking().value()
-                        indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
+                        indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
 
                         api.getTails()
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         { tails ->
-                                            val dir = File(indyUser.tailsPath)
+                                            val dir = File(tailsPath)
                                             if (!dir.exists())
                                                 dir.mkdirs()
 
                                             tails.forEach { name, content ->
-                                                val file = File("${indyUser.tailsPath}/$name")
+                                                val file = File("$tailsPath/$name")
                                                 if (file.exists())
                                                     file.delete()
                                                 file.createNewFile()

@@ -22,6 +22,7 @@ import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 
 enum class PackageState {
+    GETPROOFS,
     NEW,
     ISSUED,
     PROCESSED,
@@ -36,7 +37,6 @@ data class PushToken(val did: String, val token: String)
 data class AskForPackageRequest(val tcName: String)
 
 
-
 open class Error {
     open var code: Int = 0
     open var message: String? = null
@@ -46,7 +46,7 @@ open class Error {
 open class ClaimAttribute: RealmObject() {
     @PrimaryKey open var key: String? = null
     open var value: String? = null
-    open var issuer: String? = null
+    open var schemaId: String? = null
 }
 
 @RealmClass

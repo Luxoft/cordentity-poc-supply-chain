@@ -20,25 +20,31 @@ import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.DEFAULT_MASTER_SECRET_ID
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletConfig
-import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
+import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnDids
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
+import io.realm.Realm
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
-import org.hyperledger.indy.sdk.wallet.WalletExistsException
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.module
 import retrofit.GsonConverterFactory
 import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
+import rx.Single
 import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.absoluteValue
 
 
 // Koin module
@@ -47,32 +53,71 @@ val myModule: Module = module {
     single { provideApiClient(get()) } // get() will resolve Service instance
     factory { provideWalletAndPool() }
     single { provideIndyUser(get()) }
+    single { connectedAgentConnection() }
 }
 
 val webServerEndpoint = "http://3.17.65.252:8082"
 val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
+val tailsPath = "/sdcard/tails"
+
+//Async agent initialization for smooth UX
+
+val agentConnection = PythonRefAgentConnection()
+val agentConnect = agentConnection.connect(indyAgentWSEndpoint, login = "medical-supplychain", password = "secretPassword").toCompletable()
+fun connectedAgentConnection(): AgentConnection {
+    agentConnect.await()
+    return agentConnection
+}
+
+//Async indy initialization for smooth UX
+lateinit var pool: Pool
+lateinit var wallet: Wallet
+
+val indyInit = Single.create<Unit> { observer ->
+    try {
+        pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
+        wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
+        observer.onSuccess(Unit)
+    } catch (e: Exception) {
+        observer.onError(RuntimeException("Error initializing indy", e))
+    }
+}
+
+val indyInitialize by lazy {
+    indyInit.toCompletable()
+}
 
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
-    val walletConfig = SerializationUtils.anyToJSON(WalletConfig("wallet-${Random().nextInt().absoluteValue}"))
-    val walletCredentials = """{"key": "123"}"""
-
-    val pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool-${Random().nextInt().absoluteValue}")
-
-    try {
-        Wallet.createWallet(walletConfig, walletCredentials).get()
-    } catch (e: WalletExistsException) {
-        // ok
-    }
-
-    val wallet = Wallet.openWallet(walletConfig, walletCredentials).get()
+    indyInitialize.await()
 
     return Pair(wallet, pool)
 }
 
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
-    val indyUser = IndyUser(walletAndPool.second, walletAndPool.first, null, """{"seed": "000000000000000000000000Trustee1"}""", "/sdcard/tails")
+    val (wallet, pool) = walletAndPool
+    val walletUser = wallet.getOwnDids().firstOrNull()?.run {
+        IndySDKWalletUser(wallet, did, tailsPath)
+    } ?: run {
+        IndySDKWalletUser(wallet, tailsPath = tailsPath).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
+    }
 
-    return indyUser
+    return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
+}
+
+fun WalletUser.updateCredentialsInRealm() {
+    Realm.getDefaultInstance().executeTransaction {
+        val claims = this.getCredentials().asSequence().map { credRef ->
+            credRef.attributes.entries.map {
+                ClaimAttribute().apply {
+                    key = it.key
+                    value = it.value?.toString()
+                    schemaId = credRef.schemaIdRaw
+                }
+            }
+        }.flatten().toList()
+        it.delete(ClaimAttribute::class.java)
+        it.copyToRealmOrUpdate(claims)
+    }
 }
 
 fun provideApiClient(gson: Gson): SovrinAgentService {
