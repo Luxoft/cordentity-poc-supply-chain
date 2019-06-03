@@ -17,19 +17,16 @@
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
-import com.squareup.okhttp.Response
-import retrofit.http.*
+import retrofit.http.Body
+import retrofit.http.GET
+import retrofit.http.POST
 import rx.Observable
 
 
 interface SovrinAgentService  {
-
-    @GET("/api/tc/invite")
-    fun getInvite(): Observable<String>
 
     @GET("/api/tc/tails")
     fun getTails(): Observable<Map<String, String>>

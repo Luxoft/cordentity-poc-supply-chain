@@ -27,8 +27,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
-import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
@@ -105,28 +103,7 @@ class OrdersFragment : Fragment() {
     }
 
     private fun connectToAgent() {
-        api.getInvite()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { invite ->
-                            agentConnection.apply {
-                                connect(indyAgentWSEndpoint, login = "user${Random().nextInt()}", password = "secretPassword").toBlocking().value()
-                                acceptInvite(invite).handle { message, ex ->
-                                    if (ex != null) {
-                                        Log.e("Error processing invite", ex.message, ex)
-                                        showAlertDialog(context!!, "Error processing invite: ${ex.message}") { loaded() }
-                                        return@handle
-                                    }
-
-                                    (activity!!.application as Application).setConnection(message!!)
-                                    loaded()
-                                    println("CONNECTION ESTABLISHED")
-                                }
-                            }
-                        },
-                        { er -> Log.e("Get Invite Error: ", er.message, er); showAlertDialog(context!!, "Get Invite Error: ${er.message}") { loaded() } }
-                )
+        agentConnection.connect(indyAgentWSEndpoint, login = "user${Random().nextInt()}", password = "secretPassword").subscribe { loaded() }
     }
 
     private fun saveOrders(offers: List<Product>) {

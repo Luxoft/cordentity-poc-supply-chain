@@ -26,6 +26,7 @@ import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
+import com.luxoft.web.data.Invite
 import com.luxoft.web.data.Serial
 import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
@@ -44,7 +45,6 @@ import java.util.*
 class TreatmentCenterController(rpc: RPCComponent) {
     private final val services = rpc.services
     private final val logger = loggerFor<TreatmentCenterController>()
-    private final val clientUUID: UUID = UUID.randomUUID()
 
     @PostMapping("package/receive")
     fun receiveShipment(@RequestBody request: Serial) {
@@ -58,12 +58,13 @@ class TreatmentCenterController(rpc: RPCComponent) {
     }
 
     @GetMapping("invite")
-    fun getInvite(): String {
+    fun getInvite(): Invite {
         println("Get request to /api/tc/invite")
-        val response = services.startFlow(GetInviteFlow::Treatment, clientUUID).returnValue.getOrThrow(Duration.ofSeconds(15))
-        println("Responding to /api/tc/invite with $response")
+        val uuid = UUID.randomUUID()
+        val response = services.startFlow(GetInviteFlow::Treatment, uuid).returnValue.getOrThrow(Duration.ofSeconds(15))
+        println("Responding to /api/tc/invite with ($uuid,$response)")
 
-        return "\"$response\""
+        return Invite(response, uuid.toString())
     }
 
     @GetMapping("tails")
@@ -75,12 +76,12 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment, clientUUID)
+        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID))
     }
 
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial) {
-        services.startFlow(PackageWithdrawal::Owner, request.serial, clientUUID)
+        services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID))
     }
 
     @GetMapping("package/list")

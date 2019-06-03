@@ -23,8 +23,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.supplychain.sovrinagentapp.Application
+import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
@@ -45,6 +47,7 @@ class AskClaimsActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
     private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
+    private val agentConnection: AgentConnection by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,61 +61,71 @@ class AskClaimsActivity : AppCompatActivity() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).findAll())
+        val proofRequest = SerializationUtils.jSONToAny(intent?.getStringExtra("serial")!!, ProofRequest::class.java)
+
+        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+
+        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
 
         findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
             drawProgressBar()
             //Hack for Retrofit blocking UI thread
             Completable.complete().observeOn(Schedulers.io()).subscribe {
-                api.createRequest(AskForPackageRequest(indyUser.walletUser.did))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
+                val partyDid = intent?.getStringExtra("partyDID")!!
+                val clientUUID = intent?.getStringExtra("clientUUID")!!
+                val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
+                val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
+                        ?: throw RuntimeException("Agent connection with $partyDid not found")
 
-                        // TODO: this api call should return immediately
-                        // TODO: after this you should listen to new ingoing credential offer
-                        // TODO: when offer appears, you should show a popup with something like "Treatment Center wants to issue you a new credential which will be used as a token for the package, agree?"
-                        // TODO: if agree you should send new credential request and listen to new credential
-                        // TODO: only when credential is sent Corda-side should commit transaction
+                connection.sendProof(proofFromLedgerData)
 
-                        val connection = (application as Application).getConnection()
+                api.createRequest(AskForPackageRequest(indyUser.walletUser.did, clientUUID))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
 
-                        val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
+                            // TODO: this api call should return immediately
+                            // TODO: after this you should listen to new ingoing credential offer
+                            // TODO: when offer appears, you should show a popup with something like "Treatment Center wants to issue you a new credential which will be used as a token for the package, agree?"
+                            // TODO: if agree you should send new credential request and listen to new credential
+                            // TODO: only when credential is sent Corda-side should commit transaction
 
-                        val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, credentialOffer)
-                        connection.sendCredentialRequest(credentialRequest)
+                            val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
 
-                        val credential = connection.receiveCredential().toBlocking().value()
-                        indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
+                            val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, credentialOffer)
+                            connection.sendCredentialRequest(credentialRequest)
 
-                        api.getTails()
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        { tails ->
-                                            val dir = File(tailsPath)
-                                            if (!dir.exists())
-                                                dir.mkdirs()
+                            val credential = connection.receiveCredential().toBlocking().value()
+                            indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
 
-                                            tails.forEach { name, content ->
-                                                val file = File("$tailsPath/$name")
-                                                if (file.exists())
-                                                    file.delete()
-                                                file.createNewFile()
-                                                file.writeText(content)
+                            api.getTails()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            { tails ->
+                                                val dir = File(tailsPath)
+                                                if (!dir.exists())
+                                                    dir.mkdirs()
+
+                                                tails.forEach { name, content ->
+                                                    val file = File("$tailsPath/$name")
+                                                    if (file.exists())
+                                                        file.delete()
+                                                    file.createNewFile()
+                                                    file.writeText(content)
+                                                }
+                                                println("TAILS WRITTEN")
+                                                finish()
+                                            },
+                                            { er ->
+                                                Log.e("Get Tails Error: ", er.message, er)
+                                                showAlertDialog(baseContext, "Get Tails Error: ${er.message}") { finish() }
                                             }
-                                            println("TAILS WRITTEN")
-                                            finish()
-                                        },
-                                        {
-                                            er -> Log.e("Get Tails Error: ", er.message, er)
-                                            showAlertDialog(baseContext, "Get Tails Error: ${er.message}") { finish() }
-                                        }
-                                )
-                    }, {
-                        er -> Log.e("Get Request Error: ", er.message, er)
-                        showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
-                    })
+                                    )
+                        }, { er ->
+                            Log.e("Get Request Error: ", er.message, er)
+                            showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
+                        })
             }
         }
     }

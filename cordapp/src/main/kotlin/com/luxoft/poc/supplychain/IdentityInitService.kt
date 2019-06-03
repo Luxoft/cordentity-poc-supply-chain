@@ -32,9 +32,9 @@ class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Dur
     fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, CredentialDefinitionId> {
         val schemaId = rpc.startFlow(
                 CreateSchemaFlow::Authority, schema.schemaName, schema.schemaVersion, schema.getSchemaAttrs().map { it.name }
-        ).returnValue.getOrThrow(timeout)
+        ).returnValue.getOrThrow(timeout).getSchemaIdObject()
 
-        val credDefId = rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, 100).returnValue.getOrThrow(timeout)
+        val credDefId = rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, true).returnValue.getOrThrow(timeout).getCredentialDefinitionIdObject()
 
         return Pair(schemaId, credDefId)
     }

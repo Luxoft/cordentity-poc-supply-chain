@@ -19,9 +19,14 @@ package com.luxoft.poc.supplychain.flow.medicine
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
+import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
+import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.flow.RequestForPackage
 import com.luxoft.poc.supplychain.flow.getManufacturer
@@ -51,6 +56,8 @@ class AskNewPackage {
             try {
                 val serial = UUID.randomUUID().toString()
 
+                checkPermissions()
+
                 issueReceipt(serial)
                 requestNewPackage(serial, packageRequest)
 
@@ -61,14 +68,25 @@ class AskNewPackage {
         }
 
         @Suspendable
-        private fun issueReceipt(serial: String) {
-            val receiptProposal = IndySchemaBuilder()
-                    .addAttr(PackageReceipt.Attributes.Serial, serial)
-                    .build()
+        private fun checkPermissions() {
+            val proofRequest = proofRequest("user_proof_req", "1.0") {
+                reveal("name")
+                reveal("sex")
+                reveal("medical id")
+                reveal("medical condition") { FilterProperty.Value shouldBe "Healthy" }
+                proveGreaterThan("age", 18)
+            }
+            if (!subFlow(VerifyCredentialFlowB2C.Verifier(clientDid, clientDid, proofRequest)))
+                throw throw FlowException("Permission verification failed")
+        }
 
+        @Suspendable
+        private fun issueReceipt(serial: String) {
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef.credentialDefinitionId, clientDid))
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDef.id, null, clientDid) {
+                attributes[PackageReceipt.Attributes.Serial.name] = CredentialValue(serial)
+            })
         }
 
         @Suspendable

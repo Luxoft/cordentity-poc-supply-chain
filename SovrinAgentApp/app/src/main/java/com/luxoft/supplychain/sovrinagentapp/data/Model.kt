@@ -30,11 +30,13 @@ enum class PackageState {
     COLLECTED
 }
 
-data class Serial(val serial: String)
+data class Serial(val serial: String, val clientUUID: String)
+
+data class Invite(val invite: String, val clientUUID: String)
 
 data class PushToken(val did: String, val token: String)
 
-data class AskForPackageRequest(val tcName: String)
+data class AskForPackageRequest(val tcName: String, val clientUUID: String)
 
 
 open class Error {

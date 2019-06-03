@@ -17,13 +17,11 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.ProofAttribute
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
-import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
-import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
+import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.state.getInfo
@@ -59,11 +57,11 @@ class PackageWithdrawal {
 
         @Suspendable
         private fun verifyReceipt() {
-            val schema = serviceHub.vaultService.queryBy(IndySchema::class.java).states.first().state.data
-            val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
-
-            val serialProof = ProofAttribute(SchemaId.fromString(schema.id), credDef.credentialDefinitionId, "serial", serial)
-            subFlow(VerifyCredentialFlowB2C.Verifier(serial, listOf(serialProof), emptyList(), clientDid, Interval.allTime()))
+            //TODO: Verify issuer and schema
+            val serialProofRequest = proofRequest("proof_req", "1.0") {
+                reveal("serial") { FilterProperty.Value shouldBe serial }
+            }
+            subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, serialProofRequest))
         }
 
         @Suspendable

@@ -30,9 +30,10 @@ import android.widget.Toast
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
-import com.luxoft.supplychain.sovrinagentapp.Application
+import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
@@ -100,8 +101,14 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     val correct = Regex(".+\\/indy\\?c_i=.+")
 
     override fun handleResult(rawResult: Result) {
-        val content = rawResult.contents
-        if (!correct.matches(content)) return
+        val content: Invite? = try {
+            SerializationUtils.jSONToAny(rawResult.contents, Invite::class.java)
+        } catch (er: Exception) {
+            Log.i("Read QR Error: ", er.message, er)
+            null
+        }
+
+        if (content == null || !correct.matches(content.invite ?: "")) return
         mScannerView!!.stopCamera()
         drawProgressBar()
 
@@ -112,7 +119,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
             PackageState.GETPROOFS.name -> {
                 Completable.complete().observeOn(Schedulers.io()).subscribe {
                     try {
-                        agentConnection.acceptInvite(content).toBlocking().value().apply {
+                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
                             do {
                                 val credOffer = try {
                                     receiveCredentialOffer().timeout(5, TimeUnit.SECONDS).toBlocking().value()
@@ -139,42 +146,61 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
             }
 
             PackageState.NEW.name -> {
+                Completable.complete().observeOn(Schedulers.io()).subscribe {
+                    try {
+                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                            val proofRequest = receiveProofRequest().toBlocking().value()
 
-                // TODO: start new connection if there is no any using qr code content (there should be invite)
+                            ContextCompat.startActivity(
+                                    this@SimpleScannerActivity,
+                                    Intent().setClass(this@SimpleScannerActivity, AskClaimsActivity::class.java)
+                                            .putExtra("result", rawResult.contents)
+                                            .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
+                                            .putExtra("partyDID", partyDID())
+                                            .putExtra("clientUUID", content.clientUUID)
+                                            .putExtra("serial", intent?.getStringExtra("serial")),
+                                    null
+                            )
 
-                ContextCompat.startActivity(
-                        this,
-                        Intent().setClass(this, AskClaimsActivity::class.java)
-                                .putExtra("result", rawResult.contents)
-                                .putExtra("serial", intent?.getStringExtra("serial")),
-                        null
-                )
-                finish()
+                            finish()
+                        }
+                    } catch (er: Exception) {
+                        Log.e("New Package Error: ", er.message, er)
+                        showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                    }
+                }
             }
 
             PackageState.DELIVERED.name -> {
+                Completable.complete().observeOn(Schedulers.io()).subscribe {
+                    try {
+                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                            api.collectPackage(Serial(serial!!, content.clientUUID))
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+                                        // TODO: this call should return immediately
+                                        // TODO: after this you should listen to new ingoing proof request
+                                        // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
+                                        // TODO: if agree you should generate proof out of the proof request and send it back
+                                        // TODO: only if the proof is valid Corda-side should commit transaction
 
-                api.collectPackage(Serial(serial!!))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            // TODO: this call should return immediately
-                            // TODO: after this you should listen to new ingoing proof request
-                            // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
-                            // TODO: if agree you should generate proof out of the proof request and send it back
-                            // TODO: only if the proof is valid Corda-side should commit transaction
 
-                            val connection = (application as Application).getConnection()
-
-                            val proofRequest: ProofRequest = connection.receiveProofRequest().toBlocking().value()
-                            val proof = indyUser.createProofFromLedgerData(proofRequest)
-                            connection.sendProof(proof)
-                            Thread.sleep(3000)
-                            finish()
-                        }) { er ->
-                            Log.e("Collect Package Error: ", er.message, er)
-                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                        val proofRequest: ProofRequest = receiveProofRequest().toBlocking().value()
+                                        val proof = indyUser.createProofFromLedgerData(proofRequest)
+                                        sendProof(proof)
+                                        Thread.sleep(3000)
+                                        finish()
+                                    }) { er ->
+                                        Log.e("Collect Package Error: ", er.message, er)
+                                        showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                    }
                         }
+                    } catch (er: Exception) {
+                        Log.e("Collect Package Invite Error: ", er.message, er)
+                        showAlertDialog(baseContext, "Collect Package Invite GError: ${er.message}") { finish() }
+                    }
+                }
             }
             else -> finish()
         }

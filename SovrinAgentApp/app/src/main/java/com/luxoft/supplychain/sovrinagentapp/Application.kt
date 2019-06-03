@@ -18,7 +18,6 @@ package com.luxoft.supplychain.sovrinagentapp
 
 import android.app.Application
 import android.os.Environment
-import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
@@ -28,20 +27,6 @@ import io.realm.RealmConfiguration
 import org.koin.android.ext.android.startKoin
 
 class Application : Application() {
-
-    private var connection: IndyPartyConnection? = null
-
-    fun setConnection(conn: IndyPartyConnection) {
-        connection = conn
-    }
-
-    fun getConnection(): IndyPartyConnection {
-        if (connection == null)
-            throw RuntimeException("Connection is not established yet")
-
-        return connection!!
-    }
-
     override fun onCreate() {
         super.onCreate()
 

@@ -20,7 +20,9 @@ val SUCCESS = mapOf("success" to true)
 val FAILURE = mapOf("success" to false)
 
 
-data class Serial(val serial: String)
+data class Serial(val serial: String, val clientUUID: String)
+
+data class Invite(val invite: String, val clientUUID: String)
 
 data class QPReleaseResult(val serial: String, val status: String) // 'success' | 'fail';
 
@@ -28,7 +30,7 @@ data class TreatmentCenterDetails(val name: String)
 
 data class PushToken(val did: String, val token: String)
 
-data class AskForPackageRequest(val tcName: String)
+data class AskForPackageRequest(val tcName: String, val clientUUID: String)
 
 data class ProcessPackageRequest(val serial: String)
 
