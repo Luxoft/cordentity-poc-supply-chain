@@ -1,5 +1,6 @@
 import {doAction} from "../index";
 import {
+    INVITE_GET, INVITE_GET_FAIL, INVITE_GET_SUCCESS,
     PACKAGE_DELIVERY,
     PACKAGE_DELIVERY_FAIL,
     PACKAGE_DELIVERY_SUCCESS,
@@ -44,8 +45,17 @@ const patientAgentUrls = {
 
 const treatmentCenterUrls = {
     LIST: `http://${host[CURRENT_ENV]}:8082/api/tc/package/list`,
-    RECEIVE: `http://${host[CURRENT_ENV]}:8082/api/tc/package/receive`
+    RECEIVE: `http://${host[CURRENT_ENV]}:8082/api/tc/package/receive`,
+    GET_INVITE: `http://${host[CURRENT_ENV]}:8082/api/tc/invite`
 };
+
+export function getInvite() {
+    doAction(INVITE_GET);
+
+    return qwest.get(treatmentCenterUrls.GET_INVITE, null, {cache: false})
+        .then((xhr, response) => doAction(INVITE_GET_SUCCESS, response))
+        .catch(error => doAction(INVITE_GET_FAIL, error))
+}
 
 export function fetchPackages(from) {
     doAction(PACKAGE_LOAD);

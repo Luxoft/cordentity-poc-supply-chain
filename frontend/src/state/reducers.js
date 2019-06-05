@@ -1,10 +1,18 @@
-import {PACKAGE_LOAD, PACKAGE_LOAD_FAIL, PACKAGE_LOAD_SUCCESS, PACKAGE_MANUFACTURE} from "./actions";
+import {
+    INVITE_GET, INVITE_GET_FAIL,
+    INVITE_GET_SUCCESS,
+    PACKAGE_LOAD,
+    PACKAGE_LOAD_FAIL,
+    PACKAGE_LOAD_SUCCESS,
+    PACKAGE_MANUFACTURE
+} from "./actions";
 
 const initialPackagesState = {
     packages: [],
     error: null,
     loading: false,
-    manufacturing: null
+    manufacturing: null,
+    invite: null
 };
 
 const PackagesReducer = (state = initialPackagesState, action) => {
@@ -31,6 +39,24 @@ const PackagesReducer = (state = initialPackagesState, action) => {
             return {
                 ...state,
                 manufacturing: action.payload,
+            };
+
+        case INVITE_GET:
+            return {
+                ...state,
+                invite: null
+            };
+
+        case INVITE_GET_SUCCESS:
+            return {
+                ...state,
+                invite: action.payload
+            };
+
+        case INVITE_GET_FAIL:
+            return {
+                ...initialPackagesState,
+                error: action.payload
             };
 
         default:
