@@ -25,4 +25,4 @@ Make sure you have xterm installed.
 Start web servers (after Corda nodes are properly up)
 Make sure that ports 10001+ are free.
 
-`docker-compose up -d tcweb mfweb saweb`
+`docker-compose up -d tcweb mfweb`

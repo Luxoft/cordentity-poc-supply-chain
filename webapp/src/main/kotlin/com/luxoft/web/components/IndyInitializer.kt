@@ -41,11 +41,6 @@ class IndyInitializer {
 
         val user = User("user1", "test", permissions = setOf())
 
-        val treatmentCert = CordaX500Name("TreatmentCenter", "London", "GB")
-
-        val issuer = CordaRPCClient(NetworkHostAndPort("localhost", 10002))
-                .start(user.username, user.password).proxy
-
         val treatment = CordaRPCClient(NetworkHostAndPort("localhost", 10102))
                 .start(user.username, user.password).proxy
 

@@ -25,7 +25,8 @@ class TreatmentCenterPage extends React.Component {
     static propTypes = {
         packages: PropTypes.arrayOf(PropTypes.object),
         error: PropTypes.string,
-        loading: PropTypes.bool
+        loading: PropTypes.bool,
+        invite: PropTypes.string
     };
 
     state = {
@@ -55,7 +56,7 @@ class TreatmentCenterPage extends React.Component {
     }
 
     render() {
-        const {error, loading, packages} = this.props;
+        const {error, loading, packages, invite} = this.props;
         const {addRequestModalVisible, collectPackageModalVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
@@ -100,7 +101,7 @@ class TreatmentCenterPage extends React.Component {
                             addRequestModalVisible &&
                             <Portal>
                                 <Dimmer>
-                                    <AddRequestModal onClose={this.handleAddRequestModalClose}/>
+                                    <AddRequestModal invite={invite} onClose={this.handleAddRequestModalClose}/>
                                 </Dimmer>
                             </Portal>
                         }
@@ -108,7 +109,7 @@ class TreatmentCenterPage extends React.Component {
                             collectPackageModalVisible &&
                             <Portal>
                                 <Dimmer>
-                                    <CollectPackageModal onClose={this.handleCollectPackageModalClose}/>
+                                    <CollectPackageModal invite={invite} onClose={this.handleCollectPackageModalClose}/>
                                 </Dimmer>
                             </Portal>
                         }
@@ -195,7 +196,7 @@ class TreatmentCenterPage extends React.Component {
 }
 
 const mapStateToProps = state => {
-    return {...state.packages}
+    return {...state.packages, ...state.invite}
 };
 
 export default connect(mapStateToProps)(TreatmentCenterPage);

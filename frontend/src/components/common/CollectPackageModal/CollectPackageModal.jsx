@@ -9,6 +9,7 @@ import 'slick-carousel/slick/slick.scss';
 import './CollectPackageModal.scss';
 import QRCode from 'qrcode.react';
 import classSet from 'react-classset';
+import {getInvite} from "../../../state/async";
 
 
 export default class CollectPackageModal extends React.Component {
@@ -20,6 +21,7 @@ export default class CollectPackageModal extends React.Component {
     slider = React.createRef();
 
     componentDidMount() {
+        getInvite();
         setTimeout(() => this.setState({active: false}), 100)
     }
 
@@ -52,6 +54,8 @@ export default class CollectPackageModal extends React.Component {
             active,
         });
 
+        const {invite} = this.props;
+
         const slider = <Slider ref={c => (this.slider = c)} speed={200} slidesToShow={1} slidesToScroll={1}
                                arrows={false}>
             <div className={step0Classes}>
@@ -62,7 +66,7 @@ export default class CollectPackageModal extends React.Component {
                 </div>
             </div>
             <div className={step1Classes}>
-                <QRCode value='Treatment:London:GB' size={200} level='H'/>
+                {invite && <QRCode value={invite} size={200} level='H'/>}
                 <div className="instructions">
                     <p>Ask patient to scan this QR code in order to confirm the request.</p>
                     <p>After successful proof patient is able to collect package.</p>

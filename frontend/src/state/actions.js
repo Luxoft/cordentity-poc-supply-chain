@@ -9,3 +9,7 @@ export const PACKAGE_MANUFACTURE_FAIL = '[General][Package] Manufacture and ship
 export const PACKAGE_DELIVERY = '[General][Package] Delivery';
 export const PACKAGE_DELIVERY_SUCCESS = '[General][Package] Delivery success';
 export const PACKAGE_DELIVERY_FAIL = '[General][Package] Delivery fail';
+
+export const INVITE_GET = '[General][Invite] Get';
+export const INVITE_GET_SUCCESS = '[General][Invite] Get success';
+export const INVITE_GET_FAIL = '[General][Invite] Get fail';
