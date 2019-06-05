@@ -19,7 +19,6 @@ package com.luxoft.poc.supplychain.flow
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
-import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.contract.PackageContract
@@ -57,9 +56,9 @@ class PackageWithdrawal {
 
         @Suspendable
         private fun verifyReceipt() {
-            //TODO: Verify issuer and schema
+            //TODO: Verify issuer,schema and serial
             val serialProofRequest = proofRequest("proof_req", "1.0") {
-                reveal("serial") { FilterProperty.Value shouldBe serial }
+                reveal("serial") // { FilterProperty.Value shouldBe serial }
             }
             subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, serialProofRequest))
         }

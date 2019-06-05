@@ -20,7 +20,7 @@ val SUCCESS = mapOf("success" to true)
 val FAILURE = mapOf("success" to false)
 
 
-data class Serial(val serial: String, val clientUUID: String)
+data class Serial(val serial: String, val clientUUID: String?)
 
 data class Invite(val invite: String, val clientUUID: String)
 

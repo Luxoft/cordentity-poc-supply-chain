@@ -21,7 +21,6 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
-import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
@@ -73,7 +72,7 @@ class AskNewPackage {
                 reveal("name")
                 reveal("sex")
                 reveal("medical id")
-                reveal("medical condition") { FilterProperty.Value shouldBe "Healthy" }
+                reveal("medical condition") //{ FilterProperty.Value shouldBe "Healthy" }
                 proveGreaterThan("age", 18)
             }
             if (!subFlow(VerifyCredentialFlowB2C.Verifier(clientDid, clientDid, proofRequest)))

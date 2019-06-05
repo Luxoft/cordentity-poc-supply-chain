@@ -22,7 +22,7 @@ class GetInviteFlow {
         override fun call(): String {
             val invite = connectionService().getConnection().generateInvite().awaitFiber()
             CompletableFuture.runAsync {
-                connectionService().getConnection().waitForInvitedParty(invite)
+                connectionService().getConnection().waitForInvitedParty(invite, 300000)
                         .handle { message, ex ->
                             if (ex != null) {
                                 logger.error("Failed to wait for invited party", ex)

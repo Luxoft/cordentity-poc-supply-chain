@@ -81,7 +81,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial) {
-        services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID))
+        services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID!!))
     }
 
     @GetMapping("package/list")
