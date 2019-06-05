@@ -11,6 +11,9 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
     defaultConfig {
         applicationId "com.luxoft.supplychain.sovrinagentapp"
         minSdkVersion 24
@@ -20,7 +23,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         ndk {
-            abiFilters 'x86','arm64-v8a'
+            abiFilters 'x86', 'arm64-v8a'
         }
         javaCompileOptions {
             annotationProcessorOptions {
@@ -43,18 +46,18 @@ android {
 }
 
 dependencies {
-    implementation ("com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version")
-    implementation ("com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version")
-    
-    implementation ('net.java.dev.jna:jna:4.5.1@aar')
+    implementation("com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version")
+    implementation("com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version")
+
+    implementation('net.java.dev.jna:jna:4.5.1@aar')
 
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
-    
+
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'
     //noinspection GradleCompatible
-    
+
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -71,7 +74,7 @@ dependencies {
     implementation 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     implementation 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
     implementation 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-  
+
     //Glide
     implementation 'com.github.bumptech.glide:glide:3.7.0'
 

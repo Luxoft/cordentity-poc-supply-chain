@@ -29,7 +29,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
-import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnDids
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
@@ -95,7 +95,7 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
 
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     val (wallet, pool) = walletAndPool
-    val walletUser = wallet.getOwnDids().firstOrNull()?.run {
+    val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
         IndySDKWalletUser(wallet, did, tailsPath)
     } ?: run {
         IndySDKWalletUser(wallet, tailsPath = tailsPath).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }

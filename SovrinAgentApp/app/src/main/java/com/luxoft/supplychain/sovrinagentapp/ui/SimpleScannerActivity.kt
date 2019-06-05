@@ -33,6 +33,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
@@ -90,7 +91,10 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         super.onResume()
         mScannerView?.setResultHandler(this)
         mScannerView?.startCamera()
-//        handleResult(Result())
+//        handleResult(Result().apply {
+//            contents =
+//                    ""
+//        })
     }
 
     override fun onPause() {
@@ -101,14 +105,10 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     val correct = Regex(".+\\/indy\\?c_i=.+")
 
     override fun handleResult(rawResult: Result) {
-        val content: Invite? = try {
-            SerializationUtils.jSONToAny(rawResult.contents, Invite::class.java)
-        } catch (er: Exception) {
-            Log.i("Read QR Error: ", er.message, er)
-            null
-        }
+        if (rawResult.contents == null || !correct.matches(rawResult.contents)) return
 
-        if (content == null || !correct.matches(content.invite ?: "")) return
+        val content: Invite = SerializationUtils.jSONToAny(rawResult.contents)
+
         mScannerView!!.stopCamera()
         drawProgressBar()
 
@@ -129,7 +129,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                                         throw e
                                     null
                                 }?.apply {
-                                    val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, this)
+                                    val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, this)
                                     sendCredentialRequest(credentialRequest)
                                     val credential = receiveCredential().toBlocking().value()
                                     indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
@@ -149,6 +149,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                 Completable.complete().observeOn(Schedulers.io()).subscribe {
                     try {
                         agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                            api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
                             val proofRequest = receiveProofRequest().toBlocking().value()
 
                             ContextCompat.startActivity(
@@ -157,7 +158,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                                             .putExtra("result", rawResult.contents)
                                             .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
                                             .putExtra("partyDID", partyDID())
-                                            .putExtra("clientUUID", content.clientUUID)
                                             .putExtra("serial", intent?.getStringExtra("serial")),
                                     null
                             )
@@ -175,7 +175,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                 Completable.complete().observeOn(Schedulers.io()).subscribe {
                     try {
                         agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                            api.collectPackage(Serial(serial!!, content.clientUUID))
+                            api.collectPackage(Serial(serial!!, content.clientUUID!!))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({

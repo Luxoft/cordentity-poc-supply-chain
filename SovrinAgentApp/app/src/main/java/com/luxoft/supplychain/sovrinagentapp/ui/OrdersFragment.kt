@@ -30,14 +30,12 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.di.indyAgentWSEndpoint
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.OrdersAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -69,9 +67,8 @@ class OrdersFragment : Fragment() {
             loaded.compareAndSet(0, 1)
             updateMyOrders()
         }
-        loaded.set(2)
+        loaded.set(1)
         updateMyOrders()
-        connectToAgent()
 
         return view
     }
@@ -89,8 +86,7 @@ class OrdersFragment : Fragment() {
                 .subscribe({
                     loaded()
                     saveOrders(it)
-                }, {
-                    error ->
+                }, { error ->
                     Log.e("Get Packages Error: ", error.message, error)
                     showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
                 })
@@ -100,10 +96,6 @@ class OrdersFragment : Fragment() {
         if (loaded.decrementAndGet() <= 0) {
             mSwipeRefreshLayout.isRefreshing = false
         }
-    }
-
-    private fun connectToAgent() {
-        agentConnection.connect(indyAgentWSEndpoint, login = "user${Random().nextInt()}", password = "secretPassword").subscribe { loaded() }
     }
 
     private fun saveOrders(offers: List<Product>) {
