@@ -17,25 +17,11 @@
 package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.GetDidFlowB2B
-import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyService
 import com.luxoft.poc.supplychain.IdentityInitService
-import com.luxoft.poc.supplychain.data.AcceptanceResult
-import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
-import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
 import com.luxoft.poc.supplychain.data.schema.PackageReceipt
-import com.luxoft.poc.supplychain.data.schema.PersonalInformation
-import com.luxoft.poc.supplychain.data.state.Package
-import com.luxoft.poc.supplychain.flow.DeliverShipment
-import com.luxoft.poc.supplychain.flow.PackageWithdrawal
-import com.luxoft.poc.supplychain.flow.ReceiveShipment
-import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.messaging.startFlow
-import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.NetworkHostAndPort
-import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import net.corda.nodeapi.internal.config.User
 import org.springframework.context.annotation.Profile
@@ -51,7 +37,7 @@ class IndyInitializer {
 
     @PostConstruct
     fun init() {
-        val timeout = Duration.ofSeconds(1000L)
+        val timeout = Duration.ofSeconds(180L)
 
         val user = User("user1", "test", permissions = setOf())
 

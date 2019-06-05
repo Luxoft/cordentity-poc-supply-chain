@@ -90,5 +90,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
-    <string name="qr_message">Visit your Treatment center to claim it: \nZeehofstrasse 21, Zurich</string>
+    <string name="qr_message">Visit your Treatment center to claim it:\nZeehofstrasse 21, Zurich</string>
 </resources>

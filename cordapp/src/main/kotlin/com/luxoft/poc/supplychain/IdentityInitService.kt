@@ -16,10 +16,8 @@
 
 package com.luxoft.poc.supplychain
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.AssignPermissionsFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateCredentialDefinitionFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.IssueCredentialFlowB2B
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
 import com.luxoft.poc.supplychain.data.schema.IndySchema

@@ -20,7 +20,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -35,6 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
@@ -83,6 +83,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         super.onResume()
         mScannerView?.setResultHandler(this)
         mScannerView?.startCamera()
+//        handleResult(Result())
     }
 
     override fun onPause() {
@@ -91,6 +92,8 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     }
 
     override fun handleResult(rawResult: Result) {
+        mScannerView!!.stopCamera()
+        drawProgressBar()
 
         val state = intent?.getStringExtra("state")
         val serial = intent?.getStringExtra("serial")
@@ -112,12 +115,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
             PackageState.DELIVERED.name -> {
 
-                ContextCompat.startActivity(
-                        this,
-                        Intent().setClass(this, MainActivity::class.java),
-                        null
-                )
-
                 api.collectPackage(Serial(serial!!))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -133,21 +130,12 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                             val proofRequest: ProofRequest = connection.receiveProofRequest().toBlocking().value()
                             val proof = indyUser.createProof(proofRequest)
                             connection.sendProof(proof)
-
+                            Thread.sleep(3000)
                             finish()
-                        }) {
-                            er -> Log.e("Get Invite Error: ", er.message, er)
-                            finish()
+                        }) { er ->
+                            Log.e("Collect Package Error: ", er.message, er)
+                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
                         }
-
-                ContextCompat.startActivity(
-                        this,
-                        Intent().setClass(this, MainActivity::class.java)
-                                .putExtra("result", rawResult.contents)
-                                .putExtra("serial", intent?.getStringExtra("serial")),
-                        null
-                )
-                finish()
             }
             else -> finish()
         }

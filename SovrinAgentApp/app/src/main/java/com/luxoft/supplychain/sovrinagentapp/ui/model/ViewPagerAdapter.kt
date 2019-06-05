@@ -17,8 +17,8 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.model
 
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentPagerAdapter
 
 
 class ViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
@@ -41,6 +41,7 @@ class ViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager)
         return when(position) {
             0 -> "PROFILE"
             1 -> "MY ORDERS"
+            2 -> "HISTORY"
             else -> ""
         }
     }

@@ -3,7 +3,7 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.7.0"
-  ext.cordentity_version = '74a0483d67'
+  ext.cordentity_version = 'bb1aa1142d'
   ext.indy_utils_version = '0.3.0'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
@@ -61,8 +61,8 @@ dependencies {
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
 
-  cordappDeploy "com.github.devalexey.cordentity:cordentity-cordapp:$cordentity_version"
-  cordappDeploy "com.github.devalexey.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
+  cordappDeploy "com.github.hyperledger-labs.cordentity:cordentity-cordapp:$cordentity_version"
+  cordappDeploy "com.github.hyperledger-labs.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
 }
 
 apply from: "indy-run.gradle"

@@ -26,31 +26,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
-import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.di.indyAgentWSEndpoint
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
-import com.luxoft.supplychain.sovrinagentapp.ui.model.OrdersAdapter
+import com.luxoft.supplychain.sovrinagentapp.ui.model.HistoryAdapter
 import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 
-class OrdersFragment : Fragment() {
+class HistoryFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
-    private var mAdapter: OrdersAdapter? = null
+    private var mAdapter: HistoryAdapter? = null
     private val realm: Realm = Realm.getDefaultInstance()
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private val loaded = AtomicInteger(0)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -62,25 +55,15 @@ class OrdersFragment : Fragment() {
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.setHasFixedSize(true)
 
-        mAdapter = OrdersAdapter(Realm.getDefaultInstance())
+        mAdapter = HistoryAdapter(Realm.getDefaultInstance())
         recyclerView.adapter = mAdapter
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)
-        mSwipeRefreshLayout.setOnRefreshListener {
-            loaded.compareAndSet(0, 1)
-            updateMyOrders()
-        }
-        loaded.set(2)
+        mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
+
         updateMyOrders()
-        connectToAgent()
 
         return view
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loaded.compareAndSet(0, 1)
-        updateMyOrders()
     }
 
     private fun updateMyOrders() {
@@ -88,44 +71,13 @@ class OrdersFragment : Fragment() {
         api.getPackages().subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    loaded()
+                    mSwipeRefreshLayout.isRefreshing = false
                     saveOrders(it)
-                }, {
-                    error ->
-                    Log.e("Get Packages Error: ", error.message, error)
-                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
+                }, { error ->
+                    mSwipeRefreshLayout.isRefreshing = false
+                    showAlertDialog(context!!, "Error loading history: ${error.message}")
+                    Log.e("Error loading history: ", error.message, error)
                 })
-    }
-
-    private fun loaded() {
-        if (loaded.decrementAndGet() <= 0) {
-            mSwipeRefreshLayout.isRefreshing = false
-        }
-    }
-
-    private fun connectToAgent() {
-        api.getInvite()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { invite ->
-                            PythonRefAgentConnection().apply {
-                                connect(indyAgentWSEndpoint, login = "user${Random().nextInt()}", password = "secretPassword").toBlocking().value()
-                                acceptInvite(invite).handle { message, ex ->
-                                    if (ex != null) {
-                                        Log.e("Error processing invite", ex.message, ex)
-                                        showAlertDialog(context!!, "Error processing invite: ${ex.message}") { loaded() }
-                                        return@handle
-                                    }
-
-                                    (activity!!.application as Application).setConnection(message!!)
-                                    loaded()
-                                    println("CONNECTION ESTABLISHED")
-                                }
-                            }
-                        },
-                        { er -> Log.e("Get Invite Error: ", er.message, er); showAlertDialog(context!!, "Get Invite Error: ${er.message}") { loaded() } }
-                )
     }
 
     private fun saveOrders(offers: List<Product>) {

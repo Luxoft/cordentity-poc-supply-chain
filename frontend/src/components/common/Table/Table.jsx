@@ -54,7 +54,7 @@ export class TableRowTC extends React.Component {
     render() {
         const {
             serial, state, patientDid, patientDiagnosis, medicineName, medicineDescription, processedBy,
-            requestedAt, processedAt, deliveredAt, collectedAt, onClick, button
+            requestedAt, issuedAt, processedAt, deliveredAt, collectedAt, onClick, button
         } = this.props;
 
         const {img, blinking} = this.state;
@@ -75,12 +75,12 @@ export class TableRowTC extends React.Component {
 
             case 'PROCESSED':
                 filledPins = 3;
-                date = new Date(deliveredAt);
+                date = new Date(processedAt);
                 break;
 
             case 'ISSUED':
                 filledPins = 2;
-                date = new Date(processedAt);
+                date = new Date(issuedAt);
                 break;
 
             case 'NEW':
@@ -140,7 +140,7 @@ export class TableRowMF extends React.Component {
 
     render() {
         const {
-            serial, state, medicineName, medicineDescription, requestedBy, requestedAt,
+            serial, state, medicineName, medicineDescription, requestedBy, requestedAt, issuedAt,
             processedAt, deliveredAt, collectedAt, button, onClick, patientDid, patientDiagnosis
         } = this.props;
 
@@ -164,12 +164,12 @@ export class TableRowMF extends React.Component {
 
             case 'PROCESSED':
                 filledPins = 3;
-                date = new Date(deliveredAt);
+                date = new Date(processedAt);
                 break;
 
             case 'ISSUED':
                 filledPins = 2;
-                date = new Date(processedAt);
+                date = new Date(issuedAt);
                 break;
 
             case 'NEW':
@@ -195,7 +195,7 @@ export class TableRowMF extends React.Component {
                     <TableSerialPlate {...{serial}} />
                 </div>
                 <div className="td">
-                    <TableTreatmentCenterPlate treatmentCenterName='Marina Bay Hosp ital' treatmentCenterAddress='Marina Sands 117, Singapore'/>
+                    <TableTreatmentCenterPlate treatmentCenterName='Marina Bay Hospital' treatmentCenterAddress='Marina Sands 117, Singapore'/>
                 </div>
                 <div className="td">
                     <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientDiagnosis={patientDiagnosis}/>

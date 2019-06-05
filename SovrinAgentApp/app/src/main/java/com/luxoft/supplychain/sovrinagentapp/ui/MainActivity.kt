@@ -17,34 +17,20 @@
 package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.supplychain.sovrinagentapp.Application
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
-import org.hyperledger.indy.sdk.wallet.Wallet
-import org.koin.android.ext.android.inject
-import org.slf4j.event.Level
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import java.io.File
-import java.lang.RuntimeException
-import java.util.*
-import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 
 const val REQUEST_CODE = 101
@@ -59,7 +45,6 @@ val GENESIS_CONTENT = """{"reqSignature":{},"txn":{"data":{"data":{"alias":"Node
 class MainActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val api: SovrinAgentService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +70,6 @@ class MainActivity : AppCompatActivity() {
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
                     initGenesis()
-                    connectToAgent()
                 }
             }
         }
@@ -97,8 +81,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
-        //adapter.addFrag(ClaimsFragment())
+        adapter.addFrag(ClaimsFragment())
         adapter.addFrag(OrdersFragment())
+        adapter.addFrag(HistoryFragment())
         viewpager.adapter = adapter
 
         tabs.setupWithViewPager(viewpager)
@@ -128,28 +113,6 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    private fun connectToAgent() {
-        api.getInvite()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { invite ->
-                            PythonRefAgentConnection().apply {
-                                connect("ws://3.17.65.252:8094/ws", login = "user${Random().nextInt()}", password = "secretPassword").toBlocking().value()
-                                acceptInvite(invite).handle { message, ex ->
-                                    if (ex != null) {
-                                        Log.e("Error processing invite", ex.message, ex)
-                                        return@handle
-                                    }
-                                    (application as Application).setConnection(message!!)
-                                    println("CONNECTION ESTABLISHED")
-                                }
-                            }
-                        },
-                        { er -> Log.e("Get Invite Error: ", er.message, er) }
-                )
-    }
-
     private fun initGenesis() {
         val genesis = File(GENESIS_PATH)
         if (genesis.exists())
@@ -163,4 +126,28 @@ class MainActivity : AppCompatActivity() {
         realm.removeAllChangeListeners()
         realm.close()
     }
+
+    companion object {
+        fun progressBarFactory(context: Context) = ProgressBar(context, null, android.R.attr.progressBarStyleSmall)
+
+        fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
+                .setTitle("Error")
+                .setMessage(cause)
+                .setCancelable(false)
+                .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which: Int) {
+                        callback()
+                    }
+                }).show()
+    }
+}
+
+fun AppCompatActivity.drawProgressBar(sizeInDP: Int = 100) {
+    val dpDensity = getResources().getDisplayMetrics().density
+    val layout = RelativeLayout(this)
+    val params = RelativeLayout.LayoutParams((sizeInDP * dpDensity).roundToInt(), (sizeInDP * dpDensity).roundToInt())
+    params.addRule(RelativeLayout.CENTER_IN_PARENT)
+    layout.addView(MainActivity.progressBarFactory(baseContext), params)
+
+    setContentView(layout)
 }

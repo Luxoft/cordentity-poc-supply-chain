@@ -23,10 +23,6 @@ services:
       - "10103:10103"
     container_name: tccorda
     environment:
-      - INDYUSER_WALLETNAME=Treatment
-      - INDYUSER_DID=V4SGRU86Z58d6TV7PBUe6f
-      - INDYUSER_ROLE=trustee
-      - INDYUSER_SEED=000000000000000000000000Trustee1
       - RUST_LOG=trace
     deploy:
       resources:
@@ -45,10 +41,7 @@ services:
       - "10003:10003"
     container_name: mfcorda
     environment:
-      - INDYUSER_WALLETNAME=Manufacture
-      - INDYUSER_DID=CzSfMVfq7U5pjTVtzd5uop
-      - INDYUSER_ROLE=trustee
-      - INDYUSER_SEED=00000000000000000000000Insurance
+      - RUST_LOG=trace
     deploy:
       resources:
         limits:

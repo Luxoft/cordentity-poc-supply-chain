@@ -120,7 +120,7 @@ function generateRandomTreatmentCenter() {
             treatmentCenterAddress: 'Zeehofstrasse 21, Zug'
         },
         {
-            treatmentCenterName: 'MARINA BAY Hosp',
+            treatmentCenterName: 'MARINA BAY Hospital',
             treatmentCenterAddress: 'Marina Sands 117, Singapore'
         }
     ];
