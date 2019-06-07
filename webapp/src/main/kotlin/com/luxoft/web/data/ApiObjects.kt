@@ -16,11 +16,13 @@
 
 package com.luxoft.web.data
 
+import com.luxoft.poc.supplychain.data.PackageInfo
+
 val SUCCESS = mapOf("success" to true)
 val FAILURE = mapOf("success" to false)
 
 
-data class Serial(val serial: String, val clientUUID: String?)
+data class Serial(val serial: String, val clientUUID: String? = null)
 
 data class Invite(val invite: String, val clientUUID: String)
 
@@ -34,7 +36,7 @@ data class AskForPackageRequest(val tcName: String, val clientUUID: String)
 
 data class ProcessPackageRequest(val serial: String)
 
-data class PackagesResponse(val packages: List<Package>)
+class PackagesResponse : ArrayList<PackageInfo>()
 
 data class ErrorResponse(val type: String?, val message: String?)
 

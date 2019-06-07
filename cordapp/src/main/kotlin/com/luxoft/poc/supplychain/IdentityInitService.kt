@@ -28,13 +28,18 @@ import java.time.Duration
 
 
 class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Duration = Duration.ofSeconds(30)) {
+    companion object {
+        val trustedCredentialsIssuerDID = "XLja1AucCafGJE6g7hr4Te"
+    }
 
     fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, CredentialDefinitionId> {
         val schemaId = rpc.startFlow(
-                CreateSchemaFlow::Authority, schema.schemaName, schema.schemaVersion, schema.getSchemaAttrs().map { it.name }
+            CreateSchemaFlow::Authority, schema.schemaName, schema.schemaVersion, schema.attributes
         ).returnValue.getOrThrow(timeout).getSchemaIdObject()
 
-        val credDefId = rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, true).returnValue.getOrThrow(timeout).getCredentialDefinitionIdObject()
+        val credDefId =
+            rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, false).returnValue.getOrThrow(timeout)
+                .getCredentialDefinitionIdObject()
 
         return Pair(schemaId, credDefId)
     }

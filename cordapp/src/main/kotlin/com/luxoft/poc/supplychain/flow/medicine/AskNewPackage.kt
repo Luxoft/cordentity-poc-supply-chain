@@ -21,13 +21,16 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
+import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
+import com.luxoft.poc.supplychain.IdentityInitService.Companion.trustedCredentialsIssuerDID
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
+import com.luxoft.poc.supplychain.flow.GetInviteFlow.Companion.inviteWaitTimeout
 import com.luxoft.poc.supplychain.flow.RequestForPackage
+import com.luxoft.poc.supplychain.flow.get
 import com.luxoft.poc.supplychain.flow.getManufacturer
 import com.luxoft.poc.supplychain.service.clientResolverService
 import net.corda.core.flows.FlowException
@@ -46,7 +49,7 @@ class AskNewPackage {
     @InitiatingFlow
     @StartableByRPC
     open class Treatment(clientId: UUID) : FlowLogic<Unit>() {
-        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!! }
+        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!!.get(inviteWaitTimeout) }
 
         @Suspendable
         override fun call() {
@@ -71,10 +74,15 @@ class AskNewPackage {
             val proofRequest = proofRequest("user_proof_req", "1.0") {
                 reveal("name")
                 reveal("sex")
-                reveal("medical id")
-                reveal("medical condition") //{ FilterProperty.Value shouldBe "Healthy" }
+                reveal("medical id") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("medical condition") {
+                    //                    FilterProperty.Value shouldBe "Healthy"
+                    FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID
+                }
                 proveGreaterThan("age", 18)
             }
+            //In case of ignoring verification
+//            connectionService().sendProofRequest(proofRequest, clientDid)
             if (!subFlow(VerifyCredentialFlowB2C.Verifier(clientDid, clientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
         }
@@ -84,7 +92,7 @@ class AskNewPackage {
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
             subFlow(IssueCredentialFlowB2C.Issuer(serial, credDef.id, null, clientDid) {
-                attributes[PackageReceipt.Attributes.Serial.name] = CredentialValue(serial)
+                attributes["serial"] = CredentialValue(serial)
             })
         }
 

@@ -21,10 +21,11 @@ import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 @CordaService
 class ClientResolverService(serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
-    val userUuid2Did = mutableMapOf<UUID, String>()
+    val userUuid2Did = mutableMapOf<UUID, CompletableFuture<String>>()
 }
 
 fun FlowLogic<Any>.clientResolverService() = serviceHub.cordaService(ClientResolverService::class.java)

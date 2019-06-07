@@ -18,7 +18,9 @@ package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.contract.PackageContract
@@ -26,6 +28,7 @@ import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
+import com.luxoft.poc.supplychain.flow.GetInviteFlow.Companion.inviteWaitTimeout
 import com.luxoft.poc.supplychain.mapToKeys
 import com.luxoft.poc.supplychain.runSessions
 import com.luxoft.poc.supplychain.service.clientResolverService
@@ -41,7 +44,7 @@ class PackageWithdrawal {
     @InitiatingFlow
     @StartableByRPC
     class Owner(val serial: String, val clientId: UUID) : FlowLogic<Unit>() {
-        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!! }
+        val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!!.get(inviteWaitTimeout) }
 
         @Suspendable
         override fun call() {
@@ -56,9 +59,11 @@ class PackageWithdrawal {
 
         @Suspendable
         private fun verifyReceipt() {
-            //TODO: Verify issuer,schema and serial
             val serialProofRequest = proofRequest("proof_req", "1.0") {
-                reveal("serial") // { FilterProperty.Value shouldBe serial }
+                reveal("serial") {
+                    FilterProperty.Value shouldBe serial
+                    FilterProperty.IssuerDid shouldBe indyUser().walletUser.getIdentityDetails().did
+                }
             }
             subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, serialProofRequest))
         }

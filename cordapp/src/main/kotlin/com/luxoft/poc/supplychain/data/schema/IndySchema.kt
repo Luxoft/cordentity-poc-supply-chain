@@ -16,7 +16,6 @@
 
 package com.luxoft.poc.supplychain.data.schema
 
-abstract class IndySchema(val schemaName: String, val schemaVersion: String) {
-    abstract fun getSchemaAttrs(): List<IndySchemaBuilder.AttrTypes>
+open class IndySchema(val schemaName: String, val schemaVersion: String, val attributes: List<String>) {
     override fun toString(): String = "${schemaName}:${schemaVersion}"
 }

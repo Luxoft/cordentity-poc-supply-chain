@@ -10,9 +10,14 @@ import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 
 class GetInviteFlow {
+
+    companion object {
+        val inviteWaitTimeout = Pair<Long, TimeUnit>(10, TimeUnit.SECONDS)
+    }
 
     @InitiatingFlow
     @StartableByRPC
@@ -21,6 +26,7 @@ class GetInviteFlow {
         @Suspendable
         override fun call(): String {
             val invite = connectionService().getConnection().generateInvite().awaitFiber()
+            clientResolverService().userUuid2Did[clientId] = CompletableFuture()
             CompletableFuture.runAsync {
                 connectionService().getConnection().waitForInvitedParty(invite, 300000)
                         .handle { message, ex ->
@@ -28,7 +34,7 @@ class GetInviteFlow {
                                 logger.error("Failed to wait for invited party", ex)
                                 return@handle
                             }
-                            clientResolverService().userUuid2Did[clientId] = message!!.partyDID()
+                            clientResolverService().userUuid2Did[clientId]!!.complete(message!!.partyDID())
                         }
             }.exceptionally { logger.error("Error in invite future", it); null; }
 
@@ -36,3 +42,5 @@ class GetInviteFlow {
         }
     }
 }
+
+fun CompletableFuture<String>.get(time: Pair<Long, TimeUnit>) = get(time.first, time.second)

@@ -16,33 +16,132 @@
 
 package com.luxoft.web.clients
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.luxoft.web.data.ErrorResponse
-import com.luxoft.web.data.Package
+import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.GenesisHelper
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
+import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
+import com.luxoft.web.data.AskForPackageRequest
+import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.stereotype.Component
+import com.luxoft.web.data.Serial
+import org.hyperledger.indy.sdk.pool.Pool
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
+import java.io.File
+import java.lang.Math.abs
+import java.lang.Thread.sleep
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 enum class TreatmentCenterEndpoint(val url: String) {
-    LIST("/api/tc/package/list")
+    INVITE("/api/tc/invite"),
+    LIST("/api/tc/package/list"),
+    INIT("/api/tc/request/create"),
+    RECEIVE("/api/tc/package/receive"),
+    COLLECT("/api/tc/package/withdraw")
 }
 
-@Component
-class TreatmentCenterClient(private val restTemplate: TestRestTemplate) {
-    private val mapper = ObjectMapper().registerModule(KotlinModule())
+class TreatmentCenterClient(private val restTemplate: RestTemplate) {
+    val pool: Pool
+    val poolName: String = "test-pool-${abs(Random().nextInt())}"
 
-    fun getPackages(): List<Package> {
-        val packagesResponseJson = this.restTemplate.getForObject(TreatmentCenterEndpoint.LIST.url, String::class.java)
+    init {
+        val genesisFile = File("../cordapp/src/main/resources/genesis/docker.txn")
+        if (!GenesisHelper.exists(genesisFile))
+            throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
 
-        try {
-            return mapper.readValue<PackagesResponse>(packagesResponseJson).packages
+        PoolHelper.createOrTrunc(genesisFile, poolName)
+        pool = PoolHelper.openExisting(poolName)
+    }
 
-        } catch (e: JsonParseException) {
-            val errorResponse = mapper.readValue<ErrorResponse>(packagesResponseJson)
-            throw RuntimeException("Treatment center is unable to get packages. Remote server threw error: $errorResponse")
+    fun createSsiUser(walletName: String, walletPassword: String) = run {
+        WalletHelper.createOrTrunc(walletName, walletPassword)
+        val wallet = WalletHelper.openExisting(walletName, walletPassword)
+
+        val walletUser = IndySDKWalletUser(wallet)
+        val ledgerUser = IndyPoolLedgerUser(pool, walletUser.getIdentityDetails().did) { walletUser.sign(it) }
+        IndyUser.with(walletUser).with(ledgerUser).build()
+    }
+
+    fun getPackages(): PackagesResponse = this.restTemplate.getForObject(TreatmentCenterEndpoint.LIST.url)
+        ?: throw RuntimeException("Failed to request packages")
+
+    fun getInvite(): Invite =
+        restTemplate.getForObject(TreatmentCenterEndpoint.INVITE.url) ?: throw RuntimeException("Failed to get invite")
+
+    private val agentClient = PythonRefAgentConnection().apply {
+        connect(
+            url = "ws://3.17.65.252:8094/ws",
+            login = "agentUser",
+            password = "password"
+        ).toBlocking().value()
+    }
+
+    val ssiUser = createSsiUser("supplychain-test-agentclient-${abs(Random().nextInt())}", "secretPassword")
+
+    fun initFlow(tcName: String, invite: Invite) {
+        val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
+        sleep(1000)
+
+        val initRequest = AskForPackageRequest(tcName, invite.clientUUID)
+
+        val headers = HttpHeaders()
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        val entity = HttpEntity(initRequest, headers)
+
+        val initResponse = this.restTemplate.postForEntity(TreatmentCenterEndpoint.INIT.url, entity, String::class.java)
+
+        if (initResponse.statusCode != HttpStatus.OK) {
+            throw RuntimeException("Treatment center is unable to init flow with TC $tcName. Remote server threw error: ${initResponse.body}")
+        }
+
+        indyParty.also {
+            val proofRequest = it.receiveProofRequest().toBlocking().value()
+            //TODO: Send credentials proofs based on request
+            val credentialOffer = it.receiveCredentialOffer().toBlocking().value()
+            val credentialRequest =
+                ssiUser.createCredentialRequest(ssiUser.walletUser.getIdentityDetails().did, credentialOffer)
+            it.sendCredentialRequest(credentialRequest)
+
+            val credential = it.receiveCredential().toBlocking().value()
+            ssiUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
+        }
+    }
+
+    fun receivePackage(serial: String) {
+        val collectResponse =
+            this.restTemplate.postForEntity(TreatmentCenterEndpoint.RECEIVE.url, Serial(serial), String::class.java)
+
+        if (collectResponse.statusCode != HttpStatus.OK) {
+            throw RuntimeException("Treatment center is unable to collect package $serial. Remote server threw error: ${collectResponse.body}")
+        }
+    }
+
+    fun collectPackage(serial: String, invite: Invite) {
+        val acceptInvite = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
+        sleep(1000)
+
+        val collectRequest = Serial(serial, invite.clientUUID)
+        val collectResponse =
+            this.restTemplate.postForEntity(TreatmentCenterEndpoint.COLLECT.url, collectRequest, String::class.java)
+
+        if (collectResponse.statusCode != HttpStatus.OK) {
+            throw RuntimeException("Treatment center is unable to collect package $serial. Remote server threw error: ${collectResponse.body}")
+        }
+
+        acceptInvite.also {
+            val proofRequest = it.receiveProofRequest().toBlocking().value()
+            val proof = ssiUser.createProofFromLedgerData(proofRequest)
+            it.sendProof(proof)
         }
     }
 }
