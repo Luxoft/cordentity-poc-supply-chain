@@ -47,6 +47,10 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import com.blikoon.qrcodescanner.QrCodeActivity
+import android.content.DialogInterface
+import android.content.DialogInterface.BUTTON_NEUTRAL
+import android.app.Activity
 
 class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler {
 
@@ -55,19 +59,23 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
+    private val REQUEST_CODE_QR_SCAN = 101
 
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        setContentView(R.layout.activity_simple_scanner)
+//        setContentView(R.layout.activity_simple_scanner)
         setupToolbar()
 
-        val contentFrame = findViewById<ViewGroup>(R.id.content_frame)
+//        val contentFrame = findViewById<ViewGroup>(R.id.content_frame)
         mScannerView = ZBarScannerView(this)
-        contentFrame.addView(mScannerView)
+//        contentFrame.addView(mScannerView)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
+
+        val i = Intent(this@SimpleScannerActivity, QrCodeActivity::class.java)
+        startActivityForResult(i, REQUEST_CODE_QR_SCAN)
     }
 
 
@@ -89,24 +97,133 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
     override fun onResume() {
         super.onResume()
-        mScannerView?.setResultHandler(this)
-        mScannerView?.startCamera()
+//        mScannerView?.setResultHandler(this)
+//        mScannerView?.startCamera()
 //        handleResult(Result().apply {
 //            contents =
-//                    ""
-//        })
+//                    "{\"invite\":\"http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9\",\"clientUUID\":\"7170c4d8-0477-44b0-86a7-463209e22b00\"}"        })
     }
 
     override fun onPause() {
         super.onPause()
-        mScannerView?.stopCamera()
+//        mScannerView?.stopCamera()
     }
 
     val correct = Regex(".+\\/indy\\?c_i=.+")
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (resultCode == Activity.RESULT_OK &&  requestCode == REQUEST_CODE_QR_SCAN) {
+            val result = data?.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
+
+
+            if (result == null || !correct.matches(result)) return
+
+//        val content: Invite = Invite("http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9", "7170c4d8-0477-44b0-86a7-463209e22b00")
+            val content: Invite = SerializationUtils.jSONToAny(result)
+
+            mScannerView!!.stopCamera()
+            drawProgressBar()
+
+            val state = intent?.getStringExtra("state")
+            val serial = intent?.getStringExtra("serial")
+
+            when (state) {
+                PackageState.GETPROOFS.name -> {
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        try {
+                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                                do {
+                                    val credOffer = try {
+                                        receiveCredentialOffer().timeout(5, TimeUnit.SECONDS).toBlocking().value()
+                                    } catch (e: RuntimeException) {
+                                        //End of waiting for new credentials
+                                        if (e.cause !is TimeoutException)
+                                            throw e
+                                        null
+                                    }?.apply {
+                                        val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, this)
+                                        sendCredentialRequest(credentialRequest)
+                                        val credential = receiveCredential().toBlocking().value()
+                                        indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
+                                    }
+                                } while (credOffer != null)
+                                indyUser.walletUser.updateCredentialsInRealm()
+                                finish()
+                            }
+                        } catch (er: Exception) {
+                            Log.e("Get Claims Error: ", er.message, er)
+                            showAlertDialog(baseContext, "Get Claims Error: ${er.message}") { finish() }
+                        }
+                    }
+                }
+
+                PackageState.NEW.name -> {
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        try {
+                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                                api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
+                                val proofRequest = receiveProofRequest().toBlocking().value()
+
+                                ContextCompat.startActivity(
+                                        this@SimpleScannerActivity,
+                                        Intent().setClass(this@SimpleScannerActivity, AskClaimsActivity::class.java)
+                                                .putExtra("result", result)
+                                                .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
+                                                .putExtra("partyDID", partyDID())
+                                                .putExtra("serial", intent?.getStringExtra("serial")),
+                                        null
+                                )
+
+                                finish()
+                            }
+                        } catch (er: Exception) {
+                            Log.e("New Package Error: ", er.message, er)
+                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                        }
+                    }
+                }
+
+                PackageState.DELIVERED.name -> {
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        try {
+                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                                api.collectPackage(Serial(serial!!, content.clientUUID!!))
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe({
+                                            // TODO: this call should return immediately
+                                            // TODO: after this you should listen to new ingoing proof request
+                                            // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
+                                            // TODO: if agree you should generate proof out of the proof request and send it back
+                                            // TODO: only if the proof is valid Corda-side should commit transaction
+
+
+                                            val proofRequest: ProofRequest = receiveProofRequest().toBlocking().value()
+                                            val proof = indyUser.createProofFromLedgerData(proofRequest)
+                                            sendProof(proof)
+                                            Thread.sleep(3000)
+                                            finish()
+                                        }) { er ->
+                                            Log.e("Collect Package Error: ", er.message, er)
+                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                        }
+                            }
+                        } catch (er: Exception) {
+                            Log.e("Collect Package Invite Error: ", er.message, er)
+                            showAlertDialog(baseContext, "Collect Package Invite GError: ${er.message}") { finish() }
+                        }
+                    }
+                }
+                else -> finish()
+            }
+
+        }
+    }
     override fun handleResult(rawResult: Result) {
         if (rawResult.contents == null || !correct.matches(rawResult.contents)) return
 
+//        val content: Invite = Invite("http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9", "7170c4d8-0477-44b0-86a7-463209e22b00")
         val content: Invite = SerializationUtils.jSONToAny(rawResult.contents)
 
         mScannerView!!.stopCamera()
