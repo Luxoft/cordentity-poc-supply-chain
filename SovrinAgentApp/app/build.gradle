@@ -43,8 +43,8 @@ android {
 }
 
 dependencies {
-    implementation ("com.github.hyperledger-labs.cordentity:cordentity-indy-utils:$cordentity_version")
-    implementation ("com.github.hyperledger-labs.cordentity:cordentity-agent-connection:$cordentity_version")
+    implementation ("com.github.sercher.cordentity:cordentity-indy-utils:$cordentity_version")
+    implementation ("com.github.sercher.cordentity:cordentity-agent-connection:$cordentity_version")
     
     implementation ('net.java.dev.jna:jna:4.5.1@aar')
 
