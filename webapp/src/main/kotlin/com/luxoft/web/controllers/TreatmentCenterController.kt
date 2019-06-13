@@ -32,6 +32,7 @@ import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
@@ -45,6 +46,9 @@ import java.util.*
 class TreatmentCenterController(rpc: RPCComponent) {
     private final val services = rpc.services
     private final val logger = loggerFor<TreatmentCenterController>()
+
+    @Value("\${indy.trustedCredentialsIssuerDID}")
+    lateinit var trustedCredentialsIssuerDID: String
 
     @PostMapping("package/receive")
     fun receiveShipment(@RequestBody request: Serial) {
@@ -76,7 +80,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID))
+        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
     }
 
     @PostMapping("package/withdraw")

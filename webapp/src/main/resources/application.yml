@@ -20,3 +20,5 @@ node:
   rpcPort: 10102
   rpcUser: user1
   rpcPassword: test
+indy:
+  trustedCredentialsIssuerDID: RRqP3Ze8x953G3chawJFJm

@@ -25,7 +25,6 @@ import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
-import com.luxoft.poc.supplychain.IdentityInitService.Companion.trustedCredentialsIssuerDID
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.flow.GetInviteFlow.Companion.inviteWaitTimeout
@@ -48,7 +47,7 @@ class AskNewPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    open class Treatment(clientId: UUID) : FlowLogic<Unit>() {
+    open class Treatment(clientId: UUID, private val trustedCredentialsIssuerDID: String) : FlowLogic<Unit>() {
         val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!!.get(inviteWaitTimeout) }
 
         @Suspendable

@@ -53,6 +53,8 @@ subprojects {
 
 apply from: "corda-run.gradle"
 
+clean.dependsOn(killCordaProcesses)
+
 dependencies {
   // CorDapp dependencies
   // Specify your cordapp's dependencies below, including dependent cordapps

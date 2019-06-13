@@ -122,6 +122,10 @@ task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
     }
 }
 
+task killCordaProcesses(type: Exec, group: RUN_CORDA_GROUP) {
+    commandLine "bash", "-c", 'kill -9 `jps | grep "Corda" | cut -d " " -f 1` || true'
+}
+
 task deployCordaNetwork(group: RUN_CORDA_GROUP) {
     dependsOn deployNodes
     dependsOn deployJarsToNodes

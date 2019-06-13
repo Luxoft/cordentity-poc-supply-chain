@@ -22,11 +22,13 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.GenesisHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
 import com.luxoft.web.data.Serial
+import org.apache.commons.io.FileUtils
 import org.hyperledger.indy.sdk.pool.Pool
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -51,6 +53,7 @@ enum class TreatmentCenterEndpoint(val url: String) {
 class TreatmentCenterClient(private val restTemplate: RestTemplate) {
     val pool: Pool
     val poolName: String = "test-pool-${abs(Random().nextInt())}"
+    val tmpTestWalletId = "tmpTestWallet${abs(Random().nextInt())}"
 
     init {
         val genesisFile = File("../cordapp/src/main/resources/genesis/docker.txn")
@@ -59,10 +62,16 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
 
         PoolHelper.createOrTrunc(genesisFile, poolName)
         pool = PoolHelper.openExisting(poolName)
+
+        //creating user wallet with credentials required by logic
+        File(this.javaClass.classLoader.getResource("testUserWallet.db").file)
+            .copyTo(File("${FileUtils.getUserDirectory()}/.indy_client/wallet/$tmpTestWalletId/sqlite.db"))
+            .apply {
+                Runtime.getRuntime().addShutdownHook(Thread { FileUtils.deleteQuietly(parentFile) })
+            }
     }
 
     fun createSsiUser(walletName: String, walletPassword: String) = run {
-        WalletHelper.createOrTrunc(walletName, walletPassword)
         val wallet = WalletHelper.openExisting(walletName, walletPassword)
 
         val walletUser = IndySDKWalletUser(wallet)
@@ -84,7 +93,27 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
         ).toBlocking().value()
     }
 
-    val ssiUser = createSsiUser("supplychain-test-agentclient-${abs(Random().nextInt())}", "secretPassword")
+    val ssiUser = createSsiUser(
+        tmpTestWalletId,
+        "password"
+    )
+
+    //Just in case of need
+    fun createIndyPrerequirements(indyUser: IndyUser) = indyUser.apply {
+        val requiredAttributes = mutableListOf("name", "sex", "medical id", "medical condition", "age")
+        val schema = createSchemaAndStoreOnLedger("testSchema", "1.0", requiredAttributes)
+        val credentialDefinition =
+            createCredentialDefinitionAndStoreOnLedger(schema.getSchemaIdObject(), false)
+        val credentialOffer =
+            createCredentialOffer(credentialDefinition.getCredentialDefinitionIdObject())
+        val credentialRequest = createCredentialRequest(walletUser.getIdentityDetails().did, credentialOffer)
+        val credential = issueCredentialAndUpdateLedger(credentialRequest, credentialOffer, null) {
+            requiredAttributes.forEach {
+                attributes[it] = CredentialValue((19 + Random().nextLong()).toString())
+            }
+        }
+        checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
+    }
 
     fun initFlow(tcName: String, invite: Invite) {
         val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
@@ -106,7 +135,9 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
 
         indyParty.also {
             val proofRequest = it.receiveProofRequest().toBlocking().value()
-            //TODO: Send credentials proofs based on request
+            val proofInfo = ssiUser.createProofFromLedgerData(proofRequest)
+            it.sendProof(proofInfo)
+
             val credentialOffer = it.receiveCredentialOffer().toBlocking().value()
             val credentialRequest =
                 ssiUser.createCredentialRequest(ssiUser.walletUser.getIdentityDetails().did, credentialOffer)

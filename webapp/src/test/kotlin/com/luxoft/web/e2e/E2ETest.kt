@@ -20,6 +20,7 @@ import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.web.clients.ManufactureClient
 import com.luxoft.web.clients.TreatmentCenterClient
+import net.corda.core.identity.CordaX500Name
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,10 +33,18 @@ import java.lang.Thread.sleep
 import javax.annotation.PostConstruct
 
 @RunWith(SpringRunner::class)
-@ActiveProfiles(profiles = [])
+@ActiveProfiles(profiles = ["treatmentcenter"])
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@Ignore
+class TreatmentCenterE2E : E2ETest()
+
+@RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Ignore
-class E2ETest {
+class RemoteE2E : E2ETest()
+
+@Ignore("Needs external services")
+open class E2ETest {
     @Autowired
     lateinit var restTemplateBuilder: RestTemplateBuilder
 
@@ -84,7 +93,7 @@ class E2ETest {
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
 
         val readyToReceivePackage = packagesBefore.find { packageHasStatus(it, PackageState.PROCESSED) }!!
-//        assertPackageValid(readyToReceivePackage)
+        assertPackageValid(readyToReceivePackage)
 
         treatmentCenterClient.receivePackage(readyToReceivePackage.serial)
 
@@ -103,7 +112,7 @@ class E2ETest {
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
 
         val readyToGivePackage = packagesBefore.find { packageHasStatus(it, PackageState.DELIVERED) }!!
-//        assertPackageValid(readyToCollectPackage)
+        assertPackageValid(readyToGivePackage)
 
         treatmentCenterClient.collectPackage(readyToGivePackage.serial, treatmentCenterClient.getInvite())
 
@@ -122,7 +131,7 @@ class E2ETest {
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
 
         val packageToProcess = packagesBefore.find { packageHasStatus(it, PackageState.ISSUED) }!!
-//        assertPackageValid(packageToProcess)
+        assertPackageValid(packageToProcess)
 
         manufactureClient.processPackage(packageToProcess.serial)
 
@@ -143,48 +152,48 @@ class E2ETest {
         return pack.state == status
     }
 
-//    private fun assertPackageValid(pack: PackageInfo) {
-//        assert(pack.serial.isNotEmpty())
-//        assert(pack.status in 0..5)
-//        assert(pack.manufacturer.isNotEmpty())
-//        assert(pack.patientDid.isNotEmpty())
-//        assert(pack.patientDiagnosis.isNotEmpty())
-//        assert(pack.medicineName.isNotEmpty())
-//        assert(pack.medicineDescription.isNotEmpty())
-//        assert(pack.treatmentCenterName.isNotEmpty())
-//        assert(pack.treatmentCenterAddress.isNotEmpty())
-//
-//        when (pack.status) {
-//            1 -> {
-//                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-//            }
-//            2 -> {
-//                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-//                assertWaypointPresence(pack.processedAt, pack.processedBy)
-//            }
-//            3 -> {
-//                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-//                assertWaypointPresence(pack.processedAt, pack.processedBy)
-//                assertWaypointPresence(pack.deliveredAt, pack.deliveredBy)
-//            }
-//            4 -> {
-//                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-//                assertWaypointPresence(pack.processedAt, pack.processedBy)
-//                assertWaypointPresence(pack.deliveredAt, pack.deliveredBy)
-//                assert(pack.qp)
-//            }
-//            5 -> {
-//                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-//                assertWaypointPresence(pack.processedAt, pack.processedBy)
-//                assertWaypointPresence(pack.deliveredAt, pack.deliveredBy)
-//                assert(pack.qp)
-//                assertWaypointPresence(pack.collectedAt, pack.collectedBy)
-//            }
-//        }
-//    }
+    private fun assertPackageValid(pack: PackageInfo) {
+        assert(pack.serial.isNotEmpty())
+        assert(pack.state.name.isNotBlank())
+        assert(pack.patientDid.isNotEmpty())
+        assert(pack.patientDiagnosis?.isNotEmpty() ?: false)
+        assert(pack.medicineName?.isNotEmpty() ?: false)
+        assert(pack.medicineDescription?.isNotEmpty() ?: false)
 
-    private fun assertWaypointPresence(at: Long, by: String) {
-        assert(at > 0)
-        assert(by.isNotEmpty())
+        when (pack.state) {
+            PackageState.NEW -> {
+                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
+            }
+            PackageState.ISSUED -> {
+                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
+                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
+            }
+            PackageState.PROCESSED -> {
+                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
+                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
+                assertWaypointPresence(pack.processedAt, pack.processedBy)
+            }
+            PackageState.DELIVERED -> {
+                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
+                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
+                assertWaypointPresence(pack.processedAt, pack.processedBy)
+                assertWaypointPresence(pack.deliveredAt, pack.deliveredTo)
+//                assert(pack.qp ?: false)
+            }
+            PackageState.COLLECTED -> {
+                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
+                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
+                assertWaypointPresence(pack.processedAt, pack.processedBy)
+                assertWaypointPresence(pack.deliveredAt, pack.deliveredTo)
+//                assert(pack.qp ?: false)
+                assertWaypointPresence(pack.collectedAt, pack.deliveredTo)
+            }
+            else -> assert(false)
+        }
+    }
+
+    private fun assertWaypointPresence(at: Long?, by: CordaX500Name?) {
+        assert(at ?: 0 > 0)
+        assert(by?.organisation?.isNotEmpty() ?: false)
     }
 }
