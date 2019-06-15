@@ -26,7 +26,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
-import kotlinx.android.synthetic.main.claim_list_item.view.*
+import kotlinx.android.synthetic.main.item_claim.view.*
 
 
 class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
@@ -49,7 +49,7 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ClaimViewHolder {
-        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.claim_list_item, viewGroup, false)
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_claim, viewGroup, false)
         return ClaimViewHolder(view)
     }
 

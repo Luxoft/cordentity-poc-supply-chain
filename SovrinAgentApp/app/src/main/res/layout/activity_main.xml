@@ -27,7 +27,7 @@
                     android:id="@+id/header"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/group_3"
+                    android:background="@drawable/user"
                     android:scaleType="center"
                     app:layout_collapseMode="parallax"/>
 

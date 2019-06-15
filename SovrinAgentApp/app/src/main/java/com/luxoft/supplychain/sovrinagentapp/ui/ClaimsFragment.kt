@@ -18,7 +18,6 @@ package com.luxoft.supplychain.sovrinagentapp.ui
 
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -30,11 +29,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
@@ -50,18 +48,20 @@ class ClaimsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment, container, false)
+        val view = inflater.inflate(R.layout.fragment_claims, container, false)
 
         val recyclerView = view.findViewById(R.id.fragment_list_rv) as RecyclerView
-        val getClaimButton = view.findViewById(R.id.get_claims) as Button
-        getClaimButton.setOnClickListener {
-            ContextCompat.startActivity(getClaimButton.context,
-                    Intent().setClass(getClaimButton.context, SimpleScannerActivity::class.java)
-                            .putExtra("state", PackageState.GETPROOFS.name), null
-            )
-        }
-        getClaimButton.visibility = View.VISIBLE
-
+//        val getClaimButton = view.findViewById(R.id.get_claims) as Button
+//        getClaimButton.setOnClickListener {
+//            ContextCompat.startActivity(getClaimButton.context,
+//                    Intent().setClass(getClaimButton.context, SimpleScannerActivity::class.java)
+//                            .putExtra("state", PackageState.GETPROOFS.name), null
+//            )
+//        }
+//        getClaimButtonon.visibility = View.VISIBLE
+        var claimsQty = 7
+        val textViewProfileHeaderRight = view.findViewById(R.id.textViewProfileHeaderRight) as TextView
+        textViewProfileHeaderRight.text = StringBuilder().append("$claimsQty ").append(getString(R.string.verified_claims))
         val linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.setHasFixedSize(true)

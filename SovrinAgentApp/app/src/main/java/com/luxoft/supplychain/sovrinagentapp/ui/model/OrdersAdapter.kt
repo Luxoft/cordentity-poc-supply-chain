@@ -28,14 +28,15 @@ import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.ui.DigitalReceiptActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.order_list_item.view.*
-import kotlinx.android.synthetic.main.qr_list_item.view.*
+import kotlinx.android.synthetic.main.item_history.view.*
+import kotlinx.android.synthetic.main.item_order.view.*
 
 
 class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -71,7 +72,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
+        holder.setIsRecyclable(false)
         val order = orders[position]
 
         if (order == null) {
@@ -84,7 +85,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private fun bindQRItem(order: Product, holder: QROrderViewHolder) {
         holder.title.text = order.medicineName
-        holder.sn.text = "SN: " + order.serial
+//        holder.sn.text = "SN: " + order.serial
         holder.message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
         holder.title.setOnClickListener {
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
@@ -96,11 +97,18 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
                             .putExtra("state", order.state), null
             )
         }
+        holder.showReceiptButton.setOnClickListener {
+            ContextCompat.startActivity(holder.showReceiptButton.context,
+                    Intent().setClass(holder.showReceiptButton.context, DigitalReceiptActivity::class.java)
+                            .putExtra("serial", order.serial)
+                            .putExtra("state", order.state), null
+            )
+        }
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
         holder.title.text = order.medicineName
-        holder.sn.text = "SN: " + order.serial
+//        holder.sn.text = "SN: " + order.serial
         holder.message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
         holder.title.setOnClickListener {
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
@@ -110,10 +118,10 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
         return if (viewType == QR) {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.qr_list_item, viewGroup, false)
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_order, viewGroup, false)
             QROrderViewHolder(view)
         } else {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.order_list_item, viewGroup, false)
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_history, viewGroup, false)
             OrderViewHolder(view)
         }
     }
@@ -136,7 +144,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     open inner class QROrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.qr_listitem_medicine_name as TextView
         var message: TextView = itemView.qr_listitem_message as TextView
-        var qrButton: View = itemView.btn_scan_qr
+        var showReceiptButton: View = itemView.linearLayoutShowReceipt
+        var qrButton: View = itemView.linearLayoutScanQr
         var sn: TextView = itemView.qr_listitem_sn as TextView
     }
 

@@ -43,8 +43,8 @@ class Application : Application() {
             it.where(Product::class.java).findAll().deleteAllFromRealm()
 
             val product2 = it.createObject(Product::class.java, "N/A")
-            product2.state  = PackageState.NEW.name
-            product2.medicineName = "Santorium"
+            product2.state = PackageState.NEW.name
+            product2.medicineName = "Santorium Plus"
             product2.requestedAt = Long.MAX_VALUE
         }
     }

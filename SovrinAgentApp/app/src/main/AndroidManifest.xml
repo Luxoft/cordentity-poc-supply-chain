@@ -31,6 +31,7 @@
         <activity android:name=".ui.TrackPackageActivity"/>
         <activity android:name=".ui.SimpleScannerActivity"/>
         <activity android:name=".ui.AskClaimsActivity"/>
+        <activity android:name=".ui.DigitalReceiptActivity" />
 
         <!--<service-->
                 <!--android:name=".communcations.MyFirebaseMessagingService">-->

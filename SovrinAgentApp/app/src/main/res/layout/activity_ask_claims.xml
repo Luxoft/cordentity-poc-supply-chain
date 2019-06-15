@@ -22,7 +22,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            tools:listitem="@layout/claim_list_item"
+            tools:listitem="@layout/item_claim"
             app:layout_constraintTop_toBottomOf="@+id/ask_claim_text"
             tools:layout_editor_absoluteX="16dp" app:layout_constraintBottom_toTopOf="@+id/accept_claims_request"/>
 

@@ -32,8 +32,8 @@ import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.order_list_item.view.*
-import kotlinx.android.synthetic.main.qr_list_item.view.*
+import kotlinx.android.synthetic.main.item_history.view.*
+import kotlinx.android.synthetic.main.item_order.view.*
 
 
 class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -81,7 +81,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.order_list_item, viewGroup, false)
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_history, viewGroup, false)
         return OrderViewHolder(view)
     }
 
@@ -102,7 +102,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     open inner class QROrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.qr_listitem_medicine_name as TextView
         var message: TextView = itemView.qr_listitem_message as TextView
-        var qrButton: View = itemView.btn_scan_qr
+        var qrButton: View = itemView.linearLayoutScanQr
         var sn: TextView = itemView.qr_listitem_sn as TextView
     }
 

@@ -90,5 +90,19 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
-    <string name="qr_message">Visit your Treatment center to claim it:\nZeehofstrasse 21, Zurich</string>
+    <string name="address_header">Visit your Treatment center to claim it:</string>
+    <string name="address">Zeehofstrasse 21, Zurich</string>
+    <string name="verified_by">verified by</string>
+    <string name="official_authorities">Official Authorities</string>
+    <string name="you_have">You have</string>
+    <string name="verified_claims">verified claims</string>
+    <string name="insurer_approved_your_prescription">Insurer has confirmed the coverage for your prescription</string>
+    <string name="scan_qr_code">Scan QR-code</string>
+    <string name="will_be_provided_by_tc">will be provided by TC</string>
+    <string name="digital_receipt">Digital receipt</string>
+    <string name="santorium_plus">Santorium Plus</string>
+    <string name="manufacture">MANUFACTURE</string>
+    <string name="manufacturing_astura_673434">Manufacturing Astura 673434</string>
+    <string name="did_09928390239tydvchd8634">DID: 09928390239TYDVCHD8634</string>
+    <string name="schema_id_28379280293">Schema ID: 28379280293</string>
 </resources>
