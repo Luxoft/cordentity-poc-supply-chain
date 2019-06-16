@@ -47,7 +47,7 @@
                 tools:text="Serial number"/>
 
         <TextView
-                android:id="@+id/listitem_message"
+                android:id="@+id/textViewHistoryItemMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"

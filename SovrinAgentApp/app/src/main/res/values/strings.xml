@@ -98,6 +98,7 @@
     <string name="verified_claims">verified claims</string>
     <string name="insurer_approved_your_prescription">Insurer has confirmed the coverage for your prescription</string>
     <string name="scan_qr_code">Scan QR-code</string>
+    <string name="scan_pack_qr_code">Scan package QR-code</string>
     <string name="will_be_provided_by_tc">will be provided by TC</string>
     <string name="digital_receipt">Digital receipt</string>
     <string name="santorium_plus">Santorium Plus</string>
@@ -105,4 +106,11 @@
     <string name="manufacturing_astura_673434">Manufacturing Astura 673434</string>
     <string name="did_09928390239tydvchd8634">DID: 09928390239TYDVCHD8634</string>
     <string name="schema_id_28379280293">Schema ID: 28379280293</string>
+    <string name="_24_apr_2018">24 Apr 2018</string>
+    <string name="_15_09_pm">15:09 PM</string>
+    <string name="new_digital_receipt">New digital receipt</string>
+    <string name="you_ve_received_digital_receipt_for_your_santorium_plus_prescription">You\'ve received digital receipt for your Santorium Plus prescription</string>
+    <string name="to_check_the_license_list">to check the license list</string>
+    <string name="_18_package_collected_status_check">18 Package collected, status: check</string>
+    <string name="verified">verified</string>
 </resources>

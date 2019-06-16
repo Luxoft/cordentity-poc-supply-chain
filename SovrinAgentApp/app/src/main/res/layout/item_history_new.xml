@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardlist_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="24dp"
+    android:layout_marginRight="24dp"
+    android:layout_marginBottom="5dp"
+    android:orientation="vertical"
+    card_view:cardCornerRadius="4dp"
+    card_view:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="117dp"
+            android:background="#ffffff"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp">
+
+            <ImageView
+                android:id="@+id/imageViewSomething"
+                android:layout_width="56dp"
+                android:layout_height="47dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="32dp"
+                card_view:srcCompat="@drawable/medicine" />
+
+            <TextView
+                android:id="@+id/textViewHistoryItemMedicineName"
+                style="@style/MedicineHeaderText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:text="Santorium Plus" />
+
+            <TextView
+                android:id="@+id/textViewHistoryItemDate"
+                style="@style/OrderItemDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="17dp"
+                android:layout_marginTop="28dp"
+                android:layout_toEndOf="@+id/imageViewSomething"
+                android:text="@string/_24_apr_2018" />
+
+            <TextView
+                android:id="@+id/textViewHistoryItemMessage"
+                style="@style/MedicineMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="17dp"
+                android:layout_below="@+id/textViewHistoryItemDate"
+                android:layout_toEndOf="@+id/imageViewSomething"
+                android:text="@string/_18_package_collected_status_check" />
+
+
+        </RelativeLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#dddddd"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutHistoryContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:orientation="vertical" />
+
+
+        <LinearLayout
+            android:id="@+id/linearLayoutScanQr"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/gradient"
+            android:gravity="left|center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_qr_code" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/ScanButtonLeftText"
+                android:layout_marginLeft="10dp"
+                android:text="@string/scan_pack_qr_code" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/ScanButtonRightText"
+                android:layout_marginLeft="12dp"
+                android:text="@string/to_check_the_license_list" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

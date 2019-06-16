@@ -37,6 +37,13 @@ import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.util.concurrent.atomic.AtomicInteger
+import android.view.Gravity
+import android.view.WindowManager
+import android.app.Dialog
+import rx.Observable
+import rx.Observer
+import rx.Single
+import java.util.concurrent.TimeUnit
 
 
 class OrdersFragment : Fragment() {
@@ -48,6 +55,7 @@ class OrdersFragment : Fragment() {
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private val loaded = AtomicInteger(0)
+    lateinit var dialog: Dialog
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -105,4 +113,15 @@ class OrdersFragment : Fragment() {
             realm.commitTransaction()
         }
     }
+
+    fun showPopup() {
+        dialog = Dialog(activity)
+        dialog.setContentView(R.layout.popup_layout)
+        val window = dialog.getWindow()
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+        window.setGravity(Gravity.TOP)
+        dialog.show()
+        Observable.timer(10, TimeUnit.SECONDS).subscribe { aLong -> dialog.dismiss() }
+    }
+
 }

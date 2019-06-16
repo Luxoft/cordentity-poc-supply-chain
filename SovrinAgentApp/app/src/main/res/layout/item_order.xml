@@ -20,14 +20,14 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="138dp"
+            android:layout_height="154dp"
             android:background="#ffffff"
             android:paddingLeft="16dp"
             android:paddingTop="16dp"
             android:paddingRight="16dp">
 
             <ImageView
-                android:id="@+id/imageViewMedicine"
+                android:id="@+id/imageViewSomething"
                 android:layout_width="56dp"
                 android:layout_height="47dp"
                 android:layout_alignParentTop="true"
@@ -35,7 +35,7 @@
                 card_view:srcCompat="@drawable/medicine" />
 
             <TextView
-                android:id="@+id/qr_listitem_medicine_name"
+                android:id="@+id/textViewHistoryItemMedicineName"
                 style="@style/MedicineHeaderText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 android:id="@+id/qr_listitem_sn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/qr_listitem_medicine_name"
+                android:layout_below="@+id/textViewHistoryItemMedicineName"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif"
@@ -56,14 +56,24 @@
                 tools:text="Serial number" />
 
             <TextView
-                android:id="@+id/qr_listitem_message"
-                style="@style/MedicineMessageText"
+                android:id="@+id/textViewHistoryItemDate"
+                style="@style/OrderItemDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="28dp"
-                android:layout_toEndOf="@+id/imageViewMedicine"
+                android:layout_toEndOf="@+id/imageViewSomething"
+                android:text="@string/_24_apr_2018" />
+
+            <TextView
+                android:id="@+id/textViewOrderItemMessage"
+                style="@style/MedicineMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="17dp"
+                android:layout_below="@+id/textViewHistoryItemDate"
+                android:layout_toEndOf="@+id/imageViewSomething"
                 android:text="@string/insurer_approved_your_prescription" />
 
 
@@ -72,10 +82,10 @@
                 style="@style/MedicineAddressHeaderText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/qr_listitem_message"
+                android:layout_below="@+id/textViewOrderItemMessage"
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="14dp"
-                android:layout_toEndOf="@+id/imageViewMedicine"
+                android:layout_toEndOf="@+id/imageViewSomething"
                 android:text="@string/address_header" />
 
             <TextView
@@ -84,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textViewAddressHeader"
                 android:layout_marginStart="33dp"
-                android:layout_toEndOf="@+id/imageViewMedicine"
+                android:layout_toEndOf="@+id/imageViewSomething"
                 android:autoLink="map"
                 android:text="@string/address" />
 

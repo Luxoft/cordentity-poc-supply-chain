@@ -23,6 +23,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
@@ -136,17 +137,17 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.listitem_medicine_name as TextView
-        var message: TextView = itemView.listitem_message as TextView
-        var sn: TextView = itemView.listitem_sn as TextView
+        var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
+        var message: TextView = itemView.textViewHistoryItemMessage as TextView
+//        var sn: TextView = itemView.listitem_sn as TextView
     }
 
     open inner class QROrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.qr_listitem_medicine_name as TextView
-        var message: TextView = itemView.qr_listitem_message as TextView
+        var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
+        var message: TextView = itemView.textViewOrderItemMessage as TextView
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
         var qrButton: View = itemView.linearLayoutScanQr
-        var sn: TextView = itemView.qr_listitem_sn as TextView
+//        var sn: TextView = itemView.qr_listitem_sn as TextView
     }
 
 
