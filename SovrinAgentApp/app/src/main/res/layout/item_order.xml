@@ -35,7 +35,7 @@
                 card_view:srcCompat="@drawable/medicine" />
 
             <TextView
-                android:id="@+id/textViewHistoryItemMedicineName"
+                android:id="@+id/textViewOrderItemMedicineName"
                 style="@style/MedicineHeaderText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 android:id="@+id/qr_listitem_sn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/textViewHistoryItemMedicineName"
+                android:layout_below="@+id/textViewOrderItemMedicineName"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif"
@@ -56,7 +56,7 @@
                 tools:text="Serial number" />
 
             <TextView
-                android:id="@+id/textViewHistoryItemDate"
+                android:id="@+id/textViewOrderItemDate"
                 style="@style/OrderItemDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="17dp"
-                android:layout_below="@+id/textViewHistoryItemDate"
+                android:layout_below="@+id/textViewOrderItemDate"
                 android:layout_toEndOf="@+id/imageViewSomething"
                 android:text="@string/insurer_approved_your_prescription" />
 
@@ -89,6 +89,7 @@
                 android:text="@string/address_header" />
 
             <TextView
+                android:id="@+id/textViewAddress"
                 style="@style/MedicineAddressText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -99,7 +100,7 @@
                 android:text="@string/address" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/imageViewMapMarker"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:layout_below="@+id/textViewAddressHeader"
@@ -120,6 +121,7 @@
             android:layout_height="51dp"
             android:gravity="left|center_vertical"
             android:orientation="horizontal"
+            android:visibility="gone"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 

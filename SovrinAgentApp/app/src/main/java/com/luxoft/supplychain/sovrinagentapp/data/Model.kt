@@ -112,5 +112,6 @@ open class Waybill : RealmObject() {
 @RealmClass
 open class ProductOperation : RealmObject() {
     open var by: String? = null
+    @PrimaryKey
     open var at: Long? = null
 }

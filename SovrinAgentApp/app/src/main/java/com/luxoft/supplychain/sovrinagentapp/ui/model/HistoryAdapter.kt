@@ -18,17 +18,20 @@ package com.luxoft.supplychain.sovrinagentapp.ui.model
 
 import android.content.Intent
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.ContextCompat.getDrawable
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
 import io.realm.Realm
@@ -40,7 +43,6 @@ import kotlinx.android.synthetic.main.item_history.view.textViewHistoryItemMessa
 import kotlinx.android.synthetic.main.item_history_new.view.*
 import kotlinx.android.synthetic.main.item_order.view.*
 import kotlinx.android.synthetic.main.item_order.view.linearLayoutScanQr
-import kotlinx.android.synthetic.main.item_order.view.textViewHistoryItemMedicineName
 
 
 class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -56,6 +58,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("collectedAt", Sort.DESCENDING).isNotNull("collectedAt").findAll()
+
+    private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
@@ -77,20 +81,40 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
         holder.qrButton.setOnClickListener {
+            Realm.getDefaultInstance().executeTransaction {
+                val productOperation = it.createObject(ProductOperation::class.java, order.collectedAt)
+                productOperation.by = "operated"
+            }
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
                             .putExtra("serial", order.serial)
                             .putExtra("state", order.state), null
             )
         }
-        for (i in 1..2) {
-            val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-            val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-            val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-
-            holder.linearLayoutHistoryContent.addView(view)
+        holder.imageViewExpand.setOnClickListener {
+            if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
+                holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
+                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
+            } else {
+                holder.linearLayoutHistoryContent.setVisibility(View.GONE)
+                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.down))
+            }
         }
 
+        holder.linearLayoutHistoryContent.removeAllViews()
+        val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        holder.linearLayoutHistoryContent.addView(view)
+
+        holder.qrButton.setVisibility(View.VISIBLE)
+        holder.linearLayoutLicenseList.setVisibility(View.GONE)
+        for (productOperation in productOperations) {
+            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("operated")) {
+                holder.qrButton.setVisibility(View.GONE)
+                holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
+            }
+        }
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -101,20 +125,40 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
         holder.qrButton.setOnClickListener {
+            Realm.getDefaultInstance().executeTransaction {
+                val productOperation = it.createObject(ProductOperation::class.java, order.collectedAt)
+                productOperation.by = "operated"
+            }
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
                             .putExtra("serial", order.serial)
                             .putExtra("state", order.state), null
             )
         }
-        for (i in 1..2) {
-            val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-            val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-            val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-
-            holder.linearLayoutHistoryContent.addView(view)
+        holder.imageViewExpand.setOnClickListener {
+            if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
+                holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
+                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
+            } else {
+                holder.linearLayoutHistoryContent.setVisibility(View.GONE)
+                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.down))
+            }
         }
 
+        holder.linearLayoutHistoryContent.removeAllViews()
+        val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        holder.linearLayoutHistoryContent.addView(view)
+
+        holder.qrButton.setVisibility(View.VISIBLE)
+        holder.linearLayoutLicenseList.setVisibility(View.GONE)
+        for (productOperation in productOperations) {
+            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("operated")) {
+                holder.qrButton.setVisibility(View.GONE)
+                holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
+            }
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -135,6 +179,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         var message: TextView = itemView.textViewHistoryItemMessage as TextView
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
+        var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
+        var imageViewExpand: ImageView = itemView.imageViewExpand
 //        var sn: TextView = itemView.listitem_sn as TextView
     }
 
@@ -143,6 +189,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         var message: TextView = itemView.textViewHistoryItemMessage as TextView
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
+        var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
+        var imageViewExpand: ImageView = itemView.imageViewExpand
 //        var sn: TextView = itemView.qr_listitem_sn as TextView
     }
 

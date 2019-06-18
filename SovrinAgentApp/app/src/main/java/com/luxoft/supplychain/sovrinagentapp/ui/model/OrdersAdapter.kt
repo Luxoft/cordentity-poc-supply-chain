@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
@@ -105,6 +106,20 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
                             .putExtra("state", order.state), null
             )
         }
+        if (order.state.equals(PackageState.ISSUED.name) || order.state.equals(PackageState.PROCESSED.name)) {
+           holder.qrButton.setVisibility(View.GONE)
+           holder.showReceiptButton.setVisibility(View.VISIBLE)
+            holder.textViewAddressHeader.setVisibility(View.GONE)
+            holder.textViewAddress.setVisibility(View.GONE)
+            holder.imageViewMapMarker.setVisibility(View.GONE)
+        }
+        if (order.state.equals(PackageState.DELIVERED.name)) {
+            holder.qrButton.setVisibility(View.VISIBLE)
+            holder.showReceiptButton.setVisibility(View.VISIBLE)
+            holder.textViewAddressHeader.setVisibility(View.GONE)
+            holder.textViewAddress.setVisibility(View.GONE)
+            holder.imageViewMapMarker.setVisibility(View.GONE)
+        }
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -114,6 +129,35 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         holder.title.setOnClickListener {
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
+        holder.qrButton.setOnClickListener {
+            ContextCompat.startActivity(holder.qrButton.context,
+                    Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
+                            .putExtra("serial", order.serial)
+                            .putExtra("state", order.state), null
+            )
+        }
+        holder.showReceiptButton.setOnClickListener {
+            ContextCompat.startActivity(holder.showReceiptButton.context,
+                    Intent().setClass(holder.showReceiptButton.context, DigitalReceiptActivity::class.java)
+                            .putExtra("serial", order.serial)
+                            .putExtra("state", order.state), null
+            )
+        }
+        if (order.state.equals(PackageState.ISSUED.name) || order.state.equals(PackageState.PROCESSED.name)) {
+            holder.qrButton.setVisibility(View.GONE)
+            holder.showReceiptButton.setVisibility(View.VISIBLE)
+            holder.textViewAddressHeader.setVisibility(View.GONE)
+            holder.textViewAddress.setVisibility(View.GONE)
+            holder.imageViewMapMarker.setVisibility(View.GONE)
+
+        }
+        if (order.state.equals(PackageState.DELIVERED.name)) {
+            holder.qrButton.setVisibility(View.VISIBLE)
+            holder.showReceiptButton.setVisibility(View.VISIBLE)
+            holder.textViewAddressHeader.setVisibility(View.GONE)
+            holder.textViewAddress.setVisibility(View.GONE)
+            holder.imageViewMapMarker.setVisibility(View.GONE)
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -122,7 +166,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_order, viewGroup, false)
             QROrderViewHolder(view)
         } else {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_history, viewGroup, false)
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_order, viewGroup, false)
             OrderViewHolder(view)
         }
     }
@@ -137,14 +181,22 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
-        var message: TextView = itemView.textViewHistoryItemMessage as TextView
+        var title: TextView = itemView.textViewOrderItemMedicineName as TextView
+        var message: TextView = itemView.textViewOrderItemMessage as TextView
+        var textViewAddressHeader: TextView = itemView.textViewAddressHeader as TextView
+        var textViewAddress: TextView = itemView.textViewAddress as TextView
+        var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
+        var showReceiptButton: View = itemView.linearLayoutShowReceipt
+        var qrButton: View = itemView.linearLayoutScanQr
 //        var sn: TextView = itemView.listitem_sn as TextView
     }
 
     open inner class QROrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
+        var title: TextView = itemView.textViewOrderItemMedicineName as TextView
         var message: TextView = itemView.textViewOrderItemMessage as TextView
+        var textViewAddressHeader: TextView = itemView.textViewAddressHeader as TextView
+        var textViewAddress: TextView = itemView.textViewAddress as TextView
+        var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
         var qrButton: View = itemView.linearLayoutScanQr
 //        var sn: TextView = itemView.qr_listitem_sn as TextView

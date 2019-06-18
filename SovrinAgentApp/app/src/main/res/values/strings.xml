@@ -109,8 +109,11 @@
     <string name="_24_apr_2018">24 Apr 2018</string>
     <string name="_15_09_pm">15:09 PM</string>
     <string name="new_digital_receipt">New digital receipt</string>
-    <string name="you_ve_received_digital_receipt_for_your_santorium_plus_prescription">You\'ve received digital receipt for your Santorium Plus prescription</string>
+    <string name="your_package_is_ready">Your package is ready for pick-up</string>
+    <string name="you_ve_received">You\'ve received digital receipt for your Santorium Plus prescription</string>
+    <string name="visit_your">Visit your treatment centre to pick up the package</string>
     <string name="to_check_the_license_list">to check the license list</string>
     <string name="_18_package_collected_status_check">18 Package collected, status: check</string>
     <string name="verified">verified</string>
+    <string name="license_list">License list</string>
 </resources>

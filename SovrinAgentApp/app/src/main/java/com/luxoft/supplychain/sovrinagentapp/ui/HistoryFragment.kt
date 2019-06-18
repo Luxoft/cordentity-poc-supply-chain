@@ -93,7 +93,7 @@ class HistoryFragment : Fragment() {
 
     fun showAlertDialogToProvide() = AlertDialog.Builder(context)
             .setTitle("Claims request")
-            .setMessage("Treatment center \"TC SEEHOF\" requesting your digital credentials to approve your request. Provide it?")
+            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
             .setCancelable(false)
             .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which: Int) {

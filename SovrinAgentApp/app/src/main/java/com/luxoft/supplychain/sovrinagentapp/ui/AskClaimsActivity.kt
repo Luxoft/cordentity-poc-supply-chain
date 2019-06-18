@@ -50,23 +50,23 @@ class AskClaimsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_ask_claims)
+//        setContentView(R.layout.activity_ask_claims)
 
-        val recyclerView = findViewById<RecyclerView>(R.id.fragment_list_rv)
-
-        val linearLayoutManager = LinearLayoutManager(this)
-        recyclerView.layoutManager = linearLayoutManager
-        recyclerView.setHasFixedSize(true)
-
-        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
+//        val recyclerView = findViewById<RecyclerView>(R.id.fragment_list_rv)
+//
+//        val linearLayoutManager = LinearLayoutManager(this)
+//        recyclerView.layoutManager = linearLayoutManager
+//        recyclerView.setHasFixedSize(true)
+//
+//        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
         val proofRequest = SerializationUtils.jSONToAny<ProofRequest>(intent?.getStringExtra("proofRequest")!!)
 
-        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+//        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
 
-        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
+//        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
 
-        findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
+//        findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
             drawProgressBar()
 
             Completable.complete().observeOn(Schedulers.io()).subscribe({
@@ -119,7 +119,7 @@ class AskClaimsActivity : AppCompatActivity() {
                 Log.e("Get Request Error: ", er.message, er)
                 showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
             })
-        }
+//        }
     }
 
 }

@@ -40,9 +40,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import android.view.Gravity
 import android.view.WindowManager
 import android.app.Dialog
+import android.widget.TextView
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import rx.Observable
-import rx.Observer
-import rx.Single
 import java.util.concurrent.TimeUnit
 
 
@@ -112,11 +112,23 @@ class OrdersFragment : Fragment() {
             realm.copyToRealmOrUpdate(offers)
             realm.commitTransaction()
         }
+        for (offer in offers) {
+            if (offer.state.equals(PackageState.ISSUED.name)) {
+                showPopup(getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
+            }
+            if (offer.state.equals(PackageState.DELIVERED.name)) {
+                showPopup(getString(R.string.your_package_is_ready), getString(R.string.visit_your))
+            }
+        }
     }
 
-    fun showPopup() {
+    fun showPopup(header: String, message: String) {
         dialog = Dialog(activity)
         dialog.setContentView(R.layout.popup_layout)
+        val textViewPopupHeader: TextView = dialog.findViewById(R.id.textViewPopupHeader)
+        val textViewPopupMessage: TextView = dialog.findViewById(R.id.textViewPopupMessage)
+        textViewPopupHeader.text = header
+        textViewPopupMessage.text = message
         val window = dialog.getWindow()
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
         window.setGravity(Gravity.TOP)

@@ -111,6 +111,13 @@
         <item name="android:textColor">#212529</item>
     </style>
 
+    <style name="LicenseListHeaderText">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">roboto-bold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#212529</item>
+    </style>
+
     <style name="ScanButtonRightText">
         <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">roboto-regular</item>

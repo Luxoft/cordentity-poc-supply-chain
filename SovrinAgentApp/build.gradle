@@ -2,8 +2,9 @@
 
 buildscript {
     ext.kotlin_version = '1.3.31'
-    ext.cordentity_version = '936f23689aadf6e4a6d1b1762eeaa40689f5e9eb'
-    
+    ext.cordentity_version = '2d81ccda4488327136486ca6ce8d9f0abf3c57f0'
+//    ext.cordentity_version = '936f23689aadf6e4a6d1b1762eeaa40689f5e9eb'
+
     repositories {
         google()
         jcenter()
