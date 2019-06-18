@@ -18,7 +18,29 @@ package com.luxoft.poc.supplychain.data.schema
 
 import java.util.*
 
-val name = "package_receipt-${Math.abs(Random().nextInt())}"
+open class IndySchema(val schemaName: String, val schemaVersion: String, val attributes: List<String>) {
+    override fun toString(): String = "${schemaName}:${schemaVersion}"
+}
+
+val namePostFix = "${Math.abs(Random().nextInt())}"
 val version = "${Math.abs(Random().nextInt())}.${Math.abs(Random().nextInt())}.${Math.abs(Random().nextInt())}"
 
-object PackageReceipt : IndySchema(name, version, listOf("serial"))
+object PackageIndySchema : IndySchema(
+    "package_receipt-$namePostFix",
+    version,
+    listOf(
+        "serial",
+        "authorities",
+        "time"
+    )
+)
+
+object CertificateIndySchema : IndySchema(
+    "certificate-$namePostFix",
+    version,
+    listOf(
+        "serial",
+        "status",
+        "time"
+    )
+)

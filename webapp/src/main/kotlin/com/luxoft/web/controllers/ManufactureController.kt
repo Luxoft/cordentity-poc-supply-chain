@@ -18,10 +18,13 @@ package com.luxoft.web.controllers
 
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.DeliverShipment
+import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.FAILURE
+import com.luxoft.web.data.Invite
 import com.luxoft.web.data.Serial
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
@@ -57,6 +60,12 @@ class ManufactureController(rpc: RPCComponent) {
             logger.error("", e)
             FAILURE.plus("error" to e.message)
         }
+    }
+
+    @PostMapping("package/history")
+    fun packageHistory(@RequestBody request: Serial): Invite {
+        val invite = services.startFlow(GetPackageHistory::Requester, request.serial).returnValue.get()
+        return Invite(invite)
     }
 
     @PostMapping("request/process")

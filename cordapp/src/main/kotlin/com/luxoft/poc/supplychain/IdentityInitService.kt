@@ -21,6 +21,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
 import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
 import com.luxoft.poc.supplychain.data.schema.IndySchema
+import com.luxoft.poc.supplychain.flow.IndyUtilsFlow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
@@ -30,6 +31,8 @@ import java.time.Duration
 class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Duration = Duration.ofSeconds(30)) {
 
     fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, CredentialDefinitionId> {
+        rpc.startFlow(IndyUtilsFlow::GrantTrust).returnValue.get()
+
         val schemaId = rpc.startFlow(
             CreateSchemaFlow::Authority, schema.schemaName, schema.schemaVersion, schema.attributes
         ).returnValue.getOrThrow(timeout).getSchemaIdObject()

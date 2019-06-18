@@ -34,7 +34,7 @@ open class ShipmentBase(config: NetworkConfiguration): IdentityBase(config)  {
 
     override fun onUp() {
         packageInfo = PackageInfo(
-                serial = UUID.randomUUID().toString(),
+                packageId = UUID.randomUUID().toString(),
                 state = PackageState.NEW,
                 patientDid = config.agent.getPartyDid(),
                 patientAgent = config.agent.getName(),
@@ -62,19 +62,19 @@ open class ShipmentBase(config: NetworkConfiguration): IdentityBase(config)  {
         future.getOrThrow()
     }
 
-    protected fun runShipment(serial: String,
+    protected fun runShipment(packageId: String,
                               from: StartedNode<InternalMockNetwork.MockNode>,
                               to: StartedNode<InternalMockNetwork.MockNode>) {
 
-        val flowStartShipment = DeliverShipment.Sender(serial, to.getName())
+        val flowStartShipment = DeliverShipment.Sender(packageId, to.getName())
         val future = from.services.startFlow(flowStartShipment).resultFuture
         config.runNetwork()
         future.getOrThrow()
     }
 
-    protected fun endShipment(serial: String, destination: StartedNode<InternalMockNetwork.MockNode>) {
+    protected fun endShipment(packageId: String, destination: StartedNode<InternalMockNetwork.MockNode>) {
 
-        val fLowEndShipment = ReceiveShipment.Receiver(AcceptanceResult(serial))
+        val fLowEndShipment = ReceiveShipment.Receiver(AcceptanceResult(packageId))
         val future = destination.services.startFlow(fLowEndShipment).resultFuture
         config.runNetwork()
         future.getOrThrow()

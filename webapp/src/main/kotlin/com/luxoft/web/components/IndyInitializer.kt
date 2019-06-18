@@ -18,70 +18,60 @@ package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.poc.supplychain.IdentityInitService
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
-import net.corda.client.rpc.CordaRPCClient
-import net.corda.core.identity.CordaX500Name
-import net.corda.core.utilities.NetworkHostAndPort
+import com.luxoft.poc.supplychain.data.schema.CertificateIndySchema
+import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
 import net.corda.core.utilities.loggerFor
-import net.corda.nodeapi.internal.config.User
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.Duration
 import javax.annotation.PostConstruct
 
+val timeout = Duration.ofSeconds(180L)
 
 @Component
 @Profile("treatmentcenter")
-class IndyInitializer {
-    private final val logger = loggerFor<IndyInitializer>()
+class IndyInitializerTreatmentCenter {
+    private final val logger = loggerFor<IndyInitializerTreatmentCenter>()
+
+    @Autowired
+    lateinit var rpc: RPCComponent
 
     @PostConstruct
     fun init() {
-        val timeout = Duration.ofSeconds(180L)
+        val treatment = rpc.services
 
-        val user = User("user1", "test", permissions = setOf())
-
-        val treatment = CordaRPCClient(NetworkHostAndPort("localhost", 10102))
-                .start(user.username, user.password).proxy
-
-        logger.info("Created all needed rpc clients")
-
-        if (treatment.vaultQuery(IndySchema::class.java).states.isEmpty()) {
+        if (treatment.vaultQuery(IndySchema::class.java).states.size < 2) {
             val treatmentCenterIdentityService = IdentityInitService(treatment, timeout)
-            treatmentCenterIdentityService.issueIndyMeta(PackageReceipt)
+            treatmentCenterIdentityService.issueIndyMeta(PackageIndySchema)
+            treatmentCenterIdentityService.issueIndyMeta(CertificateIndySchema)
 
             logger.info("Treatment center indy stuff initialized")
         }
 
-        /*logger.info("Creating test package...")
+        logger.info("Initialization passed")
+    }
+}
 
-        // TODO: fix hardcode
+@Component
+@Profile("manufacture")
+class IndyInitializerManufacture {
+    private final val logger = loggerFor<IndyInitializerManufacture>()
 
-        val treatmentDid = "V4SGRU86Z58d6TV7PBUe6f"
+    @Autowired
+    lateinit var rpc: RPCComponent
 
-        val askNewPackageRes = treatment.startFlowDynamic(AskNewPackage.Treatment::class.java, treatmentDid)
-        val serial = askNewPackageRes.returnValue.getOrThrow(timeout)
+    @PostConstruct
+    fun init() {
+        val manufacture = rpc.services
 
-        logger.info("1. Package request created")
+        if (manufacture.vaultQuery(IndySchema::class.java).states.isEmpty()) {
+            val initService = IdentityInitService(manufacture, timeout)
+            initService.issueIndyMeta(CertificateIndySchema)
 
-        val deliverShipmentRes = issuer.startFlowDynamic(DeliverShipment.Sender::class.java, serial, treatmentCert)
-        deliverShipmentRes.returnValue.getOrThrow(timeout)
+            logger.info("Manufacture indy stuff initialized")
+        }
 
-        logger.info("2. Package request processed, package delivered pack")
-
-        val acceptanceRes = AcceptanceResult(serial)
-        val receiveShipmentRes = treatment.startFlowDynamic(ReceiveShipment.Receiver::class.java, acceptanceRes)
-        receiveShipmentRes.returnValue.getOrThrow(timeout)
-
-        logger.info("3. Package shipped")
-
-        val packageWithdrawalRes = treatment.startFlowDynamic(PackageWithdrawal.Owner::class.java, serial)
-        packageWithdrawalRes.returnValue.getOrThrow(timeout)
-
-        logger.info("4. Package withdrawal success")
-
-        val packages = treatment.vaultQueryBy<Package>().states.map { it.state.data.info }
-        logger.info("Packages in vault: $packages")*/
         logger.info("Initialization passed")
     }
 }

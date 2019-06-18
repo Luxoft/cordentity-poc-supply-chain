@@ -16,13 +16,16 @@
 
 package com.luxoft.poc.supplychain.flow
 
-import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.*
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialDefinitionSchemaV1
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialProofSchemaV1
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialSchemaV1
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.IndySchemaSchemaV1
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageSchemaV1
 import com.luxoft.poc.supplychain.data.schema.ShipmentSchemaV1
 import com.luxoft.poc.supplychain.data.state.Package
@@ -31,15 +34,14 @@ import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FlowLogic
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.identity.Party
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.Builder.equal
 import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.node.services.vault.builder
 
 fun FlowLogic<Any>.getTreatment() = whoIs(CordaX500Name("TreatmentCenter", "London", "GB"))
 fun FlowLogic<Any>.getManufacturer() = whoIs(CordaX500Name("Manufacture", "London", "GB"))
-fun FlowLogic<Any>.getSovrinAgent() = whoIs(CordaX500Name("SovrinAgent", "London", "GB"))
 
 fun FlowLogic<Any>.getPackageState(serial: String, owner: AbstractParty): StateAndRef<Package> {
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
@@ -103,4 +105,37 @@ fun FlowLogic<Any>.getClaimProof(serial: String): StateAndRef<IndyCredentialProo
 
     val results = serviceHub.vaultService.queryBy<IndyCredentialProof>(criteria)
     return results.states.singleOrNull()!!
+}
+
+fun FlowLogic<Any>.getCredDefLike(name: String): StateAndRef<IndyCredentialDefinition>? {
+
+    val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
+        .and(
+            QueryCriteria.VaultCustomQueryCriteria(builder {
+                CredentialDefinitionSchemaV1.PersistentCredentialDefinition::schemaId.like(
+                    //TODO: Dirty hack!!
+                    "%${name.split("-").first()}%"
+                )
+            })
+        )
+
+
+    val results = serviceHub.vaultService.queryBy<IndyCredentialDefinition>(criteria)
+    return results.states.singleOrNull()
+}
+
+fun FlowLogic<Any>.getIndySchemaLike(name: String): StateAndRef<IndySchema>? {
+
+    val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
+        .and(
+            QueryCriteria.VaultCustomQueryCriteria(builder {
+                IndySchemaSchemaV1.PersistentSchema::id.like(
+                    //TODO: Dirty hack!!
+                    "%${name.split("-").first()}%"
+                )
+            })
+        )
+
+    val results = serviceHub.vaultService.queryBy<IndySchema>(criteria)
+    return results.states.singleOrNull()
 }

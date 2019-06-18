@@ -56,6 +56,15 @@ data class AcceptanceResult (
 )
 
 @CordaSerializable
+data class AuthorityInfo(
+    val did: String,
+    val schemaId: String
+)
+
+@CordaSerializable
+class AuthorityInfoMap : HashMap<String, AuthorityInfo>()
+
+@CordaSerializable
 enum class PackageState {
     NEW,
     ISSUED,

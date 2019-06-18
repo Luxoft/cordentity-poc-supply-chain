@@ -23,6 +23,7 @@ import com.luxoft.poc.supplychain.flow.GetTailsFlow
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
+import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
@@ -86,6 +87,12 @@ class TreatmentCenterController(rpc: RPCComponent) {
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial) {
         services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID!!))
+    }
+
+    @PostMapping("package/history")
+    fun packageHistory(@RequestBody request: Serial): Invite {
+        val invite = services.startFlow(GetPackageHistory::Requester, request.serial).returnValue.get()
+        return Invite(invite)
     }
 
     @GetMapping("package/list")

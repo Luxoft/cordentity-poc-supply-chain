@@ -17,20 +17,15 @@
 package com.luxoft.poc.supplychain.flow.medicine
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
-import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
-import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
-import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
-import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
+import com.luxoft.blockchainlab.hyperledger.indy.utils.*
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
+import com.luxoft.poc.supplychain.flow.*
 import com.luxoft.poc.supplychain.flow.GetInviteFlow.Companion.inviteWaitTimeout
-import com.luxoft.poc.supplychain.flow.RequestForPackage
-import com.luxoft.poc.supplychain.flow.get
-import com.luxoft.poc.supplychain.flow.getManufacturer
 import com.luxoft.poc.supplychain.service.clientResolverService
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
@@ -88,10 +83,22 @@ class AskNewPackage {
 
         @Suspendable
         private fun issueReceipt(serial: String) {
-            val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDef.id, null, clientDid) {
+            val authorities = subFlow(
+                IndyResolver.Requester(
+                    mapOf(
+                        "Manufacture" to getManufacturer().name,
+                        "TRC" to ourIdentity.name
+                    )
+                )
+            )
+
+            val credDefId = getCredDefLike(PackageIndySchema.schemaName)!!.state.data.id
+
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDefId, null, clientDid) {
                 attributes["serial"] = CredentialValue(serial)
+                attributes["authorities"] = CredentialValue(SerializationUtils.anyToJSON(authorities))
+                attributes["time"] = CredentialValue(System.currentTimeMillis().toString())
             })
         }
 

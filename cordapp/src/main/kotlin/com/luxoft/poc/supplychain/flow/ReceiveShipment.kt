@@ -17,11 +17,14 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.IssueCredentialFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.contract.ShipmentContract
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.poc.supplychain.data.schema.CertificateIndySchema
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.data.state.getParties
 import com.luxoft.poc.supplychain.except
@@ -83,6 +86,13 @@ object ReceiveShipment {
             val selfSignedTx = serviceHub.signInitialTransaction(trxBuilder, ourIdentity.owningKey)
             val signedTrx = subFlow(CollectSignaturesFlow(selfSignedTx, flowSessions))
             val finalTrx = subFlow(FinalityFlow(signedTrx))
+
+            val credentialDefinition = getCredDefLike(CertificateIndySchema.schemaName)!!.state.data
+            subFlow(IssueCredentialFlowB2B.Issuer(getManufacturer().name, credentialDefinition.id, null) {
+                attributes["serial"] = CredentialValue(acceptanceCheck.serial)
+                attributes["status"] = CredentialValue(info.state.name)
+                attributes["time"] = CredentialValue(info.processedAt!!.toString())
+            })
 
             waitForLedgerCommit(finalTrx.id)
         }

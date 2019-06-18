@@ -16,67 +16,56 @@
 
 package com.luxoft.web.clients
 
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.GenesisHelper
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
-import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
-import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
 import com.luxoft.web.data.Serial
-import org.apache.commons.io.FileUtils
-import org.hyperledger.indy.sdk.pool.Pool
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
-import java.io.File
-import java.lang.Math.abs
-import java.lang.Thread.sleep
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.annotation.PostConstruct
 
 enum class TreatmentCenterEndpoint(val url: String) {
     INVITE("/api/tc/invite"),
     LIST("/api/tc/package/list"),
     INIT("/api/tc/request/create"),
     RECEIVE("/api/tc/package/receive"),
-    COLLECT("/api/tc/package/withdraw")
+    COLLECT("/api/tc/package/withdraw"),
+    HISTORY("/api/tc/package/history"),
 }
 
-class TreatmentCenterClient(private val restTemplate: RestTemplate) {
-    val pool: Pool
-    val poolName: String = "test-pool-${abs(Random().nextInt())}"
-    val tmpTestWalletId = "tmpTestWallet${abs(Random().nextInt())}"
+@Component
+class TreatmentCenterClient {
+    @Autowired
+    lateinit var restTemplateBuilder: RestTemplateBuilder
 
-    init {
-        val genesisFile = File("../cordapp/src/main/resources/genesis/docker.txn")
-        if (!GenesisHelper.exists(genesisFile))
-            throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
+    @Autowired
+    lateinit var ssiUser: SsiUser
 
-        PoolHelper.createOrTrunc(genesisFile, poolName)
-        pool = PoolHelper.openExisting(poolName)
+    @Autowired
+    lateinit var agentClient: AgentConnection
 
-        //creating user wallet with credentials required by logic
-        File(this.javaClass.classLoader.getResource("testUserWallet.db").file)
-            .copyTo(File("${FileUtils.getUserDirectory()}/.indy_client/wallet/$tmpTestWalletId/sqlite.db"))
-            .apply {
-                Runtime.getRuntime().addShutdownHook(Thread { FileUtils.deleteQuietly(parentFile) })
-            }
-    }
+    @Value("\${treatmentCenterEndpoint}")
+    lateinit var endpoint: String
 
-    fun createSsiUser(walletName: String, walletPassword: String) = run {
-        val wallet = WalletHelper.openExisting(walletName, walletPassword)
+    private lateinit var restTemplate: RestTemplate
 
-        val walletUser = IndySDKWalletUser(wallet)
-        val ledgerUser = IndyPoolLedgerUser(pool, walletUser.getIdentityDetails().did) { walletUser.sign(it) }
-        IndyUser.with(walletUser).with(ledgerUser).build()
+    @PostConstruct
+    fun init() {
+        restTemplate = restTemplateBuilder.rootUri(endpoint).build()
     }
 
     fun getPackages(): PackagesResponse = this.restTemplate.getForObject(TreatmentCenterEndpoint.LIST.url)
@@ -84,19 +73,6 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
 
     fun getInvite(): Invite =
         restTemplate.getForObject(TreatmentCenterEndpoint.INVITE.url) ?: throw RuntimeException("Failed to get invite")
-
-    private val agentClient = PythonRefAgentConnection().apply {
-        connect(
-            url = "ws://3.17.65.252:8094/ws",
-            login = "agentUser",
-            password = "password"
-        ).toBlocking().value()
-    }
-
-    val ssiUser = createSsiUser(
-        tmpTestWalletId,
-        "password"
-    )
 
     //Just in case of need
     fun createIndyPrerequirements(indyUser: IndyUser) = indyUser.apply {
@@ -117,9 +93,8 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
 
     fun initFlow(tcName: String, invite: Invite) {
         val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
-        sleep(1000)
 
-        val initRequest = AskForPackageRequest(tcName, invite.clientUUID)
+        val initRequest = AskForPackageRequest(tcName, invite.clientUUID!!)
 
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -159,7 +134,6 @@ class TreatmentCenterClient(private val restTemplate: RestTemplate) {
 
     fun collectPackage(serial: String, invite: Invite) {
         val acceptInvite = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
-        sleep(1000)
 
         val collectRequest = Serial(serial, invite.clientUUID)
         val collectResponse =

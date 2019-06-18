@@ -16,14 +16,13 @@
 
 package com.luxoft.poc.supplychain.data.schema
 
+import com.luxoft.poc.supplychain.data.state.Package
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.Table
-
-import com.luxoft.poc.supplychain.data.state.Package
 import javax.persistence.Lob
+import javax.persistence.Table
 
 object PackageSchema
 

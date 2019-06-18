@@ -21,7 +21,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.*
 import com.luxoft.poc.supplychain.IndyArtifactsRegistry
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
 import com.luxoft.poc.supplychain.data.schema.IndySchema
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
+import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
@@ -49,7 +49,7 @@ abstract class IdentityBase(val config: NetworkConfiguration) {
     fun setup() {
         config.up()
 
-        createIndyMeta(config.treatment, PackageReceipt)
+        createIndyMeta(config.treatment, PackageIndySchema)
         createIndyMeta(config.insurance, DiagnosisDetails)
         createIndyMeta(config.goverment, PersonalInformation)
 
