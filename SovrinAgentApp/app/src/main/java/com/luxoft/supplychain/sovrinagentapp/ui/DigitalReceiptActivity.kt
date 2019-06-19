@@ -2,16 +2,35 @@ package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.Gson
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
+import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.data.AuthorityInfoMap
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import io.realm.Realm
+import io.realm.RealmResults
+import io.realm.Sort
+import org.koin.android.ext.android.inject
+import rx.Completable
+import rx.schedulers.Schedulers
 
 class DigitalReceiptActivity : AppCompatActivity() {
+    private val indyUser: IndyUser by inject()
+    private val agentConnection: AgentConnection by inject()
+    private val realm: Realm = Realm.getDefaultInstance()
 
+    private val claims: RealmResults<ClaimAttribute> = realm.where(ClaimAttribute::class.java).findAll()
+    lateinit var authorityInfoMap:AuthorityInfoMap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_digital_receipt)
@@ -20,24 +39,33 @@ class DigitalReceiptActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
 
-        val product = Realm.getDefaultInstance().where(Product::class.java).equalTo("serial", intent.getStringExtra("serial")).findFirst()
-        if (product != null) {
-
-            val linearLayoutReceiptContent = findViewById(R.id.linearLayoutReceiptContent) as LinearLayout
-
-            for (i in 1..2) {
-                val view: View? = layoutInflater.inflate(R.layout.item_receipt, null)
-                val textViewReceiptItemHeader = view?.findViewById(R.id.textViewReceiptItemHeader) as TextView
-                val textViewReceiptItemName = view?.findViewById(R.id.textViewReceiptItemName) as TextView
-                val textViewReceiptItemDID = view?.findViewById(R.id.textViewReceiptItemDID) as TextView
-                val textViewReceiptItemSchemaId = view?.findViewById(R.id.textViewReceiptItemSchemaId) as TextView
-
-                linearLayoutReceiptContent.addView(view)
+        for (claim in claims) {
+            if (claim.key.equals("authorities")) {
+                val  gson: Gson = Gson()
+                authorityInfoMap = gson.fromJson(claim.value, AuthorityInfoMap::class.java)
             }
+        }
+        val linearLayoutReceiptContent = findViewById(R.id.linearLayoutReceiptContent) as LinearLayout
+        var textViewReceiptItemHeader: TextView
+        var textViewReceiptItemName: TextView
+        var textViewReceiptItemDID: TextView
+        var textViewReceiptItemSchemaId: TextView
 
-        } else {
-            Toast.makeText(this, "Item not found", Toast.LENGTH_LONG).show()
-            finish()
+        for (mutableEntry in authorityInfoMap) {
+
+            val view: View? = layoutInflater.inflate(R.layout.item_receipt, null)
+            textViewReceiptItemHeader = view?.findViewById(R.id.textViewReceiptItemHeader) as TextView
+            textViewReceiptItemName = view?.findViewById(R.id.textViewReceiptItemName) as TextView
+            textViewReceiptItemDID = view?.findViewById(R.id.textViewReceiptItemDID) as TextView
+            textViewReceiptItemSchemaId = view?.findViewById(R.id.textViewReceiptItemSchemaId) as TextView
+
+            textViewReceiptItemHeader.text = mutableEntry.key
+            textViewReceiptItemName.text = mutableEntry.key
+            textViewReceiptItemDID.text = mutableEntry.value.did
+            textViewReceiptItemSchemaId.text = mutableEntry.value.schemaId
+
+
+            linearLayoutReceiptContent.addView(view)
         }
     }
 
@@ -45,5 +73,4 @@ class DigitalReceiptActivity : AppCompatActivity() {
         onBackPressed()
         return true
     }
-
 }

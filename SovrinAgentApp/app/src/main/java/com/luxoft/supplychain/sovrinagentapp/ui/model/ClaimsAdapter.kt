@@ -21,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
@@ -43,9 +44,14 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
 
     override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
-        holder.name.text = claims[position]?.key
-        holder.value.text = claims[position]?.value
-        holder.schemaId.text = claims[position]?.schemaId
+        if (!claims[position]?.key.equals("authorities") && !claims[position]?.key.equals("time")) {
+            holder.name.text = claims[position]?.key
+            holder.value.text = claims[position]?.value
+            holder.schemaId.text = claims[position]?.schemaId
+        } else {
+            holder.linearLayoutLeft.setVisibility(View.GONE)
+            holder.linearLayoutRight.setVisibility(View.GONE)
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ClaimViewHolder {
@@ -62,6 +68,8 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
         var name: TextView = itemView.tv_claim_attr_name as TextView
         var value: TextView = itemView.tv_claim_attr_value as TextView
         var schemaId: TextView = itemView.tv_schema_id as TextView
+        var linearLayoutLeft: LinearLayout = itemView.linearLayoutLeft as LinearLayout
+        var linearLayoutRight: LinearLayout = itemView.linearLayoutRight as LinearLayout
 
     }
 }

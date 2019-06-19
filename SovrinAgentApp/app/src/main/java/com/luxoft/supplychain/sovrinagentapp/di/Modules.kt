@@ -30,6 +30,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
+import com.luxoft.supplychain.sovrinagentapp.Application.Companion.webServerEndpoint
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
@@ -55,8 +56,7 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
     single { connectedAgentConnection() }
 }
-
-val webServerEndpoint = "http://18.216.169.252:8082"
+//val webServerEndpoint = "http://18.216.169.252:8082"
 val indyAgentWSEndpoint = "ws://18.216.169.252:8094/ws"
 val tailsPath = "/sdcard/tails"
 

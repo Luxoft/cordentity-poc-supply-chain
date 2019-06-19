@@ -18,9 +18,7 @@ package com.luxoft.supplychain.sovrinagentapp
 
 import android.app.Application
 import android.os.Environment
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.data.*
 import com.luxoft.supplychain.sovrinagentapp.di.myModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -47,5 +45,9 @@ class Application : Application() {
             product2.medicineName = "Santorium Plus"
             product2.requestedAt = Long.MAX_VALUE
         }
+    }
+
+    companion object {
+        var webServerEndpoint = "http://18.216.169.252:8082"
     }
 }

@@ -68,7 +68,7 @@ class ClaimsFragment : Fragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 
-        mAdapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").findAll())
+        mAdapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").notEqualTo("key", "authorities").notEqualTo("key", "time").findAll())
         recyclerView.adapter = mAdapter
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)

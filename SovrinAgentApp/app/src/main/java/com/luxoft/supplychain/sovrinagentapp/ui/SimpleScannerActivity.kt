@@ -113,7 +113,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        if (resultCode == Activity.RESULT_OK &&  requestCode == REQUEST_CODE_QR_SCAN) {
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_QR_SCAN) {
             val result = data?.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
 
 
@@ -183,6 +183,27 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                         }
                     }
                 }
+//                PackageState.COLLECTED.name -> {
+//                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+//                        try {
+//                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+//                                api.packageHistory(Serial(serial!!, content.clientUUID!!))
+//                                        .subscribeOn(Schedulers.io())
+//                                        .observeOn(AndroidSchedulers.mainThread())
+//                                        .subscribe({
+//                                            saveHistory(it)
+//                                            finish()
+//                                        }) { er ->
+//                                            Log.e("Collect Package Error: ", er.message, er)
+//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+//                                        }
+//                            }
+//                        } catch (er: Exception) {
+//                            Log.e("New Package Error: ", er.message, er)
+//                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+//                        }
+//                    }
+//                }
 
                 PackageState.DELIVERED.name -> {
                     Completable.complete().observeOn(Schedulers.io()).subscribe {
@@ -220,6 +241,11 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
         }
     }
+
+    private fun saveHistory(it: Unit?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun handleResult(rawResult: Result) {
         if (rawResult.contents == null || !correct.matches(rawResult.contents)) return
 

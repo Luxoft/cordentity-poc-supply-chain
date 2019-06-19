@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
+import java.util.*
+import kotlin.collections.HashMap
 
 enum class PackageState {
     GETPROOFS,
@@ -115,3 +117,10 @@ open class ProductOperation : RealmObject() {
     @PrimaryKey
     open var at: Long? = null
 }
+
+data class AuthorityInfo(
+        val did: String,
+        val schemaId: String
+)
+
+class AuthorityInfoMap : HashMap<String, AuthorityInfo> ()
