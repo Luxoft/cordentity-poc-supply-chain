@@ -190,9 +190,9 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 //                    val gson: Gson = Gson()
 //                    webServerEndpoint = ""
 //                    val disposableWebServerEndpoint = (gson.fromJson(result, HashMap<String, String>()::class.java) as HashMap).getValue("invite")
-                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-                        try {
-                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+//                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+//                        try {
+//                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
                                 showAlertDialogToProvide()
 //                                api.packageHistory(Serial(serial!!, content.clientUUID!!), disposableWebServerEndpoint)
 //                                        .subscribeOn(Schedulers.io())
@@ -208,13 +208,13 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 ////                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
 //                                            this@SimpleScannerActivity.finish()
 //                                        }
-                            }
-                        } catch (er: Exception) {
-//                            webServerEndpoint = "http://18.216.169.252:8082"
-                            Log.e("New Package Error: ", er.message, er)
-                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
-                        }
-                    }
+//                            }
+//                        } catch (er: Exception) {
+////                            webServerEndpoint = "http://18.216.169.252:8082"
+//                            Log.e("New Package Error: ", er.message, er)
+//                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+//                        }
+//                    }
                 }
 
                 PackageState.DELIVERED.name -> {
