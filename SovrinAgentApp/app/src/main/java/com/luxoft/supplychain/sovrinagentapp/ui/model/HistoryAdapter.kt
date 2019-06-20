@@ -34,6 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
+import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
@@ -130,6 +131,9 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
                 holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
             }
         }
+
+        holder.textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "MMM dd, yyyy HH:mm:ss")
+
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -188,6 +192,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
                 holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
             }
         }
+
+        holder.textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -206,6 +212,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
         var message: TextView = itemView.textViewHistoryItemMessage as TextView
+        var textViewHistoryItemDate: TextView = itemView.textViewHistoryItemDate as TextView
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
         var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
@@ -216,6 +223,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     open inner class QROrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
         var message: TextView = itemView.textViewHistoryItemMessage as TextView
+        var textViewHistoryItemDate: TextView = itemView.textViewHistoryItemDate as TextView
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
         var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList

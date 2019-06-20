@@ -33,6 +33,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.DigitalReceiptActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
+import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
@@ -120,6 +121,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.textViewAddress.setVisibility(View.GONE)
             holder.imageViewMapMarker.setVisibility(View.GONE)
         }
+
+        holder.textViewOrderItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy")
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -158,6 +161,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.textViewAddress.setVisibility(View.GONE)
             holder.imageViewMapMarker.setVisibility(View.GONE)
         }
+
+        holder.textViewOrderItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy")
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -185,6 +190,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         var message: TextView = itemView.textViewOrderItemMessage as TextView
         var textViewAddressHeader: TextView = itemView.textViewAddressHeader as TextView
         var textViewAddress: TextView = itemView.textViewAddress as TextView
+        var textViewOrderItemDate: TextView = itemView.textViewOrderItemDate as TextView
         var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
         var qrButton: View = itemView.linearLayoutScanQr
@@ -196,6 +202,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
         var message: TextView = itemView.textViewOrderItemMessage as TextView
         var textViewAddressHeader: TextView = itemView.textViewAddressHeader as TextView
         var textViewAddress: TextView = itemView.textViewAddress as TextView
+        var textViewOrderItemDate: TextView = itemView.textViewOrderItemDate as TextView
         var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
         var qrButton: View = itemView.linearLayoutScanQr
