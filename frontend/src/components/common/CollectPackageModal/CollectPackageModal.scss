@@ -34,11 +34,11 @@
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-    height: 600px;
+    height: 630px;
 
     > .content {
       width: 450px;
-      height: 500px;
+      height: 530px;
       border: 1px solid $color-light-gray;
 
       .steps {
@@ -46,7 +46,7 @@
       }
 
       .info {
-        height: 420px;
+        height: 450px;
         display: flex !important;
         justify-content: center;
         align-items: center;
@@ -98,9 +98,9 @@
       }
 
       .next-btn {
-        @include btn(#6166BE);
-        background-color: #6166BE;
-        color: white;
+        @include btn(transparent);
+        background-image: linear-gradient(to top, #f2cf70, #fce275);
+        color: #363636;
       }
 
       &.one {

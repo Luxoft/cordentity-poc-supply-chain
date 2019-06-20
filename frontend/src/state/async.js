@@ -27,10 +27,10 @@ const envs = {
 };
 
 /* --- CURRENT ENVIRONMENT --- */
-const CURRENT_ENV = envs.dev;
+const CURRENT_ENV = envs.prod;
 
 const host = {
-    [envs.dev]: window.location.hostname,
+    [envs.dev]: '18.216.169.252',//window.location.hostname,
     [envs.prod]: window.location.hostname
 };
 

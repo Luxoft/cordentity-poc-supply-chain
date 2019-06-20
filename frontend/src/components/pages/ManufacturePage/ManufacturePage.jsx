@@ -118,7 +118,6 @@ class ManufacturePage extends React.Component {
                                     needed.
                                 </p>
                             </div>
-                            <img src={LuxoftLogoPNG} data-rjs="3" alt="Luxoft"/>
                         </div>
                     </div>
                 </article>

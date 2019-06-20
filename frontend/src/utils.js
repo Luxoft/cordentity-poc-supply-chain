@@ -3,6 +3,7 @@ import PatientAvatar from './assets/img/patient-avatar@3x.png';
 import TreatmentCenterAvatar from './assets/img/treatment-center-avatar@3x.png';
 import ManufacturerAvatar from './assets/img/manufacturer-avatar@3x.png';
 import CourierAvatar from './assets/img/courier-avatar@3x.png';
+import RiskManagerAvatar from './assets/img/group-4@3x.png';
 import Med1PNG from './assets/img/med1.png';
 
 
@@ -19,12 +20,13 @@ export const ENTITY_MODIFIERS = {
     TREATMENT_CENTER: 'TC',
     MANUFACTURER: 'MF',
     PATIENT: 'PA',
-    COURIER: 'CR'
+    COURIER: 'CR',
+    RISK_MANAGER: 'RM'
 };
 
 export const users = {
     [ENTITY_MODIFIERS.PATIENT]: {
-        name: 'John Doe',
+        name: 'Mark Rubinshtein',
         description: 'Patient',
         avatar: PatientAvatar,
         url: '/pa'
@@ -46,6 +48,12 @@ export const users = {
         description: 'Courier',
         avatar: CourierAvatar,
         url: '/cr'
+    },
+    [ENTITY_MODIFIERS.RISK_MANAGER]: {
+        name: 'Daniel Zimmerman',
+        description: 'Risk manager',
+        avatar: RiskManagerAvatar,
+        url: '/rm'
     }
 };
 

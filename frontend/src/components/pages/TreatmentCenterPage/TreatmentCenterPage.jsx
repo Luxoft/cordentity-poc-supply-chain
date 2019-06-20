@@ -145,7 +145,6 @@ class TreatmentCenterPage extends React.Component {
                                 <p>After request is made, it is possible to <b>track the manufacturing</b> and <b>delivery
                                     process</b>.</p>
                             </div>
-                            <img src={LuxoftLogoPNG} data-rjs="3" alt="Luxoft"/>
                         </div>
                     </div>
                 </article>
