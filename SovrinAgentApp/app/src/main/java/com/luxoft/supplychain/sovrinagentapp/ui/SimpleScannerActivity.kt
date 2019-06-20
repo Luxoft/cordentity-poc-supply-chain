@@ -33,10 +33,6 @@ import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
-import com.luxoft.supplychain.sovrinagentapp.data.Invite
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.Serial
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import me.dm7.barcodescanner.zbar.Result
@@ -51,6 +47,11 @@ import com.blikoon.qrcodescanner.QrCodeActivity
 import android.content.DialogInterface
 import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.app.Activity
+import android.app.AlertDialog
+import com.google.gson.Gson
+import com.luxoft.supplychain.sovrinagentapp.Application.Companion.webServerEndpoint
+import com.luxoft.supplychain.sovrinagentapp.data.*
+import io.realm.Realm
 
 class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler {
 
@@ -110,6 +111,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     }
 
     val correct = Regex(".+\\/indy\\?c_i=.+")
+    var collectedAt: Long? = 0
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
@@ -127,6 +129,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 
             val state = intent?.getStringExtra("state")
             val serial = intent?.getStringExtra("serial")
+            collectedAt = intent?.getLongExtra("collected_at", 0)
 
             when (state) {
                 PackageState.GETPROOFS.name -> {
@@ -183,27 +186,36 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                         }
                     }
                 }
-//                PackageState.COLLECTED.name -> {
-//                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-//                        try {
-//                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-//                                api.packageHistory(Serial(serial!!, content.clientUUID!!))
+                PackageState.COLLECTED.name -> {
+//                    val gson: Gson = Gson()
+//                    webServerEndpoint = ""
+//                    val disposableWebServerEndpoint = (gson.fromJson(result, HashMap<String, String>()::class.java) as HashMap).getValue("invite")
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        try {
+                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                                showAlertDialogToProvide()
+//                                api.packageHistory(Serial(serial!!, content.clientUUID!!), disposableWebServerEndpoint)
 //                                        .subscribeOn(Schedulers.io())
 //                                        .observeOn(AndroidSchedulers.mainThread())
 //                                        .subscribe({
+//                                            webServerEndpoint = "http://18.216.169.252:8082"
+//
 //                                            saveHistory(it)
 //                                            finish()
 //                                        }) { er ->
+//                                            webServerEndpoint = "http://18.216.169.252:8082"
 //                                            Log.e("Collect Package Error: ", er.message, er)
-//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+////                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+//                                            this@SimpleScannerActivity.finish()
 //                                        }
-//                            }
-//                        } catch (er: Exception) {
-//                            Log.e("New Package Error: ", er.message, er)
-//                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
-//                        }
-//                    }
-//                }
+                            }
+                        } catch (er: Exception) {
+//                            webServerEndpoint = "http://18.216.169.252:8082"
+                            Log.e("New Package Error: ", er.message, er)
+                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                        }
+                    }
+                }
 
                 PackageState.DELIVERED.name -> {
                     Completable.complete().observeOn(Schedulers.io()).subscribe {
@@ -242,8 +254,34 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         }
     }
 
+    fun showAlertDialogToProvide() {
+        runOnUiThread(Runnable {
+            AlertDialog.Builder(this)
+                    .setTitle("Claims request")
+                    .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+                    .setCancelable(false)
+                    .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which: Int) {
+                            Realm.getDefaultInstance().executeTransaction {
+                                val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
+                                productOperation.by = "operated"
+                            }
+                            this@SimpleScannerActivity.finish()
+                        }
+                    })
+                    .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which: Int) {
+                            this@SimpleScannerActivity.finish()
+                        }
+                    })
+                    .create()
+                    .show()
+        })
+    }
+
     private fun saveHistory(it: Unit?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Realm.getDefaultInstance().executeTransaction {
+        }
     }
 
     override fun handleResult(rawResult: Result) {

@@ -23,16 +23,17 @@ import com.luxoft.supplychain.sovrinagentapp.data.Serial
 import retrofit.http.Body
 import retrofit.http.GET
 import retrofit.http.POST
+import retrofit.http.Path
 import rx.Observable
 
 
-interface SovrinAgentService  {
+interface SovrinAgentService {
 
     @GET("/api/tc/tails")
     fun getTails(): Observable<Map<String, String>>
 
-    @POST("")
-    fun packageHistory(@Body serial: Serial): Observable<Unit>
+    @POST("{url}")
+    fun packageHistory(@Body serial: Serial, @Path("url") url: String): Observable<Unit>
 
     @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>

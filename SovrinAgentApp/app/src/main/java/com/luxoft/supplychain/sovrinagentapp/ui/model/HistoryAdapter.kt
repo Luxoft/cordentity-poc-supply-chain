@@ -81,13 +81,9 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
         holder.qrButton.setOnClickListener {
-            Realm.getDefaultInstance().executeTransaction {
-                val productOperation = it.createObject(ProductOperation::class.java, order.collectedAt)
-                productOperation.by = "operated"
-            }
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
-                            .putExtra("serial", order.serial)
+                            .putExtra("collected_at", order.collectedAt)
                             .putExtra("state", order.state), null
             )
         }
@@ -102,10 +98,29 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         holder.linearLayoutHistoryContent.removeAllViews()
+
+
+
         val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
         val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
         val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader.text = "DID LICENSE"
+        textViewHistoryContentItemName.text = "09928390239TYDVCHD8999"
         holder.linearLayoutHistoryContent.addView(view)
+
+        val view1: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader1 = view1?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName1 = view1?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader1.text = "AUTHORITY"
+        textViewHistoryContentItemName1.text = "TC SEEHOF"
+        holder.linearLayoutHistoryContent.addView(view1)
+
+        val view2: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader2 = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName2 = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader2.text = "MANUFACTURE"
+        textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
+        holder.linearLayoutHistoryContent.addView(view2)
 
         holder.qrButton.setVisibility(View.VISIBLE)
         holder.linearLayoutLicenseList.setVisibility(View.GONE)
@@ -125,13 +140,9 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
         }
         holder.qrButton.setOnClickListener {
-            Realm.getDefaultInstance().executeTransaction {
-                val productOperation = it.createObject(ProductOperation::class.java, order.collectedAt)
-                productOperation.by = "operated"
-            }
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
-                            .putExtra("serial", order.serial)
+                            .putExtra("collected_at", order.collectedAt)
                             .putExtra("state", order.state), null
             )
         }
@@ -146,10 +157,28 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         holder.linearLayoutHistoryContent.removeAllViews()
+
+
         val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
         val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
         val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader.text = "DID LICENSE"
+        textViewHistoryContentItemName.text = "09928390239TYDVCHD8999"
         holder.linearLayoutHistoryContent.addView(view)
+
+        val view1: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader1 = view1?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName1 = view1?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader1.text = "AUTHORITY"
+        textViewHistoryContentItemName1.text = "TC SEEHOF"
+        holder.linearLayoutHistoryContent.addView(view1)
+
+        val view2: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
+        val textViewHistoryContentItemHeader2 = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName2 = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        textViewHistoryContentItemHeader2.text = "MANUFACTURE"
+        textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
+        holder.linearLayoutHistoryContent.addView(view2)
 
         holder.qrButton.setVisibility(View.VISIBLE)
         holder.linearLayoutLicenseList.setVisibility(View.GONE)
