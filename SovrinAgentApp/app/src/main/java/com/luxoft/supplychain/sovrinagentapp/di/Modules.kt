@@ -120,11 +120,11 @@ fun WalletUser.updateCredentialsInRealm() {
     }
 }
 
-fun provideApiClient(gson: Gson): SovrinAgentService {
+fun provideApiClient(gson: Gson, baseUrl: String = webServerEndpoint): SovrinAgentService {
     val retrofit: Retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(webServerEndpoint)
+            .baseUrl(baseUrl)
             .build()
 
     retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)

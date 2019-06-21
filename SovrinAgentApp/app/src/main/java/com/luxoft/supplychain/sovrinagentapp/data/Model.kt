@@ -33,7 +33,7 @@ enum class PackageState {
     COLLECTED
 }
 
-data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String)
+data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String?)
 
 data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID: String?)
 
@@ -123,4 +123,4 @@ data class AuthorityInfo(
         val schemaId: String
 )
 
-class AuthorityInfoMap : HashMap<String, AuthorityInfo> ()
+class AuthorityInfoMap : HashMap<String, AuthorityInfo>()

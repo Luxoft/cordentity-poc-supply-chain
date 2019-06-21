@@ -30,7 +30,7 @@ class DigitalReceiptActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
 
     private val claims: RealmResults<ClaimAttribute> = realm.where(ClaimAttribute::class.java).findAll()
-    lateinit var authorityInfoMap:AuthorityInfoMap
+    lateinit var authorityInfoMap: AuthorityInfoMap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_digital_receipt)
@@ -41,8 +41,7 @@ class DigitalReceiptActivity : AppCompatActivity() {
 
         for (claim in claims) {
             if (claim.key.equals("authorities")) {
-                val  gson: Gson = Gson()
-                authorityInfoMap = gson.fromJson(claim.value, AuthorityInfoMap::class.java)
+                authorityInfoMap = SerializationUtils.jSONToAny(claim.value!!, AuthorityInfoMap::class.java)
             }
         }
         val linearLayoutReceiptContent = findViewById(R.id.linearLayoutReceiptContent) as LinearLayout

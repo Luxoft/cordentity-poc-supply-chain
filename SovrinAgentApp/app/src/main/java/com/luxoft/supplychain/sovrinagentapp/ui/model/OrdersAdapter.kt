@@ -17,6 +17,7 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.model
 
 import android.content.Intent
+import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
@@ -108,8 +109,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             )
         }
         if (order.state.equals(PackageState.ISSUED.name) || order.state.equals(PackageState.PROCESSED.name)) {
-           holder.qrButton.setVisibility(View.GONE)
-           holder.showReceiptButton.setVisibility(View.VISIBLE)
+            holder.qrButton.setVisibility(View.GONE)
+            holder.showReceiptButton.setVisibility(View.VISIBLE)
             holder.textViewAddressHeader.setVisibility(View.GONE)
             holder.textViewAddress.setVisibility(View.GONE)
             holder.imageViewMapMarker.setVisibility(View.GONE)
@@ -122,7 +123,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.imageViewMapMarker.setVisibility(View.GONE)
         }
 
-        holder.textViewOrderItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy")
+        holder.textViewOrderItemDate.text =  DateTimeUtils . parseDateTime (order?.deliveredAt ?: order?.processedAt ?: order?.issuedAt ?: System.currentTimeMillis(), "dd MMM yyyy")
     }
 
     private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
@@ -162,7 +163,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.imageViewMapMarker.setVisibility(View.GONE)
         }
 
-        holder.textViewOrderItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy")
+        holder.textViewOrderItemDate.text =  DateTimeUtils . parseDateTime (order?.deliveredAt ?: order?.processedAt ?: order?.issuedAt ?: System.currentTimeMillis(), "dd MMM yyyy")
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

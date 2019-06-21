@@ -49,11 +49,17 @@ import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.app.Activity
 import android.app.AlertDialog
 import com.google.gson.Gson
+import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.supplychain.sovrinagentapp.Application.Companion.webServerEndpoint
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
+import retrofit.GsonConverterFactory
+import retrofit.Retrofit
+import retrofit.RxJavaCallAdapterFactory
 
-class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler {
+class SimpleScannerActivity : AppCompatActivity() {
 
     private val requestCode = 117
     private var mScannerView: ZBarScannerView? = null
@@ -110,7 +116,8 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
 //        mScannerView?.stopCamera()
     }
 
-    val correct = Regex(".+\\/indy\\?c_i=.+")
+    val correctInvite = Regex(".+\\/indy\\?c_i=.+")
+    val correctUtl = Regex("http:\\/\\/.+mf\\/package\\/history")
     var collectedAt: Long? = 0
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -119,15 +126,14 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
             val result = data?.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
 
 
-            if (result == null || !correct.matches(result)) return
-
+            val state = intent?.getStringExtra("state")
+            if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
 //        val content: Invite = Invite("http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9", "7170c4d8-0477-44b0-86a7-463209e22b00")
-            val content: Invite = SerializationUtils.jSONToAny(result)
+            val content by lazy { SerializationUtils.jSONToAny<Invite>(result) }
 
             mScannerView!!.stopCamera()
             drawProgressBar()
 
-            val state = intent?.getStringExtra("state")
             val serial = intent?.getStringExtra("serial")
             collectedAt = intent?.getLongExtra("collected_at", 0)
 
@@ -187,34 +193,86 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                     }
                 }
                 PackageState.COLLECTED.name -> {
-//                    val gson: Gson = Gson()
-//                    webServerEndpoint = ""
-//                    val disposableWebServerEndpoint = (gson.fromJson(result, HashMap<String, String>()::class.java) as HashMap).getValue("invite")
-                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-                        try {
-                            agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                                showAlertDialogToProvide()
-//                                api.packageHistory(Serial(serial!!, content.clientUUID!!), disposableWebServerEndpoint)
-//                                        .subscribeOn(Schedulers.io())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribe({
-//                                            webServerEndpoint = "http://18.216.169.252:8082"
-//
-//                                            saveHistory(it)
-//                                            finish()
-//                                        }) { er ->
-//                                            webServerEndpoint = "http://18.216.169.252:8082"
-//                                            Log.e("Collect Package Error: ", er.message, er)
-////                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
-//                                            this@SimpleScannerActivity.finish()
-//                                        }
-                            }
-                        } catch (er: Exception) {
-//                            webServerEndpoint = "http://18.216.169.252:8082"
-                            Log.e("New Package Error: ", er.message, er)
-                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
-                        }
-                    }
+                    AlertDialog.Builder(this)
+                            .setTitle("Claims request")
+                            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+                            .setCancelable(false)
+                            .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
+                                override fun onClick(dialog: DialogInterface, which: Int) {
+                                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                                        try {
+                                            val retrofit: Retrofit = Retrofit.Builder()
+                                                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                                                    .addConverterFactory(GsonConverterFactory.create(Gson()))
+                                                    .baseUrl(result)
+                                                    .build()
+                                            retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
+                                            retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null), "")
+                                                    .subscribeOn(Schedulers.io())
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe({
+                                                        agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
+                                                            val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
+                                                                it.getSchemaIdObject().name.contains("package_receipt") &&
+                                                                        it.attributes["serial"] == serial
+                                                            }!!
+                                                            val authorities =
+                                                                    SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
+
+                                                            run {
+                                                                val proofRequest = receiveProofRequest().toBlocking().value()
+                                                                val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
+                                                                sendProof(proofInfo)
+                                                            }
+
+                                                            val provedAuthorities = authorities.mapValues { (_, authority) ->
+                                                                val proofRequest = proofRequest("package_history_req", "1.0") {
+                                                                    reveal("status") {
+                                                                        "serial" shouldBe serial
+                                                                        FilterProperty.IssuerDid shouldBe authority.did
+                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                    }
+                                                                    reveal("time") {
+                                                                        "serial" shouldBe serial
+                                                                        FilterProperty.IssuerDid shouldBe authority.did
+                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                    }
+                                                                }
+                                                                sendProofRequest(proofRequest)
+                                                                val proof = receiveProof().toBlocking().value()
+                                                                indyUser.verifyProofWithLedgerData(proofRequest, proof)
+                                                            }
+                                                            Realm.getDefaultInstance().executeTransaction {
+                                                                val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
+                                                                productOperation.by = "approved"
+                                                            }
+
+                                                            Log.e("Passed", "OK")
+                                                            //TODO: Add some logic for displaying verification
+                                                            saveHistory(Unit)
+                                                            finish()
+                                                        }
+                                                    }) { er ->
+                                                        Log.e("Collect Package Error: ", er.message, er)
+//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                                        this@SimpleScannerActivity.finish()
+                                                    }
+                                        } catch (er: Exception) {
+                                            Log.e("New Package Error: ", er.message, er)
+                                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                                        }
+                                    }
+//                                    this@SimpleScannerActivity.finish()
+                                }
+                            })
+                            .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
+                                override fun onClick(dialog: DialogInterface, which: Int) {
+                                    this@SimpleScannerActivity.finish()
+                                }
+                            })
+                            .create()
+                            .show()
+
                 }
 
                 PackageState.DELIVERED.name -> {
@@ -262,10 +320,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                     .setCancelable(false)
                     .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
                         override fun onClick(dialog: DialogInterface, which: Int) {
-                            Realm.getDefaultInstance().executeTransaction {
-                                val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
-                                productOperation.by = "operated"
-                            }
                             this@SimpleScannerActivity.finish()
                         }
                     })
@@ -282,116 +336,6 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
     private fun saveHistory(it: Unit?) {
         Realm.getDefaultInstance().executeTransaction {
         }
-    }
-
-    override fun handleResult(rawResult: Result) {
-        if (rawResult.contents == null || !correct.matches(rawResult.contents)) return
-
-//        val content: Invite = Invite("http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9", "7170c4d8-0477-44b0-86a7-463209e22b00")
-        val content: Invite = SerializationUtils.jSONToAny(rawResult.contents)
-
-        mScannerView!!.stopCamera()
-        drawProgressBar()
-
-        val state = intent?.getStringExtra("state")
-        val serial = intent?.getStringExtra("serial")
-
-        when (state) {
-            PackageState.GETPROOFS.name -> {
-                Completable.complete().observeOn(Schedulers.io()).subscribe {
-                    try {
-                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                            do {
-                                val credOffer = try {
-                                    receiveCredentialOffer().timeout(5, TimeUnit.SECONDS).toBlocking().value()
-                                } catch (e: RuntimeException) {
-                                    //End of waiting for new credentials
-                                    if (e.cause !is TimeoutException)
-                                        throw e
-                                    null
-                                }?.apply {
-                                    val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, this)
-                                    sendCredentialRequest(credentialRequest)
-                                    val credential = receiveCredential().toBlocking().value()
-                                    indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
-                                }
-                            } while (credOffer != null)
-                            indyUser.walletUser.updateCredentialsInRealm()
-                            finish()
-                        }
-                    } catch (er: Exception) {
-                        Log.e("Get Claims Error: ", er.message, er)
-                        showAlertDialog(baseContext, "Get Claims Error: ${er.message}") { finish() }
-                    }
-                }
-            }
-
-            PackageState.NEW.name -> {
-                Completable.complete().observeOn(Schedulers.io()).subscribe {
-                    try {
-                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                            api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
-                            val proofRequest = receiveProofRequest().toBlocking().value()
-
-                            ContextCompat.startActivity(
-                                    this@SimpleScannerActivity,
-                                    Intent().setClass(this@SimpleScannerActivity, AskClaimsActivity::class.java)
-                                            .putExtra("result", rawResult.contents)
-                                            .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
-                                            .putExtra("partyDID", partyDID())
-                                            .putExtra("serial", intent?.getStringExtra("serial")),
-                                    null
-                            )
-
-                            finish()
-                        }
-                    } catch (er: Exception) {
-                        Log.e("New Package Error: ", er.message, er)
-                        showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
-                    }
-                }
-            }
-
-            PackageState.DELIVERED.name -> {
-                Completable.complete().observeOn(Schedulers.io()).subscribe {
-                    try {
-                        agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                            api.collectPackage(Serial(serial!!, content.clientUUID!!))
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe({
-                                        // TODO: this call should return immediately
-                                        // TODO: after this you should listen to new ingoing proof request
-                                        // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
-                                        // TODO: if agree you should generate proof out of the proof request and send it back
-                                        // TODO: only if the proof is valid Corda-side should commit transaction
-
-
-                                        val proofRequest: ProofRequest = receiveProofRequest().toBlocking().value()
-                                        val proof = indyUser.createProofFromLedgerData(proofRequest)
-                                        sendProof(proof)
-                                        Thread.sleep(3000)
-                                        finish()
-                                    }) { er ->
-                                        Log.e("Collect Package Error: ", er.message, er)
-                                        showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
-                                    }
-                        }
-                    } catch (er: Exception) {
-                        Log.e("Collect Package Invite Error: ", er.message, er)
-                        showAlertDialog(baseContext, "Collect Package Invite GError: ${er.message}") { finish() }
-                    }
-                }
-            }
-            else -> finish()
-        }
-
-        // Note:
-        // * Wait 2 seconds to resume the preview.
-        // * On older devices continuously stopping and resuming camera preview can result in freezing the app.
-        // * I don't know why this is the case but I don't have the time to figure out.
-//        val handler = Handler()
-//        handler.postDelayed({ mScannerView!!.resumeCameraPreview(this@SimpleScannerActivity) }, 2000)
     }
 
     private fun setupToolbar() {

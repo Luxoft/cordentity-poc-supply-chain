@@ -85,6 +85,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
                             .putExtra("collected_at", order.collectedAt)
+                            .putExtra("serial", order.serial)
                             .putExtra("state", order.state), null
             )
         }
@@ -117,8 +118,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         holder.linearLayoutHistoryContent.addView(view1)
 
         val view2: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-        val textViewHistoryContentItemHeader2 = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-        val textViewHistoryContentItemName2 = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        val textViewHistoryContentItemHeader2 = view2?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName2 = view2?.findViewById(R.id.textViewHistoryContentItemName) as TextView
         textViewHistoryContentItemHeader2.text = "MANUFACTURE"
         textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
         holder.linearLayoutHistoryContent.addView(view2)
@@ -126,7 +127,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         holder.qrButton.setVisibility(View.VISIBLE)
         holder.linearLayoutLicenseList.setVisibility(View.GONE)
         for (productOperation in productOperations) {
-            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("operated")) {
+            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("aproved")) {
                 holder.qrButton.setVisibility(View.GONE)
                 holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
             }
@@ -147,6 +148,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             ContextCompat.startActivity(holder.qrButton.context,
                     Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
                             .putExtra("collected_at", order.collectedAt)
+                            .putExtra("serial", order.serial)
                             .putExtra("state", order.state), null
             )
         }
@@ -178,8 +180,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         holder.linearLayoutHistoryContent.addView(view1)
 
         val view2: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-        val textViewHistoryContentItemHeader2 = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-        val textViewHistoryContentItemName2 = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+        val textViewHistoryContentItemHeader2 = view2?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+        val textViewHistoryContentItemName2 = view2?.findViewById(R.id.textViewHistoryContentItemName) as TextView
         textViewHistoryContentItemHeader2.text = "MANUFACTURE"
         textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
         holder.linearLayoutHistoryContent.addView(view2)
@@ -187,7 +189,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         holder.qrButton.setVisibility(View.VISIBLE)
         holder.linearLayoutLicenseList.setVisibility(View.GONE)
         for (productOperation in productOperations) {
-            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("operated")) {
+            if (productOperation.at!!.equals(order.collectedAt) && productOperation.by.equals("approved")) {
                 holder.qrButton.setVisibility(View.GONE)
                 holder.linearLayoutLicenseList.setVisibility(View.VISIBLE)
             }
