@@ -105,6 +105,36 @@
         }
       }
 
+      .about {
+        height: 500px;
+        width: 100%;
+        position: relative;
+        display: block;
+
+        .text-wrapper {
+          margin-top: 50px;
+          font-size: $font-size-regular;
+          color: white;
+
+          p:nth-child(3), p:nth-child(4), p:nth-child(5) {
+            width: 350px;
+          }
+
+          p {
+            margin: .7em 0 .7em 0;
+          }
+        }
+
+        img {
+          height: 400px;
+          box-shadow: none;
+          border-radius: 0;
+          position: absolute;
+          left: 350px;
+          top: 100px;
+        }
+      }
+
       .demo {
         height: 500px !important;
         display: inline-flex !important;

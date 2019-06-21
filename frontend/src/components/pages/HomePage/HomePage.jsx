@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from '../../common/Card/Card';
 import BgPNG from '../../../assets/img/back@3x.png';
-import SchemePNG from '../../../assets/img/scheme@3x.png';
+import SchemePNG from '../../../assets/img/cvc@3x.png';
 import Scheme1PNG from '../../../assets/img/scheme1.png';
 import luxLogoPng from '../../../assets/img/luxoft-03-logo-white@3x.png';
 import classSet from 'react-classset';
@@ -43,7 +43,8 @@ export default class HomePage extends React.Component {
         const archClasses = classSet({
             architecture: true,
             fade: true,
-            active: pageChanged
+            active: pageChanged,
+            about: page === -1
         });
 
         const demoClasses = classSet({
@@ -98,6 +99,13 @@ export default class HomePage extends React.Component {
                                     <Card disabled header={rm.description} imgSrc={rm.avatar} imgTitle={rm.name}/>
                                 </div>
                                 : <div className={archClasses}>
+                                    <div className='text-wrapper'>
+                                        <p>Trusted Identity backed by credentials</p>
+                                        <p>Patient privacy is preserved</p>
+                                        <p>Digital proof of every change of custody is tracked</p>
+                                        <p>Quality certificates are  attached to the package</p>
+                                        <p>Embedded license  and certification  enforcement</p>
+                                    </div>
                                     <img src={SchemePNG} data-rjs="3" alt="About"/>
                                 </div>
                         }
