@@ -103,8 +103,8 @@ export default class HomePage extends React.Component {
                                         <p>Trusted Identity backed by credentials</p>
                                         <p>Patient privacy is preserved</p>
                                         <p>Digital proof of every change of custody is tracked</p>
-                                        <p>Quality certificates are  attached to the package</p>
-                                        <p>Embedded license  and certification  enforcement</p>
+                                        <p>Quality certificates are attached to the package</p>
+                                        <p>Embedded license and certification enforcement</p>
                                     </div>
                                     <img src={SchemePNG} data-rjs="3" alt="About"/>
                                 </div>
