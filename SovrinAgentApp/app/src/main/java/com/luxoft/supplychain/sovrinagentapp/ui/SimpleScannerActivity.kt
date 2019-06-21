@@ -205,88 +205,180 @@ class SimpleScannerActivity : AppCompatActivity() {
                     }
                 }
                 PackageState.COLLECTED.name -> {
-                    val requestedData = getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).getString(sharedPreferencesKey, "")
-                    AlertDialog.Builder(this@SimpleScannerActivity)
-                            .setTitle("Claims request")
-                            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedData + " to approve your request.Provide it ?")
-//                            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
-                            .setCancelable(false)
-                            .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
-                                override fun onClick(dialog: DialogInterface, which: Int) {
-                                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-                                        try {
-                                            val retrofit: Retrofit = Retrofit.Builder()
-                                                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                                                    .addConverterFactory(GsonConverterFactory.create(Gson()))
-                                                    .baseUrl(result)
-                                                    .build()
-                                            retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
-                                            retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null), "")
-                                                    .subscribeOn(Schedulers.io())
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe({
-                                                        agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
-                                                            val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
-                                                                it.getSchemaIdObject().name.contains("package_receipt") &&
-                                                                        it.attributes["serial"] == serial
-                                                            }!!
-                                                            val authorities =
-                                                                    SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        try {
+                            val retrofit: Retrofit = Retrofit.Builder()
+                                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                                    .addConverterFactory(GsonConverterFactory.create(Gson()))
+                                    .baseUrl(result)
+                                    .build()
+                            retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
+                            retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null), "")
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+                                        agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
+                                            val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
+                                                it.getSchemaIdObject().name.contains("package_receipt") &&
+                                                        it.attributes["serial"] == serial
+                                            }!!
+                                            val authorities =
+                                                    SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
 
-                                                            run {
-                                                                val proofRequest = receiveProofRequest().toBlocking().value()
+                                            val proofRequest = receiveProofRequest().toBlocking().value()
+                                            val requestedDataBuilder = StringBuilder()
+                                            val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+                                            for (key in requestedData) {
+                                                requestedDataBuilder.append(", $key")
+                                            }
+                                            AlertDialog.Builder(this@SimpleScannerActivity)
+                                                    .setTitle("Claims request")
+                                                    .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
+                                                    .setCancelable(false)
+                                                    .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
+                                                        override fun onClick(dialog: DialogInterface, which: Int) {
+                                                            Completable.complete().observeOn(Schedulers.io()).subscribe {
                                                                 val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
                                                                 sendProof(proofInfo)
-                                                            }
-
-                                                            val provedAuthorities = authorities.mapValues { (_, authority) ->
-                                                                val proofRequest = proofRequest("package_history_req", "1.0") {
-                                                                    reveal("status") {
-                                                                        "serial" shouldBe serial
-                                                                        FilterProperty.IssuerDid shouldBe authority.did
-                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                val provedAuthorities = authorities.mapValues { (_, authority) ->
+                                                                    val proofRequest = proofRequest("package_history_req", "1.0") {
+                                                                        reveal("status") {
+                                                                            "serial" shouldBe serial
+                                                                            FilterProperty.IssuerDid shouldBe authority.did
+                                                                            FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                        }
+                                                                        reveal("time") {
+                                                                            "serial" shouldBe serial
+                                                                            FilterProperty.IssuerDid shouldBe authority.did
+                                                                            FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                        }
                                                                     }
-                                                                    reveal("time") {
-                                                                        "serial" shouldBe serial
-                                                                        FilterProperty.IssuerDid shouldBe authority.did
-                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
-                                                                    }
+                                                                    sendProofRequest(proofRequest)
+                                                                    val proof = receiveProof().toBlocking().value()
+                                                                    indyUser.verifyProofWithLedgerData(proofRequest, proof)
                                                                 }
-                                                                sendProofRequest(proofRequest)
-                                                                val proof = receiveProof().toBlocking().value()
-                                                                indyUser.verifyProofWithLedgerData(proofRequest, proof)
-                                                            }
-                                                            Realm.getDefaultInstance().executeTransaction {
-                                                                val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
-                                                                productOperation.by = "approved"
-                                                            }
+                                                                Realm.getDefaultInstance().executeTransaction {
+                                                                    val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
+                                                                    productOperation.by = "approved"
+                                                                }
 
-                                                            Log.e("Passed", "OK")
-                                                            //TODO: Add some logic for displaying verification
-                                                            saveHistory(Unit)
-                                                            finish()
+                                                                Log.e("Passed", "OK")
+                                                                //TODO: Add some logic for displaying verification
+                                                                saveHistory(Unit)
+                                                                finish()
+                                                            }
                                                         }
-                                                    }) { er ->
-                                                        Log.e("Collect Package Error: ", er.message, er)
-//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
-                                                        this@SimpleScannerActivity.finish()
-                                                    }
-                                        } catch (er: Exception) {
-                                            Log.e("New Package Error: ", er.message, er)
-                                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                                                    })
+                                                    .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
+                                                        override fun onClick(dialog: DialogInterface, which: Int) {
+                                                            this@SimpleScannerActivity.finish()
+                                                        }
+                                                    })
+                                                    .create()
+                                                    .show()
                                         }
+                                    }) { er ->
+                                        Log.e("Collect Package Error: ", er.message, er)
+//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                        this@SimpleScannerActivity.finish()
                                     }
-//                                    this@SimpleScannerActivity.finish()
-                                }
-                            })
-                            .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
-                                override fun onClick(dialog: DialogInterface, which: Int) {
-                                    this@SimpleScannerActivity.finish()
-                                }
-                            })
-                            .create()
-                            .show()
+                        } catch (er: Exception) {
+                            Log.e("New Package Error: ", er.message, er)
+                            showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                        }
+                    }
 
+//                    agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+//                        api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
+//                        val proofRequest = receiveProofRequest().toBlocking().value()
+//                        var requestedDataBuilder = StringBuilder()
+//                        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+//                        for (key in requestedData) {
+//                            requestedDataBuilder.append(", $key")
+//                        }
+//
+////                        val requestedData = getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).getString(sharedPreferencesKey, "")
+//                        AlertDialog.Builder(this@SimpleScannerActivity)
+//                                .setTitle("Claims request")
+//                                .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder + " to approve your request.Provide it ?")
+////                            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+//                                .setCancelable(false)
+//                                .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
+//                                    override fun onClick(dialog: DialogInterface, which: Int) {
+//                                        Completable.complete().observeOn(Schedulers.io()).subscribe {
+//                                            try {
+//                                                val retrofit: Retrofit = Retrofit.Builder()
+//                                                        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+//                                                        .addConverterFactory(GsonConverterFactory.create(Gson()))
+//                                                        .baseUrl(result)
+//                                                        .build()
+//                                                retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
+//                                                retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null), "")
+//                                                        .subscribeOn(Schedulers.io())
+//                                                        .observeOn(AndroidSchedulers.mainThread())
+//                                                        .subscribe({
+//                                                            agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
+//                                                                val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
+//                                                                    it.getSchemaIdObject().name.contains("package_receipt") &&
+//                                                                            it.attributes["serial"] == serial
+//                                                                }!!
+//                                                                val authorities =
+//                                                                        SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
+//
+//                                                                run {
+//                                                                    val proofRequest = receiveProofRequest().toBlocking().value()
+//                                                                    val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
+//                                                                    sendProof(proofInfo)
+//                                                                }
+//
+//                                                                val provedAuthorities = authorities.mapValues { (_, authority) ->
+//                                                                    val proofRequest = proofRequest("package_history_req", "1.0") {
+//                                                                        reveal("status") {
+//                                                                            "serial" shouldBe serial
+//                                                                            FilterProperty.IssuerDid shouldBe authority.did
+//                                                                            FilterProperty.SchemaId shouldBe authority.schemaId
+//                                                                        }
+//                                                                        reveal("time") {
+//                                                                            "serial" shouldBe serial
+//                                                                            FilterProperty.IssuerDid shouldBe authority.did
+//                                                                            FilterProperty.SchemaId shouldBe authority.schemaId
+//                                                                        }
+//                                                                    }
+//                                                                    sendProofRequest(proofRequest)
+//                                                                    val proof = receiveProof().toBlocking().value()
+//                                                                    indyUser.verifyProofWithLedgerData(proofRequest, proof)
+//                                                                }
+//                                                                Realm.getDefaultInstance().executeTransaction {
+//                                                                    val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
+//                                                                    productOperation.by = "approved"
+//                                                                }
+//
+//                                                                Log.e("Passed", "OK")
+//                                                                //TODO: Add some logic for displaying verification
+//                                                                saveHistory(Unit)
+//                                                                finish()
+//                                                            }
+//                                                        }) { er ->
+//                                                            Log.e("Collect Package Error: ", er.message, er)
+////                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+//                                                            this@SimpleScannerActivity.finish()
+//                                                        }
+//                                            } catch (er: Exception) {
+//                                                Log.e("New Package Error: ", er.message, er)
+//                                                showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+//                                            }
+//                                        }
+////                                    this@SimpleScannerActivity.finish()
+//                                    }
+//                                })
+//                                .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
+//                                    override fun onClick(dialog: DialogInterface, which: Int) {
+//                                        this@SimpleScannerActivity.finish()
+//                                    }
+//                                })
+//                                .create()
+//                                .show()
+//                    }
                 }
 
                 PackageState.DELIVERED.name -> {

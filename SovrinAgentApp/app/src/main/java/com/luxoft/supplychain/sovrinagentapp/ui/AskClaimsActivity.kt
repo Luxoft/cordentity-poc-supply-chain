@@ -72,7 +72,7 @@ class AskClaimsActivity : AppCompatActivity() {
 
     fun showAlertDialogToProvide() = AlertDialog.Builder(this)
             .setTitle("Claims request")
-            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(1) + " to approve your request.Provide it ?")
+            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
 //            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
             .setCancelable(false)
             .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {

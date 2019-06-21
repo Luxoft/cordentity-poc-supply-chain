@@ -37,14 +37,15 @@ class TimeLineAdapter(private val product: Product) : RecyclerView.Adapter<TimeL
     }
 
     override fun getItemCount(): Int {
-        return PackageState.valueOf(product.state!!).ordinal + 1
+        return PackageState.valueOf(product.state!!).ordinal
     }
 
 
     override fun onBindViewHolder(holder: TimeLineViewHolder, position: Int) {
 
-        val timestamp = product.currentStateTimestamp(position)
-        val message = product.currentStateMessage(position)
+        var position1 = position.inc()
+        val timestamp = product.currentStateTimestamp(position1)
+        val message = product.currentStateMessage(position1)
 
         if (timestamp != null) {
             holder.mDate.visibility = View.VISIBLE
