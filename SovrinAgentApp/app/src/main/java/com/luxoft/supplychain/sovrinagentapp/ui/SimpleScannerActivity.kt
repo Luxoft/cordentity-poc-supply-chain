@@ -48,6 +48,7 @@ import android.content.DialogInterface
 import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import com.google.gson.Gson
 import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
@@ -58,6 +59,7 @@ import io.realm.Realm
 import retrofit.GsonConverterFactory
 import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
+import java.lang.StringBuilder
 
 class SimpleScannerActivity : AppCompatActivity() {
 
@@ -67,6 +69,11 @@ class SimpleScannerActivity : AppCompatActivity() {
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
     private val REQUEST_CODE_QR_SCAN = 101
+
+    companion object {
+        val sharedPreferencesName = "REQUESTED_DATA_SP"
+        val sharedPreferencesKey = "REQUESTED_DATA_KEY"
+    }
 
 
     override fun onCreate(state: Bundle?) {
@@ -173,7 +180,12 @@ class SimpleScannerActivity : AppCompatActivity() {
                             agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
                                 api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
                                 val proofRequest = receiveProofRequest().toBlocking().value()
-
+                                var requestedDataBuilder = StringBuilder()
+                                val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+                                for (key in requestedData) {
+                                    requestedDataBuilder.append(", $key")
+                                }
+                                getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataBuilder.toString().substring(1)).apply()
                                 ContextCompat.startActivity(
                                         this@SimpleScannerActivity,
                                         Intent().setClass(this@SimpleScannerActivity, AskClaimsActivity::class.java)
@@ -193,9 +205,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                     }
                 }
                 PackageState.COLLECTED.name -> {
-                    AlertDialog.Builder(this)
+                    val requestedData = getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).getString(sharedPreferencesKey, "")
+                    AlertDialog.Builder(this@SimpleScannerActivity)
                             .setTitle("Claims request")
-                            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+                            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedData + " to approve your request.Provide it ?")
+//                            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
                             .setCancelable(false)
                             .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
                                 override fun onClick(dialog: DialogInterface, which: Int) {

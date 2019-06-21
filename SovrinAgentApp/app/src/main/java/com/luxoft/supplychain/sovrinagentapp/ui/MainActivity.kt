@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.title = "John Doe"
+        supportActionBar?.title = "Mark Rubinshtein"
     }
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {

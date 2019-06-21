@@ -46,6 +46,7 @@ import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
+import java.lang.StringBuilder
 
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -54,16 +55,25 @@ class AskClaimsActivity : AppCompatActivity() {
     private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
+    lateinit var proofRequest: ProofRequest
+    var requestedDataBuilder = StringBuilder()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        setContentView(R.layout.activity_ask_claims)
+
+        proofRequest = SerializationUtils.jSONToAny<ProofRequest>(intent?.getStringExtra("proofRequest")!!)
+        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+        for (key in requestedData) {
+            requestedDataBuilder.append(", $key")
+        }
         showAlertDialogToProvide()
     }
 
     fun showAlertDialogToProvide() = AlertDialog.Builder(this)
             .setTitle("Claims request")
-            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(1) + " to approve your request.Provide it ?")
+//            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
             .setCancelable(false)
             .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which: Int) {
@@ -83,8 +93,6 @@ class AskClaimsActivity : AppCompatActivity() {
 //        recyclerView.layoutManager = linearLayoutManager
 //        recyclerView.setHasFixedSize(true)
 //        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
-        val proofRequest = SerializationUtils.jSONToAny<ProofRequest>(intent?.getStringExtra("proofRequest")!!)
-//        val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
 //        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
 //        findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
         drawProgressBar()
@@ -138,9 +146,9 @@ class AskClaimsActivity : AppCompatActivity() {
 //                    )
         },
                 { er ->
-            Log.e("Get Request Error: ", er.message, er)
-            showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
-        })
+                    Log.e("Get Request Error: ", er.message, er)
+                    showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
+                })
 //        }
     }
 

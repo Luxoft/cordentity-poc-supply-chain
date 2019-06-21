@@ -59,7 +59,11 @@ class DigitalReceiptActivity : AppCompatActivity() {
             textViewReceiptItemSchemaId = view?.findViewById(R.id.textViewReceiptItemSchemaId) as TextView
 
             textViewReceiptItemHeader.text = mutableEntry.key
-            textViewReceiptItemName.text = mutableEntry.key
+            if (mutableEntry.key.startsWith("T")) {
+                textViewReceiptItemName.text = "TC SEEHOF"
+            } else {
+                textViewReceiptItemName.text = "Manufacturing Astura 673434"
+            }
             textViewReceiptItemDID.text = mutableEntry.value.did
             textViewReceiptItemSchemaId.text = mutableEntry.value.schemaId
 

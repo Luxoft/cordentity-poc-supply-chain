@@ -89,7 +89,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
                             .putExtra("state", order.state), null
             )
         }
-        holder.imageViewExpand.setOnClickListener {
+        holder.linearLayoutExpand.setOnClickListener {
             if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
                 holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
                 holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
@@ -152,7 +152,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
                             .putExtra("state", order.state), null
             )
         }
-        holder.imageViewExpand.setOnClickListener {
+        holder.linearLayoutExpand.setOnClickListener {
             if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
                 holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
                 holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
@@ -218,6 +218,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
         var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
+        var linearLayoutExpand: LinearLayout = itemView.linearLayoutExpand
         var imageViewExpand: ImageView = itemView.imageViewExpand
 //        var sn: TextView = itemView.listitem_sn as TextView
     }
@@ -229,6 +230,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         var qrButton: View = itemView.linearLayoutScanQr
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
         var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
+        var linearLayoutExpand: LinearLayout = itemView.linearLayoutExpand
         var imageViewExpand: ImageView = itemView.imageViewExpand
 //        var sn: TextView = itemView.qr_listitem_sn as TextView
     }

@@ -79,6 +79,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/linearLayoutExpand"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="#ffffff"
