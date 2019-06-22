@@ -19,10 +19,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
+            app:collapsedTitleGravity="top"
             app:contentScrim="?attr/colorPrimary"
-        app:collapsedTitleGravity="bottom"
-        app:expandedTitleGravity="bottom"
-        app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Large"
+            app:expandedTitleGravity="bottom"
+            app:expandedTitleMarginBottom="64dp"
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Large"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView

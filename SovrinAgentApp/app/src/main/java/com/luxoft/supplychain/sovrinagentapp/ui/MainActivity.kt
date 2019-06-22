@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupCollapsingToolbar() {
-        collapse_toolbar.isTitleEnabled = false
+        collapse_toolbar.isTitleEnabled = true
     }
 
     private fun setupViewPager() {
