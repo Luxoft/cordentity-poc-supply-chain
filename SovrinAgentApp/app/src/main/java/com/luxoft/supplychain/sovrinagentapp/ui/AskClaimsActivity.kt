@@ -38,6 +38,7 @@ import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.AuthorityInfoMap
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.di.tailsPath
+import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.popupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
@@ -47,6 +48,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
 import java.lang.StringBuilder
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -95,9 +97,12 @@ class AskClaimsActivity : AppCompatActivity() {
 //        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
 //        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
 //        findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
-        drawProgressBar()
+//        drawProgressBar()
 
         Completable.complete().observeOn(Schedulers.io()).subscribe({
+            popupStatus = AtomicInteger(1)
+            finish()
+
             val partyDid = intent?.getStringExtra("partyDID")!!
             val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
             val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
@@ -119,7 +124,11 @@ class AskClaimsActivity : AppCompatActivity() {
             val credential = connection.receiveCredential().toBlocking().value()
             indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
 
-            finish()
+            popupStatus = AtomicInteger(2)
+
+//            finish()
+
+
 //            api.getTails()
 //                    .subscribeOn(Schedulers.io())
 //                    .observeOn(AndroidSchedulers.mainThread())

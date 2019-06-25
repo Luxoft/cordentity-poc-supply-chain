@@ -18,19 +18,28 @@ package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
+import android.app.Dialog
+import android.content.*
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
+import android.view.Gravity
+import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
+import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.di.indyInitialize
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.dsl.module.applicationContext
+import rx.Observable
 import java.io.File
+import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
 
 
@@ -62,6 +71,9 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE),
                 REQUEST_CODE
         )
+
+        dialog = Dialog(this)
+        startTimer()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -84,7 +96,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupViewPager() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
         adapter.addFrag(ClaimsFragment())
-        adapter.addFrag(OrdersFragment())
+        ordersFragment = OrdersFragment()
+        adapter.addFrag(ordersFragment)
         adapter.addFrag(HistoryFragment())
         viewpager.adapter = adapter
 
@@ -130,6 +143,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        var popupStatus: AtomicInteger = AtomicInteger(0)
+        var inProgress: Boolean = false
         fun progressBarFactory(context: Context) = ProgressBar(context, null, android.R.attr.progressBarStyleSmall)
 
         fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
@@ -141,6 +156,73 @@ class MainActivity : AppCompatActivity() {
                         callback()
                     }
                 }).show()
+    }
+
+    lateinit var dialog: Dialog
+    lateinit var ordersFragment:OrdersFragment
+
+    var uiHandler: Handler? = null
+    lateinit var myTimer: Timer
+    val timeoutRunnable = Runnable {
+        when (popupStatus.get()) {
+            0 -> {//don't show
+                if (dialog != null && dialog.isShowing) dialog.dismiss()
+            }
+            1 -> {//in progress
+                if (!dialog.isShowing && !inProgress) {
+                    showPopup("In progress", "                                                       ")
+                    inProgress = true
+                }
+            }
+            2 -> {
+                if (dialog != null && inProgress) {
+                    inProgress = false
+                    dialog.dismiss()
+                    showPopup(getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
+                    ordersFragment.onResume()
+                }
+            }
+            3 -> {
+                if (dialog != null &&  inProgress) {
+                    inProgress = false
+                    dialog.dismiss()
+                    showPopup("Package history", "Your package history is available")
+                }
+            }
+//            4 -> {
+//                if (dialog != null &&  inProgress) {
+//                    inProgress = false
+//                    dialog.dismiss()
+//                    showPopup("Package is collected", "")
+//                    ordersFragment.onResume()
+//                }
+//            }
+        }
+    }
+    val timeoutTimerTask = object : TimerTask() {
+        override fun run() {
+            uiHandler!!.post(timeoutRunnable)
+        }
+    }
+
+    private fun startTimer() {
+        myTimer = Timer()
+        uiHandler = Handler()
+        myTimer.schedule(timeoutTimerTask, 1L * 1000, 1L * 1000)
+    }
+
+    fun showPopup(header: String, message: String) {
+        dialog = Dialog(this)
+        dialog.setContentView(R.layout.popup_layout)
+        val textViewPopupHeader: TextView = dialog.findViewById(R.id.textViewPopupHeader)
+        val textViewPopupMessage: TextView = dialog.findViewById(R.id.textViewPopupMessage)
+        textViewPopupHeader.text = header
+        textViewPopupMessage.text = message
+        val window = dialog.getWindow()
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+        window.setGravity(Gravity.TOP)
+        dialog.show()
+//        Observable.timer(10, TimeUnit.SECONDS).subscribe { aLong -> dialog.dismiss() }
     }
 }
 

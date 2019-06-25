@@ -40,8 +40,11 @@ import java.util.concurrent.atomic.AtomicInteger
 import android.view.Gravity
 import android.view.WindowManager
 import android.app.Dialog
+import android.content.Context
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
+import io.realm.RealmResults
 import rx.Observable
 import java.util.concurrent.TimeUnit
 
@@ -56,6 +59,8 @@ class OrdersFragment : Fragment() {
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private val loaded = AtomicInteger(0)
     lateinit var dialog: Dialog
+
+    private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -81,10 +86,27 @@ class OrdersFragment : Fragment() {
         return view
     }
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        updateMyOrders2()
+    }
+
     override fun onResume() {
         super.onResume()
         loaded.compareAndSet(0, 1)
         updateMyOrders()
+    }
+
+    private fun updateMyOrders2() {
+        api.getPackages().subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    loaded()
+                    saveOrders(it)
+                }, { error ->
+                    Log.e("Get Packages Error: ", error.message, error)
+//                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
+                })
     }
 
     private fun updateMyOrders() {
@@ -113,11 +135,31 @@ class OrdersFragment : Fragment() {
             realm.commitTransaction()
         }
         for (offer in offers) {
-            if (offer.state.equals(PackageState.ISSUED.name)) {
-                showPopup(getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
-            }
+//            if (offer.state.equals(PackageState.ISSUED.name)) {
+//                var issued: Boolean = false
+//                for (productOperation in productOperations) {
+//                    if (offer.requestedAt!!.equals(productOperation.at) && productOperation.by.equals("requested")) issued = true
+//                }
+//                if (!issued) {
+//                    showPopup(getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
+//                    Realm.getDefaultInstance().executeTransaction {
+//                        val productOperation = it.createObject(ProductOperation::class.java, offer.requestedAt)
+//                        productOperation.by = "requested"
+//                    }
+//                }
+//            }
             if (offer.state.equals(PackageState.DELIVERED.name)) {
-                showPopup(getString(R.string.your_package_is_ready), getString(R.string.visit_your))
+                var delivered: Boolean = false
+                for (productOperation in productOperations) {
+                    if (offer.deliveredAt!!.equals(productOperation.at) && productOperation.by.equals("delivered")) delivered = true
+                }
+                if (!delivered) {
+                    showPopup(getString(R.string.your_package_is_ready), getString(R.string.visit_your))
+                    Realm.getDefaultInstance().executeTransaction {
+                        val productOperation = it.createObject(ProductOperation::class.java, offer.deliveredAt)
+                        productOperation.by = "delivered"
+                    }
+                }
             }
         }
     }

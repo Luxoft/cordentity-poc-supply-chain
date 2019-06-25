@@ -60,6 +60,7 @@ import retrofit.GsonConverterFactory
 import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
 import java.lang.StringBuilder
+import java.util.concurrent.atomic.AtomicInteger
 
 class SimpleScannerActivity : AppCompatActivity() {
 
@@ -139,7 +140,7 @@ class SimpleScannerActivity : AppCompatActivity() {
             val content by lazy { SerializationUtils.jSONToAny<Invite>(result) }
 
             mScannerView!!.stopCamera()
-            drawProgressBar()
+//            drawProgressBar()
 
             val serial = intent?.getStringExtra("serial")
             collectedAt = intent?.getLongExtra("collected_at", 0)
@@ -238,6 +239,8 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                     .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
                                                         override fun onClick(dialog: DialogInterface, which: Int) {
                                                             Completable.complete().observeOn(Schedulers.io()).subscribe {
+                                                                MainActivity.popupStatus = AtomicInteger(1)
+                                                                this@SimpleScannerActivity.finish()
                                                                 val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
                                                                 sendProof(proofInfo)
                                                                 val provedAuthorities = authorities.mapValues { (_, authority) ->
@@ -261,11 +264,12 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                                     val productOperation = it.createObject(ProductOperation::class.java, collectedAt)
                                                                     productOperation.by = "approved"
                                                                 }
+                                                                MainActivity.popupStatus = AtomicInteger(3)
 
                                                                 Log.e("Passed", "OK")
                                                                 //TODO: Add some logic for displaying verification
                                                                 saveHistory(Unit)
-                                                                finish()
+//                                                                finish()
                                                             }
                                                         }
                                                     })

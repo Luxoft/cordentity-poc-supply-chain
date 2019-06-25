@@ -64,6 +64,10 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
+//        var order: Product? = null
+//        if (orders != null && orders.size > 0) {
+//            order = orders[0]
+//        }
         val order = orders[position]
 
         if (order == null) {
@@ -90,7 +94,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             )
         }
         holder.linearLayoutExpand.setOnClickListener {
-            if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
+            if (holder.linearLayoutHistoryContent.visibility == View.GONE) {
                 holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
                 holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
             } else {
@@ -100,7 +104,6 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         holder.linearLayoutHistoryContent.removeAllViews()
-
 
 
         val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
@@ -153,7 +156,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
             )
         }
         holder.linearLayoutExpand.setOnClickListener {
-            if ( holder.linearLayoutHistoryContent.visibility == View.GONE) {
+            if (holder.linearLayoutHistoryContent.visibility == View.GONE) {
                 holder.linearLayoutHistoryContent.setVisibility(View.VISIBLE)
                 holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
             } else {
@@ -204,6 +207,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     override fun getItemCount(): Int {
+//        return 1
         return orders.size
     }
 

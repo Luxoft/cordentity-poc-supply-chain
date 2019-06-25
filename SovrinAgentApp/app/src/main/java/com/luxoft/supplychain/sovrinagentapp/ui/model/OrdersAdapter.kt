@@ -16,24 +16,22 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.model
 
+import android.app.Dialog
 import android.content.Intent
 import android.provider.Settings
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.ContextCompat.createDeviceProtectedStorageContext
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
+import android.view.*
 import android.view.View.GONE
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.ui.DigitalReceiptActivity
-import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
-import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.*
 import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
 import io.realm.Realm
 import io.realm.RealmChangeListener
@@ -41,6 +39,8 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.item_history.view.*
 import kotlinx.android.synthetic.main.item_order.view.*
+import rx.Observable
+import java.util.concurrent.TimeUnit
 
 
 class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -163,7 +163,9 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.imageViewMapMarker.setVisibility(View.GONE)
         }
 
-        holder.textViewOrderItemDate.text =  DateTimeUtils . parseDateTime (order?.deliveredAt ?: order?.processedAt ?: order?.issuedAt ?: System.currentTimeMillis(), "dd MMM yyyy")
+        holder.textViewOrderItemDate.text = DateTimeUtils.parseDateTime(order?.deliveredAt
+                ?: order?.processedAt ?: order?.issuedAt
+                ?: System.currentTimeMillis(), "dd MMM yyyy")
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
