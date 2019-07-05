@@ -28,9 +28,6 @@ import rx.Observable
 
 interface SovrinAgentService  {
 
-    @GET("/api/tc/tails")
-    fun getTails(): Observable<Map<String, String>>
-
     @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>
 

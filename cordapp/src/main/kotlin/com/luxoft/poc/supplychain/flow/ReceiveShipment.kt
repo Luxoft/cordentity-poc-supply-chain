@@ -87,8 +87,13 @@ object ReceiveShipment {
             val signedTrx = subFlow(CollectSignaturesFlow(selfSignedTx, flowSessions))
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
-            val credentialDefinition = getCredDefLike(CertificateIndySchema.schemaName)!!.state.data
-            subFlow(IssueCredentialFlowB2B.Issuer(getManufacturer().name, credentialDefinition.id, null) {
+            val revocationRegistry = getRevocationRegistryLike(CertificateIndySchema.schemaName)!!.state.data
+            subFlow(
+                IssueCredentialFlowB2B.Issuer(
+                    getManufacturer().name,
+                    revocationRegistry.credentialDefinitionId,
+                    revocationRegistry.id
+                ) {
                 attributes["serial"] = CredentialValue(acceptanceCheck.serial)
                 attributes["status"] = CredentialValue(info.state.name)
                 attributes["time"] = CredentialValue(info.processedAt!!.toString())

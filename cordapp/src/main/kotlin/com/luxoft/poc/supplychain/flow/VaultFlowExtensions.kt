@@ -20,10 +20,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialDef
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialProofSchemaV1
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialSchemaV1
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.IndySchemaSchemaV1
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.*
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageSchemaV1
@@ -122,6 +119,13 @@ fun FlowLogic<Any>.getCredDefLike(name: String): StateAndRef<IndyCredentialDefin
 
     val results = serviceHub.vaultService.queryBy<IndyCredentialDefinition>(criteria)
     return results.states.singleOrNull()
+}
+
+fun FlowLogic<Any>.getRevocationRegistryLike(name: String): StateAndRef<IndyRevocationRegistryDefinition>? {
+
+    val credDefId = getCredDefLike(name)!!.state.data.id
+
+    return getRevocationRegistryDefinitionByCredentialDefinitionId(credDefId)
 }
 
 fun FlowLogic<Any>.getIndySchemaLike(name: String): StateAndRef<IndySchema>? {

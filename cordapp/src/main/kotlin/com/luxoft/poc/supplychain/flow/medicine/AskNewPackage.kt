@@ -93,9 +93,15 @@ class AskNewPackage {
                 )
             )
 
-            val credDefId = getCredDefLike(PackageIndySchema.schemaName)!!.state.data.id
+            val revocationRegistryDefinition = getRevocationRegistryLike(PackageIndySchema.schemaName)!!.state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDefId, null, clientDid) {
+            subFlow(
+                IssueCredentialFlowB2C.Issuer(
+                    serial,
+                    revocationRegistryDefinition.credentialDefinitionId,
+                    revocationRegistryDefinition.id,
+                    clientDid
+                ) {
                 attributes["serial"] = CredentialValue(serial)
                 attributes["authorities"] = CredentialValue(SerializationUtils.anyToJSON(authorities))
                 attributes["time"] = CredentialValue(System.currentTimeMillis().toString())
