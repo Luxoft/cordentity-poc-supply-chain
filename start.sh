@@ -3,6 +3,7 @@ set -e
 
 docker-compose down --rmi local --volumes
 ./gradlew killCordaProcesses clean assemble
+./gradlew deployNodes
 ./gradlew runNodes
 #docker-compose up -d tccorda mfcorda notary
 sleep 30

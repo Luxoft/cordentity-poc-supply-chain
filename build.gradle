@@ -61,12 +61,9 @@ dependencies {
   // Specify your cordapp's dependencies below, including dependent cordapps
   cordapp project(":cordapp")
 
-  cordappDeploy "com.github.${cordentity_provider}.cordentity:cordentity-cordapp:$cordentity_version"
-  cordappDeploy "com.github.${cordentity_provider}.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
+  cordapp "com.github.${cordentity_provider}.cordentity:cordentity-cordapp:$cordentity_version"
+  cordapp "com.github.${cordentity_provider}.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
 }
 
 apply from: "indy-run.gradle"
 
-assemble {
-  dependsOn deployCordaNetwork
-}
