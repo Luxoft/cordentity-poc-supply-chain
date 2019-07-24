@@ -12,11 +12,22 @@ buildscript {
 def RUN_CORDA_GROUP = "corda"
 
 apply plugin: 'kotlin'
+apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
+
+def indyConfigMapping = [
+        "TreatmentCenter"   : "treatment",
+        "Manufacture"       : "issuer",
+        "Notary"            : "notary"
+]
+
+def cordaNodesDirectory = "$rootDir/build/nodes"
+
+def cordaNodesDirs = indyConfigMapping.keySet().toList().collect { "$cordaNodesDirectory/$it" }
 
 task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     dependsOn 'cordapp:jar'
-    directory "$rootDir/build/nodes"
+    directory cordaNodesDirectory
 
     node {
         name "O=Notary,L=London,C=GB"
@@ -53,10 +64,14 @@ task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     }
 }
 
-
-deployNodes.initializeConfiguration()
-def cordaNodes = deployNodes.nodes
-
+cordapp {
+    info {
+        name "POC Supply Chain"
+        vendor "Luxoft"
+        targetPlatformVersion 4
+        minimumPlatformVersion 4
+    }
+}
 
 configurations {
     /** Dependencies that must be deployed into running Corda nodes */
@@ -70,7 +85,7 @@ task deployJarsToNodes(group: RUN_CORDA_GROUP) {
         def cordaDeployArtifacts = cordaDeployDependencies.collectMany { it.moduleArtifacts }
         def cordaDeployFiles = cordaDeployArtifacts*.file
         
-        for(nodeDir in cordaNodes*.nodeDir) {
+        for(nodeDir in cordaNodesDirs) {
             copy {
                 from cordaDeployFiles
                 into "$nodeDir/cordapps"
@@ -81,7 +96,7 @@ task deployJarsToNodes(group: RUN_CORDA_GROUP) {
 
 task deployCordappToNodes(group: RUN_CORDA_GROUP) {
     doLast {
-        for(nodeDir in cordaNodes*.nodeDir) {
+        for(nodeDir in cordaNodesDirs) {
             copy {
                 from('devops/Dockerfile-corda')
                 into(nodeDir)
@@ -92,7 +107,7 @@ task deployCordappToNodes(group: RUN_CORDA_GROUP) {
 
 task deployGenesisToNodes(group: RUN_CORDA_GROUP) {
     doLast {
-        for (nodeDir in cordaNodes*.nodeDir) {
+        for (nodeDir in cordaNodesDirs) {
             copy {
                 from ('cordapp/src/main/resources/genesis')
                 into("$nodeDir/genesis")
@@ -102,19 +117,13 @@ task deployGenesisToNodes(group: RUN_CORDA_GROUP) {
 }
 
 task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
-    def indyConfigMapping = [
-            "TreatmentCenter"   : "treatment",
-            "Manufacture"       : "issuer",
-            "Notary"            : "notary"
-    ]
-
     doLast {
         indyConfigMapping.each { nodeName, configName ->
-            def node = cordaNodes.find { it.nodeDir.name == nodeName }
+            def nodeDir = cordaNodesDirs.find { it.contains(nodeName) }
 
             copy {
                 from("config/test/indyconfig")
-                into("${node.nodeDir}/indyconfig")
+                into("$nodeDir/indyconfig")
                 include("${configName}.properties")
                 rename("${configName}.properties", 'indy.properties')
             }
