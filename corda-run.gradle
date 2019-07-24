@@ -23,7 +23,7 @@ def indyConfigMapping = [
 
 def cordaNodesDirectory = "$rootDir/build/nodes"
 
-def cordaNodesDirs = indyConfigMapping.keySet().toList().collect { "$cordaNodesDirectory/$it" }
+def cordaNodesDirs = indyConfigMapping.collect { "$cordaNodesDirectory/${it.key}" }
 
 task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     dependsOn 'cordapp:jar'
@@ -80,27 +80,15 @@ cordapp {
         targetPlatformVersion 4
         minimumPlatformVersion 4
     }
+    
+    signing {
+        enabled false
+    }
 }
 
 configurations {
     /** Dependencies that must be deployed into running Corda nodes */
     cordappDeploy
-}
-
-task deployJarsToNodes(group: RUN_CORDA_GROUP) {
-    doLast {
-        def cordaDeployConfiguration = configurations.cordappDeploy
-        def cordaDeployDependencies = cordaDeployConfiguration.resolvedConfiguration.firstLevelModuleDependencies
-        def cordaDeployArtifacts = cordaDeployDependencies.collectMany { it.moduleArtifacts }
-        def cordaDeployFiles = cordaDeployArtifacts*.file
-        
-        for(nodeDir in cordaNodesDirs) {
-            copy {
-                from cordaDeployFiles
-                into "$nodeDir/cordapps"
-            }
-        }
-    }
 }
 
 task deployCordappToNodes(group: RUN_CORDA_GROUP) {
@@ -144,16 +132,14 @@ task killCordaProcesses(type: Exec, group: RUN_CORDA_GROUP) {
     commandLine "bash", "-c", 'kill `pgrep xterm` && sleep 5; kill -9 `jps | grep "Corda" | cut -d " " -f 1`; true'
 }
 
-task deployCordaNetwork(group: RUN_CORDA_GROUP) {
-    dependsOn deployNodes
-    dependsOn deployJarsToNodes
+task deployIndyStuff(group: RUN_CORDA_GROUP) {
     dependsOn deployCordappToNodes
     dependsOn deployConfigsToNodes
     dependsOn deployGenesisToNodes
 }
 
 task runNodes(type: Exec, group: RUN_CORDA_GROUP) {
-    dependsOn deployCordaNetwork
+    dependsOn deployIndyStuff
 
     workingDir "$rootDir/build/nodes"
     executable "./runnodes"

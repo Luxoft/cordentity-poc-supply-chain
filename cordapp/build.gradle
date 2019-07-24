@@ -15,6 +15,12 @@ apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
 
+cordapp {
+    signing {
+        enabled false
+    }
+}
+
 sourceSets {
     main {
         resources {
@@ -36,8 +42,8 @@ sourceSets {
 }
 
 dependencies {
-    cordaCompile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib:$cordentity_version"
-    cordaCompile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
+    compile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib:$cordentity_version"
+    compile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
 
     compile "com.github.${cordentity_provider}.cordentity:cordentity-indy-utils:$cordentity_version"
     compile "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
