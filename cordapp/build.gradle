@@ -42,8 +42,12 @@ sourceSets {
 }
 
 dependencies {
-    compile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib:$cordentity_version"
-    compile "com.github.${cordentity_provider}.cordentity:cordentity-cordlib-contracts-states:$cordentity_version"
+    cordaCompile("com.github.${cordentity_provider}.cordentity:cordentity-cordlib:$cordentity_version") {
+        transitive = false
+    }
+    cordaCompile("com.github.${cordentity_provider}.cordentity:cordentity-cordlib-contracts-states:$cordentity_version") {
+        transitive = false
+    }
 
     compile "com.github.${cordentity_provider}.cordentity:cordentity-indy-utils:$cordentity_version"
     compile "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
