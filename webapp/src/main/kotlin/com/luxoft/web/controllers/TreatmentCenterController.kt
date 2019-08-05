@@ -24,6 +24,7 @@ import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
 import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
+import com.luxoft.web.components.TCFlows
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Invite
@@ -43,8 +44,7 @@ import java.util.*
 @RequestMapping("api/tc")
 @CrossOrigin
 @Profile("treatmentcenter")
-class TreatmentCenterController(rpc: RPCComponent) {
-    private final val services = rpc.services
+class TreatmentCenterController(val flowExecutor: TCFlows) {
     private final val logger = loggerFor<TreatmentCenterController>()
 
     @Value("\${indy.trustedCredentialsIssuerDID}")
@@ -52,20 +52,19 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("package/receive")
     fun receiveShipment(@RequestBody request: Serial) {
-        services.startFlowDynamic(ReceiveShipment.Receiver::class.java, AcceptanceResult(request.serial))
+        flowExecutor.receiveShipment(AcceptanceResult(request.serial))
     }
 
     @GetMapping("whoami")
-
     fun getWhoAmI(): Any {
-        return services.nodeInfo().legalIdentities.first().name.organisation
+        return flowExecutor.getNodeName()
     }
 
     @GetMapping("invite")
     fun getInvite(): Invite {
         println("Get request to /api/tc/invite")
         val uuid = UUID.randomUUID()
-        val response = services.startFlow(GetInviteFlow::Treatment, uuid).returnValue.getOrThrow(Duration.ofSeconds(15))
+        val response = flowExecutor.getInvite(uuid)
         println("Responding to /api/tc/invite with ($uuid,$response)")
 
         return Invite(response, uuid.toString())
@@ -73,25 +72,24 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
+        flowExecutor.askNewPackage(UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
     }
 
     @PostMapping("package/withdraw")
     fun receivePackage(@RequestBody request: Serial) {
-        services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID!!))
+        flowExecutor.packageWithdrawal(request.serial, UUID.fromString(request.clientUUID))
     }
 
     @PostMapping("package/history")
     fun packageHistory(@RequestBody request: Serial): Invite {
-        val invite = services.startFlow(GetPackageHistory::Requester, request.serial).returnValue.get()
+        val invite = flowExecutor.getPackageHistory(request.serial)
         return Invite(invite)
     }
 
     @GetMapping("package/list")
     fun getPackageRequests(): Any {
         return try {
-            services.vaultQueryBy<Package>().states.map { it.state.data.info }
-
+            flowExecutor.getPackageRequests()
         } catch (e: Exception) {
             logger.error("", e)
             FAILURE.plus("error" to e.message)
