@@ -14,7 +14,7 @@ interface CommonFlows {
 interface TCFlows : CommonFlows {
     fun receiveShipment(result: AcceptanceResult)
     fun getInvite(uuid: UUID): String
-    fun askNewPackage(uuid: UUID, string: String)
+    fun askNewPackage(uuid: UUID, issuerDid: String)
     fun packageWithdrawal(serial: String, clientId: UUID)
 }
 
