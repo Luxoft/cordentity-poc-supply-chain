@@ -17,26 +17,15 @@
 package com.luxoft.web.controllers
 
 import com.luxoft.poc.supplychain.data.AcceptanceResult
-import com.luxoft.poc.supplychain.data.state.Package
-import com.luxoft.poc.supplychain.flow.GetInviteFlow
-import com.luxoft.poc.supplychain.flow.PackageWithdrawal
-import com.luxoft.poc.supplychain.flow.ReceiveShipment
-import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
-import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
-import com.luxoft.web.components.RPCComponent
-import com.luxoft.web.components.TCFlows
+import com.luxoft.web.components.flow.TCFlows
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.Serial
-import net.corda.core.messaging.startFlow
-import net.corda.core.messaging.vaultQueryBy
-import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
-import java.time.Duration
 import java.util.*
 
 
