@@ -237,7 +237,7 @@ class TCFlowsMock(val agentService: AgentService, val indyService: IndyService, 
     override fun getNodeName() = "TreatmentCenter"
 
     override fun getPackageRequests(): List<PackageInfo> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Storage.packages.values.toList()
     }
 
     override fun getPackageHistory(serial: String): String {
@@ -349,7 +349,7 @@ class MFFlowsMock : MFFlows {
     override fun getNodeName() = "Manufacturer"
 
     override fun getPackageRequests(): List<PackageInfo> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Storage.packages.values.toList()
     }
 
     override fun getPackageHistory(serial: String): String {
@@ -357,7 +357,12 @@ class MFFlowsMock : MFFlows {
     }
 
     override fun deliverShipment(serial: String, name: CordaX500Name) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val newPackage = Storage.packages[serial]!!.copy(
+            state = PackageState.PROCESSED,
+            processedAt = System.currentTimeMillis(),
+            processedBy = CordaX500Name("Manufacture", "London", "UK")
+        )
+
+        Storage.packages[serial] = newPackage
     }
 }
-
