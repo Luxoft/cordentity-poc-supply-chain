@@ -34,7 +34,7 @@ class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Dur
                 CreateSchemaFlow::Authority, schema.schemaName, schema.schemaVersion, schema.getSchemaAttrs().map { it.name }
         ).returnValue.getOrThrow(timeout)
 
-        val credDefId = rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, 100).returnValue.getOrThrow(timeout)
+        val credDefId = rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, false).returnValue.getOrThrow(timeout)
 
         return Pair(schemaId, credDefId)
     }

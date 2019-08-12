@@ -19,10 +19,9 @@ package com.luxoft.poc.supplychain.flow.medicine
 import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
-import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
 import com.luxoft.poc.supplychain.flow.RequestForPackage
 import com.luxoft.poc.supplychain.flow.getManufacturer
 import com.luxoft.poc.supplychain.service.clientResolverService
@@ -62,13 +61,12 @@ class AskNewPackage {
 
         @Suspendable
         private fun issueReceipt(serial: String) {
-            val receiptProposal = IndySchemaBuilder()
-                    .addAttr(PackageReceipt.Attributes.Serial, serial)
-                    .build()
-
+            val receiptProposal = mapOf(
+                "serial" to CredentialValue(serial)
+            )
             val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, receiptProposal, credDef.credentialDefinitionId, clientDid))
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDef.id, null, clientDid) { receiptProposal })
         }
 
         @Suspendable

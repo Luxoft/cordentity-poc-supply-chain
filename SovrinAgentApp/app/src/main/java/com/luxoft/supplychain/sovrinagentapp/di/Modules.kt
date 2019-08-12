@@ -23,7 +23,10 @@ import com.google.gson.GsonBuilder
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletConfig
+import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.models.DidConfig
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
 import io.realm.RealmObject
@@ -49,8 +52,8 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
 }
 
-val webServerEndpoint = "http://3.17.65.252:8082"
-val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
+val webServerEndpoint = "http://172.31.18.170:8082"
+val indyAgentWSEndpoint = "ws://172.31.18.170:8094/ws"
 
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
     val walletConfig = SerializationUtils.anyToJSON(WalletConfig("wallet-${Random().nextInt().absoluteValue}"))
@@ -70,9 +73,10 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
 }
 
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
-    val indyUser = IndyUser(walletAndPool.second, walletAndPool.first, null, """{"seed": "000000000000000000000000Trustee1"}""", "/sdcard/tails")
-
-    return indyUser
+    val (wallet, pool) = walletAndPool
+    val walletUser = IndySDKWalletUser(wallet, DidConfig(null, "000000000000000000000000Trustee1"), "/sdcard/tails")
+    val ledgerUser = IndyPoolLedgerUser(pool, walletUser.did) { walletUser.sign(it) }
+    return IndyUser(walletUser, ledgerUser)
 }
 
 fun provideApiClient(gson: Gson): SovrinAgentService {

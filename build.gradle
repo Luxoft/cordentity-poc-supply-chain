@@ -3,7 +3,7 @@ buildscript {
   ext.corda_release_version = '3.1-corda'
   ext.corda_gradle_plugins_version = '3.0.9'
   ext.indy_version = "1.7.0"
-  ext.cordentity_version = 'ee12bdaa20'
+  ext.cordentity_version = '9f773d2fcb'
   ext.indy_utils_version = '0.3.0'
   ext.quasar_version = '0.7.9'
   ext.junit_version = '4.12'
@@ -51,8 +51,14 @@ subprojects {
 repositories {
   jcenter()
   maven { url 'https://jitpack.io' }
+  maven { url 'https://repo.sovrin.org/repository/maven-releases' }
 }
 
+subprojects {
+  repositories {
+    maven { url 'https://repo.sovrin.org/repository/maven-releases' }
+  }
+}
 
 apply from: "corda-run.gradle"
 

@@ -31,7 +31,7 @@ class GetInviteFlow {
                                 return@handle
                             }
                             clientResolverService().userUuid2Did[clientId] = message!!.partyDID()
-                            message.handleTailsRequestsWith { TailsHelper.DefaultReader(indyUser().tailsPath).read(it) }
+                            message.handleTailsRequestsWith { TailsHelper.DefaultReader(indyUser().walletUser.getTailsPath()).read(it) }
                         }
             }.exceptionally { logger.error("Error in invite future", it); null; }
 

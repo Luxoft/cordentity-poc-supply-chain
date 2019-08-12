@@ -90,8 +90,7 @@ class OrdersFragment : Fragment() {
                 .subscribe({
                     loaded()
                     saveOrders(it)
-                }, {
-                    error ->
+                }, { error ->
                     Log.e("Get Packages Error: ", error.message, error)
                     showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
                 })

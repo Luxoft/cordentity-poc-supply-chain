@@ -83,7 +83,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
         super.onResume()
         mScannerView?.setResultHandler(this)
         mScannerView?.startCamera()
-//        handleResult(Result())
+        handleResult(Result())
     }
 
     override fun onPause() {
@@ -128,7 +128,7 @@ class SimpleScannerActivity : AppCompatActivity(), ZBarScannerView.ResultHandler
                             val connection = (application as Application).getConnection()
 
                             val proofRequest: ProofRequest = connection.receiveProofRequest().toBlocking().value()
-                            val proof = indyUser.createProof(proofRequest)
+                            val proof = indyUser.createProofFromLedgerData(proofRequest)
                             connection.sendProof(proof)
                             Thread.sleep(3000)
                             finish()

@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.2.41'
-    ext.cordentity_version = 'ee12bdaa20'
+    ext.cordentity_version = '9f773d2fcb'
     
     repositories {
         google()
@@ -22,6 +22,7 @@ subprojects {
     repositories {
         google()
         jcenter()
+        maven { url 'https://repo.sovrin.org/repository/maven-releases' }
         maven { url 'https://jitpack.io' }
     }
 }

@@ -26,7 +26,7 @@ import android.widget.Button
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.TailsHelper
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
-import com.luxoft.blockchainlab.hyperledger.indy.models.RevocationRegistryInfo
+import com.luxoft.blockchainlab.hyperledger.indy.models.RevocationRegistryDefinition
 import com.luxoft.supplychain.sovrinagentapp.Application
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
@@ -65,7 +65,7 @@ class AskClaimsActivity : AppCompatActivity() {
             drawProgressBar()
             //Hack for Retrofit blocking UI thread
             Completable.complete().observeOn(Schedulers.io()).subscribe {
-                api.createRequest(AskForPackageRequest(indyUser.did))
+                api.createRequest(AskForPackageRequest(indyUser.walletUser.did))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -80,22 +80,22 @@ class AskClaimsActivity : AppCompatActivity() {
 
                         val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
 
-                        val credentialRequest = indyUser.createCredentialRequest(indyUser.did, credentialOffer)
+                        val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.did, credentialOffer)
                         connection.sendCredentialRequest(credentialRequest)
 
                         val credential = connection.receiveCredential().toBlocking().value()
-                        val revocationRegistryInfo : RevocationRegistryInfo? =
-                            indyUser.getRevocationRegistryInfo(
+                        val revocationRegistryDefinition : RevocationRegistryDefinition? =
+                            indyUser.getRevocationRegistryDefinition(
                                 CredentialDefinitionId.fromString(
                                     credential.credential.credentialDefinitionIdRaw
                                 ))
-                        val tailsHash = revocationRegistryInfo!!.definition.value["tailsHash"].toString()
-                        indyUser.receiveCredential(credential, credentialRequest, credentialOffer)
+                        val tailsHash = revocationRegistryDefinition!!.value["tailsHash"].toString()
+                        indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
                         connection.requestTails(tailsHash)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
-                                TailsHelper.DefaultWriter(indyUser.tailsPath).write(it)
+                                TailsHelper.DefaultWriter(indyUser.walletUser.getTailsPath()).write(it)
                                 println("TAILS WRITTEN")
                                 finish()
                             }
