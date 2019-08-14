@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp
+package com.luxoft.supplychain.sovrinagentapp.application
 
 import android.app.Application
 import android.os.Environment
@@ -45,9 +45,5 @@ class Application : Application() {
             product2.medicineName = "Santorium Plus"
             product2.requestedAt = Long.MAX_VALUE
         }
-    }
-
-    companion object {
-        var webServerEndpoint = "http://18.216.169.252:8082"
     }
 }

@@ -95,7 +95,7 @@
     <string name="verified_by">verified by</string>
     <string name="official_authorities">Official Authorities</string>
     <string name="you_have">You have</string>
-    <string name="verified_claims">verified claims</string>
+    <string name="verified_claims">%d verified claims</string>
     <string name="insurer_approved_your_prescription">Insurer has confirmed the coverage for your prescription</string>
     <string name="scan_qr_code">Scan QR-code</string>
     <string name="scan_pack_qr_code">Scan package QR-code</string>

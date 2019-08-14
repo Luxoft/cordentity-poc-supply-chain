@@ -25,7 +25,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
-import android.view.ViewGroup
 import android.widget.Toast
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
@@ -35,7 +34,6 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
-import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
 import rx.Completable
@@ -45,7 +43,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import com.blikoon.qrcodescanner.QrCodeActivity
 import android.content.DialogInterface
-import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -53,7 +50,6 @@ import com.google.gson.Gson
 import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
-import com.luxoft.supplychain.sovrinagentapp.Application.Companion.webServerEndpoint
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
 import retrofit.GsonConverterFactory

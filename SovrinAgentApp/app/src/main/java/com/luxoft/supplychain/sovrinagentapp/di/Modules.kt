@@ -30,7 +30,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
-import com.luxoft.supplychain.sovrinagentapp.Application.Companion.webServerEndpoint
+import com.luxoft.supplychain.sovrinagentapp.application.BASE_URL
+import com.luxoft.supplychain.sovrinagentapp.application.WS_ENDPOINT
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
@@ -56,14 +57,12 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
     single { connectedAgentConnection() }
 }
-//val webServerEndpoint = "http://18.216.169.252:8082"
-val indyAgentWSEndpoint = "ws://18.216.169.252:8094/ws"
 val tailsPath = "/sdcard/tails"
 
 //Async agent initialization for smooth UX
 
 val agentConnection = PythonRefAgentConnection()
-val agentConnect = agentConnection.connect(indyAgentWSEndpoint, login = "medical-supplychain", password = "secretPassword").toCompletable()
+val agentConnect = agentConnection.connect(WS_ENDPOINT, login = "medical-supplychain", password = "secretPassword").toCompletable()
 fun connectedAgentConnection(): AgentConnection {
     agentConnect.await()
     return agentConnection
@@ -120,12 +119,12 @@ fun WalletUser.updateCredentialsInRealm() {
     }
 }
 
-fun provideApiClient(gson: Gson, baseUrl: String = webServerEndpoint): SovrinAgentService {
+fun provideApiClient(gson: Gson): SovrinAgentService {
     val retrofit: Retrofit = Retrofit.Builder()
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(baseUrl)
-            .build()
+        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .baseUrl(BASE_URL)
+        .build()
 
     retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
 

@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui
 
-
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -25,32 +24,31 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_claims.*
 import org.koin.android.ext.android.inject
-
 
 class ClaimsFragment : Fragment() {
 
-    private var mAdapter: ClaimsAdapter? = null
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var adapterRecycler: ClaimsAdapter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     private val realm: Realm = Realm.getDefaultInstance()
     private val indyUser: IndyUser by inject()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_claims, container, false)
 
-        val recyclerView = view.findViewById(R.id.fragment_list_rv) as RecyclerView
 //        val getClaimButton = view.findViewById(R.id.get_claims) as Button
 //        getClaimButton.setOnClickListener {
 //            ContextCompat.startActivity(getClaimButton.context,
@@ -59,34 +57,34 @@ class ClaimsFragment : Fragment() {
 //            )
 //        }
 //        getClaimButtonon.visibility = View.VISIBLE
-        var claimsQty = 7
-        val textViewProfileHeaderRight = view.findViewById(R.id.textViewProfileHeaderRight) as TextView
-        textViewProfileHeaderRight.text = StringBuilder().append("$claimsQty ").append(getString(R.string.verified_claims))
-        val linearLayoutManager = LinearLayoutManager(activity)
-        recyclerView.layoutManager = linearLayoutManager
-        recyclerView.setHasFixedSize(true)
+        return view
+    }
 
-        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val claimsQty = 7
+        textViewProfileHeaderRight.text = getString(R.string.verified_claims, claimsQty)
 
-        mAdapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").notEqualTo("key", "authorities").notEqualTo("key", "time").findAll())
-        recyclerView.adapter = mAdapter
+        with(fragment_list_rv) {
+            val linearLayoutManager = LinearLayoutManager(activity)
+            layoutManager = linearLayoutManager
+            setHasFixedSize(true)
+            addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
+            adapterRecycler = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").notEqualTo("key", "authorities").notEqualTo("key", "time").findAll())
+            adapter = adapterRecycler
+        }
 
-        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)
-        mSwipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
+        swipeRefreshLayout = swipe_container
+        swipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
 
         if (ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             //TODO: Breaks async UX
             updateMyClaims()
         }
-
-        return view
     }
 
     private fun updateMyClaims() {
-        mSwipeRefreshLayout.isRefreshing = true
-
+        swipeRefreshLayout.isRefreshing = true
         indyUser.walletUser.updateCredentialsInRealm()
-
-        mSwipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.isRefreshing = false
     }
 }

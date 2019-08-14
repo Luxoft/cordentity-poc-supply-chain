@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui
 
-
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -38,7 +37,6 @@ import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-
 
 class HistoryFragment : Fragment() {
 

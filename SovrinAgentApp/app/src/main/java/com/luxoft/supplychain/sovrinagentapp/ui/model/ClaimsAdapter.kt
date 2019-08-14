@@ -18,20 +18,20 @@ package com.luxoft.supplychain.sovrinagentapp.ui.model
 
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.utils.gone
+import com.luxoft.supplychain.sovrinagentapp.utils.inflate
+import com.luxoft.supplychain.sovrinagentapp.utils.visible
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.item_claim.view.*
 
-
 class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
-
 
     var realmChangeListener = RealmChangeListener<RealmResults<ClaimAttribute>> {
         Log.i("TAG", "Change occurred!")
@@ -42,34 +42,46 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
         claims.addChangeListener(realmChangeListener)
     }
 
-
-    override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
-        if (!claims[position]?.key.equals("authorities") && !claims[position]?.key.equals("time")) {
-            holder.name.text = claims[position]?.key
-            holder.value.text = claims[position]?.value
-            holder.schemaId.text = claims[position]?.schemaId
-        } else {
-            holder.linearLayoutLeft.setVisibility(View.GONE)
-            holder.linearLayoutRight.setVisibility(View.GONE)
-        }
-    }
+    //region ******************** OVERRIDE *************************************************************
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ClaimViewHolder {
-        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_claim, viewGroup, false)
-        return ClaimViewHolder(view)
+        return ClaimViewHolder(viewGroup.context.inflate(R.layout.item_claim, viewGroup))
+    }
+
+    override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
+        holder.bind(claims[position])
     }
 
     override fun getItemCount(): Int {
         return claims.size
     }
 
+    //endregion OVERRIDE
+
+    //region ******************** HOLDER ***********************************************************
+
     inner class ClaimViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        var name: TextView = itemView.tv_claim_attr_name as TextView
-        var value: TextView = itemView.tv_claim_attr_value as TextView
-        var schemaId: TextView = itemView.tv_schema_id as TextView
-        var linearLayoutLeft: LinearLayout = itemView.linearLayoutLeft as LinearLayout
-        var linearLayoutRight: LinearLayout = itemView.linearLayoutRight as LinearLayout
+        var name: TextView = itemView.tv_claim_attr_name
+        var value: TextView = itemView.tv_claim_attr_value
+        var schemaId: TextView = itemView.tv_schema_id
+        var linearLayoutLeft: LinearLayout = itemView.linearLayoutLeft
+        var linearLayoutRight: LinearLayout = itemView.linearLayoutRight
+
+        fun bind(item: ClaimAttribute?) {
+            if (!item?.key.equals("authorities") && !item?.key.equals("time")) {//TODO wtf???
+                name.text = item?.key
+                value.text = item?.value
+                schemaId.text = item?.schemaId
+                linearLayoutLeft.visible()
+                linearLayoutRight.visible()
+            } else {
+                linearLayoutLeft.gone()
+                linearLayoutRight.gone()
+            }
+        }
 
     }
+
+    //endregion HOLDER
 }
