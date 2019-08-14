@@ -46,10 +46,10 @@ android {
 }
 
 dependencies {
-    implementation("com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version")
-    implementation("com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version")
-
-    implementation('net.java.dev.jna:jna:4.5.1@aar')
+    implementation ("com.github.sercher.cordentity:cordentity-indy-utils:$cordentity_version")
+    implementation ("com.github.sercher.cordentity:cordentity-agent-connection:$cordentity_version")
+    
+    implementation ('net.java.dev.jna:jna:4.5.1@aar')
 
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 

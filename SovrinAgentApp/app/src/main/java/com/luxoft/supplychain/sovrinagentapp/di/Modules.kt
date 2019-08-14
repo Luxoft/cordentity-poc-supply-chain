@@ -75,6 +75,10 @@ lateinit var wallet: Wallet
 
 val indyInit = Single.create<Unit> { observer ->
     try {
+        /**
+         * Prior to running the app, copy the wallet file to the device, e.g.
+         * adb push ../webapp/src/test/resources/testUserWallet.db /storage/self/primary/.indy_client/wallet/medical-supplychain/sqlite.db
+         */
         pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
         wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
         observer.onSuccess(Unit)
