@@ -106,6 +106,8 @@ services:
       - "8094:8094"
     environment:
       - "PORT=8094"
+# to make sure the address is reachable from the android device
+#     - "HOST=127.0.0.1"
     container_name: agent94
 
   agent95:

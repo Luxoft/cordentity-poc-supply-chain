@@ -56,8 +56,8 @@ val myModule: Module = module {
     single { connectedAgentConnection() }
 }
 
-val webServerEndpoint = "http://172.31.18.170:8082"
-val indyAgentWSEndpoint = "ws://172.31.18.170:8094/ws"
+val webServerEndpoint = "http://3.17.65.252:8082"
+val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
 val tailsPath = "/sdcard/tails"
 
 //Async agent initialization for smooth UX
@@ -75,6 +75,10 @@ lateinit var wallet: Wallet
 
 val indyInit = Single.create<Unit> { observer ->
     try {
+        /**
+         * Prior to running the app, copy the wallet file to the device, e.g.
+         * adb push ../webapp/src/test/resources/testUserWallet.db /storage/self/primary/.indy_client/wallet/medical-supplychain/sqlite.db
+         */
         pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
         wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
         observer.onSuccess(Unit)

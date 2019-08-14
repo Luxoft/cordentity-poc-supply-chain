@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-set -e
 
 docker-compose down --rmi local --volumes
+
+set -e
+
 ./gradlew killCordaProcesses clean assemble
 ./gradlew deployNodes
 ./gradlew runNodes
