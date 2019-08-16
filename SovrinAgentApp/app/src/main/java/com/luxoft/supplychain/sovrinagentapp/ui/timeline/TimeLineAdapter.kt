@@ -17,46 +17,56 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.timeline
 
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.github.vipulasri.timelineview.TimelineView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
+import com.luxoft.supplychain.sovrinagentapp.utils.gone
+import com.luxoft.supplychain.sovrinagentapp.utils.inflate
+import com.luxoft.supplychain.sovrinagentapp.utils.visible
+import kotlinx.android.synthetic.main.item_timeline.view.*
 
+class TimeLineAdapter(private val product: Product) : RecyclerView.Adapter<TimeLineAdapter.Holder>() {
 
-class TimeLineAdapter(private val product: Product) : RecyclerView.Adapter<TimeLineViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+        return Holder(parent.context.inflate(R.layout.item_timeline, parent), viewType)
+    }
 
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        val stateOrder = position.inc()
+        val timestamp = product.currentStateTimestamp(stateOrder)
+        val message = product.currentStateMessage(stateOrder)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimeLineViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.item_timeline, parent, false)
-        return TimeLineViewHolder(view, viewType)
+        if (timestamp != null) {
+            holder.mDate.visible()
+            holder.mDate.text = DateTimeUtils.parseDateTime(timestamp, "MMM dd, yyyy HH:mm")
+        } else {
+            holder.mDate.gone()
+        }
+
+        holder.mMessage.text = message
     }
 
     override fun getItemCount(): Int {
         return PackageState.valueOf(product.state!!).ordinal
     }
 
-
-    override fun onBindViewHolder(holder: TimeLineViewHolder, position: Int) {
-
-        var position1 = position.inc()
-        val timestamp = product.currentStateTimestamp(position1)
-        val message = product.currentStateMessage(position1)
-
-        if (timestamp != null) {
-            holder.mDate.visibility = View.VISIBLE
-            holder.mDate.text = DateTimeUtils.parseDateTime(timestamp, "MMM dd, yyyy HH:mm")
-        } else
-            holder.mDate.visibility = View.GONE
-
-        holder.mMessage.text = message
-    }
-
     override fun getItemViewType(position: Int): Int {
         return TimelineView.getTimeLineViewType(position, itemCount)
+    }
+
+    class Holder(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
+
+        var mDate: TextView = itemView.text_timeline_date
+        var mMessage: TextView = itemView.text_timeline_title
+        var mTimelineView: TimelineView = itemView.time_marker
+
+        init {
+            mTimelineView.initLine(viewType)
+        }
     }
 }

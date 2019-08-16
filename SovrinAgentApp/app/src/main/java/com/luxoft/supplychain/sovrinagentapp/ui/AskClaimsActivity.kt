@@ -35,7 +35,6 @@ import rx.schedulers.Schedulers
 import java.lang.StringBuilder
 import java.util.concurrent.atomic.AtomicInteger
 
-
 class AskClaimsActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()

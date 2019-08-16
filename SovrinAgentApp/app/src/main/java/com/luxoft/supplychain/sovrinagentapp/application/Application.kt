@@ -36,7 +36,6 @@ class Application : Application() {
         Realm.setDefaultConfiguration(RealmConfiguration.Builder().build())
 
         Realm.getDefaultInstance().executeTransaction {
-
             it.where(ClaimAttribute::class.java).findAll().deleteAllFromRealm()
             it.where(Product::class.java).findAll().deleteAllFromRealm()
 

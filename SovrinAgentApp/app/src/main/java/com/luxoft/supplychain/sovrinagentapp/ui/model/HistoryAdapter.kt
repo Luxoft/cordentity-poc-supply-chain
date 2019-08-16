@@ -40,9 +40,7 @@ import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.item_history.view.textViewHistoryItemMessage
-import kotlinx.android.synthetic.main.item_history_new.view.*
-import kotlinx.android.synthetic.main.item_order.view.linearLayoutScanQr
+import kotlinx.android.synthetic.main.item_history.view.*
 
 class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
 
@@ -61,7 +59,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
     //region ******************** OVERRIDE *********************************************************
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): OrderViewHolder {
-        return OrderViewHolder(viewGroup.context.inflate(R.layout.item_history_new, viewGroup))
+        return OrderViewHolder(viewGroup.context.inflate(R.layout.item_history, viewGroup))
     }
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
@@ -108,6 +106,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
         holder.linearLayoutHistoryContent.removeAllViews()
 
 
+        //TODO wtf???
         val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
         val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
         val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
@@ -137,7 +136,6 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
                 holder.linearLayoutLicenseList.visible()
             }
         }
-
         holder.textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
     }
 

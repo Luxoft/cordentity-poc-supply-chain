@@ -16,12 +16,10 @@
 
 package com.luxoft.supplychain.sovrinagentapp.data
 
-
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
-import java.util.*
 import kotlin.collections.HashMap
 
 enum class PackageState {
@@ -40,7 +38,6 @@ data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID
 data class PushToken(val did: String, val token: String)
 
 data class AskForPackageRequest(val tcName: String, val clientUUID: String)
-
 
 open class Error {
     open var code: Int = 0
@@ -104,7 +101,6 @@ open class Product : RealmObject() {
 
     open var collectedAt: Long? = null
 }
-
 
 @RealmClass
 open class Waybill : RealmObject() {

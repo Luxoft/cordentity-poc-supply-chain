@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui
 
-
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -47,7 +46,6 @@ import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import io.realm.RealmResults
 import rx.Observable
 import java.util.concurrent.TimeUnit
-
 
 class OrdersFragment : Fragment() {
 

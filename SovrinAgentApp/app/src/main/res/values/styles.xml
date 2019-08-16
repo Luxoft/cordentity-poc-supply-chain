@@ -20,6 +20,13 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
+    <style name="Text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="TabLayoutTextStyle">
         <item name="android:textSize">10.5sp</item>
         <item name="android:textStyle">normal</item>

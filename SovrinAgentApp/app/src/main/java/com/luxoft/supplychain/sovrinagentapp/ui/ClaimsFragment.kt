@@ -64,7 +64,7 @@ class ClaimsFragment : Fragment() {
         val claimsQty = 7
         textViewProfileHeaderRight.text = getString(R.string.verified_claims, claimsQty)
 
-        with(fragment_list_rv) {
+        with(recycler) {
             val linearLayoutManager = LinearLayoutManager(activity)
             layoutManager = linearLayoutManager
             setHasFixedSize(true)

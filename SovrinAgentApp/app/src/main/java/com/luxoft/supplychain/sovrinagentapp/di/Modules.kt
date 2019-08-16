@@ -32,6 +32,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.BASE_URL
 import com.luxoft.supplychain.sovrinagentapp.application.WS_ENDPOINT
+import com.luxoft.supplychain.sovrinagentapp.application.WS_LOGIN
+import com.luxoft.supplychain.sovrinagentapp.application.WS_PASS
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
@@ -48,7 +50,6 @@ import rx.Single
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-
 // Koin module
 val myModule: Module = module {
     single { provideGson() }
@@ -57,12 +58,12 @@ val myModule: Module = module {
     single { provideIndyUser(get()) }
     single { connectedAgentConnection() }
 }
-val tailsPath = "/sdcard/tails"
+const val TAILS_PATH = "/sdcard/tails"
 
 //Async agent initialization for smooth UX
 
 val agentConnection = PythonRefAgentConnection()
-val agentConnect = agentConnection.connect(WS_ENDPOINT, login = "medical-supplychain", password = "secretPassword").toCompletable()
+val agentConnect = agentConnection.connect(WS_ENDPOINT, WS_LOGIN, WS_PASS).toCompletable()
 fun connectedAgentConnection(): AgentConnection {
     agentConnect.await()
     return agentConnection
@@ -95,9 +96,9 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     val (wallet, pool) = walletAndPool
     val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
-        IndySDKWalletUser(wallet, did, tailsPath)
+        IndySDKWalletUser(wallet, did, TAILS_PATH)
     } ?: run {
-        IndySDKWalletUser(wallet, tailsPath = tailsPath).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
+        IndySDKWalletUser(wallet, tailsPath = TAILS_PATH).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
     }
 
     return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
