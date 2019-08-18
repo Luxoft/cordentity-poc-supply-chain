@@ -27,6 +27,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
@@ -83,13 +84,13 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
 //        holder.sn.text = "SN: " + order.serial
         holder.message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
         holder.title.setOnClickListener {
-            startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra("serial", order.serial), null)
+            startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
         }
         holder.qrButton.setOnClickListener {
             ContextCompat.startActivity(holder.qrButton.context,
                 Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
                     .putExtra("collected_at", order.collectedAt)
-                    .putExtra("serial", order.serial)
+                    .putExtra(SERIAL, order.serial)
                     .putExtra("state", order.state), null
             )
         }

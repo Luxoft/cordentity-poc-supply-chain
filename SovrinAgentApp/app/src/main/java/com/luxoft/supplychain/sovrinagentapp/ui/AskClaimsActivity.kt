@@ -17,7 +17,6 @@
 package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -32,7 +31,6 @@ import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.schedulers.Schedulers
-import java.lang.StringBuilder
 import java.util.concurrent.atomic.AtomicInteger
 
 class AskClaimsActivity : AppCompatActivity() {
@@ -48,7 +46,7 @@ class AskClaimsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 //        setContentView(R.layout.activity_ask_claims)
 
-        proofRequest = SerializationUtils.jSONToAny<ProofRequest>(intent?.getStringExtra("proofRequest")!!)
+        proofRequest = SerializationUtils.jSONToAny(intent?.getStringExtra("proofRequest")!!)
         val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
         for (key in requestedData) {
             requestedDataBuilder.append(", $key")
@@ -56,33 +54,15 @@ class AskClaimsActivity : AppCompatActivity() {
         showAlertDialogToProvide()
     }
 
-    fun showAlertDialogToProvide() = AlertDialog.Builder(this)
-            .setTitle("Claims request")
-            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
-//            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
-            .setCancelable(false)
-            .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which: Int) {
-                    provide()
-                }
-            })
-            .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which: Int) {
-                    this@AskClaimsActivity.finish()
-                }
-            })
-            .show()
+    private fun showAlertDialogToProvide() = AlertDialog.Builder(this)
+        .setTitle("Claims request")
+        .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
+        .setCancelable(false)
+        .setPositiveButton("PROVIDE") { _, _ -> provide() }
+        .setNegativeButton("CANCEL") { _, _ -> this@AskClaimsActivity.finish() }
+        .show()
 
     private fun provide() {
-//        val recyclerView = findViewById<RecyclerView>(R.id.fragment_list_rv)
-//        val linearLayoutManager = LinearLayoutManager(this)
-//        recyclerView.layoutManager = linearLayoutManager
-//        recyclerView.setHasFixedSize(true)
-//        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, linearLayoutManager.orientation))
-//        recyclerView.adapter = ClaimsAdapter(realm.where(ClaimAttribute::class.java).`in`("key", requestedData.toTypedArray()).findAll())
-//        findViewById<Button>(R.id.accept_claims_request).setOnClickListener {
-//        drawProgressBar()
-
         Completable.complete().observeOn(Schedulers.io()).subscribe({
             popupStatus = AtomicInteger(1)
             finish()
@@ -90,7 +70,7 @@ class AskClaimsActivity : AppCompatActivity() {
             val partyDid = intent?.getStringExtra("partyDID")!!
             val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
             val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
-                    ?: throw RuntimeException("Agent connection with $partyDid not found")
+                ?: throw RuntimeException("Agent connection with $partyDid not found")
 
             connection.sendProof(proofFromLedgerData)
 
@@ -110,39 +90,11 @@ class AskClaimsActivity : AppCompatActivity() {
 
             popupStatus = AtomicInteger(2)
 
-//            finish()
-
-
-//            api.getTails()
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(
-//                            { tails ->
-//                                val dir = File(tailsPath)
-//                                if (!dir.exists())
-//                                    dir.mkdirs()
-//
-//                                tails.forEach { name, content ->
-//                                    val file = File("$tailsPath/$name")
-//                                    if (file.exists())
-//                                        file.delete()
-//                                    file.createNewFile()
-//                                    file.writeText(content)
-//                                }
-//                                println("TAILS WRITTEN")
-//                                finish()
-//                            },
-//                            { er ->
-//                                Log.e("Get Tails Error: ", er.message, er)
-//                                showAlertDialog(baseContext, "Get Tails Error: ${er.message}") { finish() }
-//                            }
-//                    )
         },
-                { er ->
-                    Log.e("Get Request Error: ", er.message, er)
-                    showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
-                })
-//        }
+            { er ->
+                Log.e("Get Request Error: ", er.message, er)
+                showAlertDialog(baseContext, "Get Request Error: ${er.message}") { finish() }
+            })
     }
 
 }

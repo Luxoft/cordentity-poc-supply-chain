@@ -3,14 +3,10 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardlist_item"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="24dp"
+    style="@style/Card"
     android:layout_marginRight="24dp"
     android:layout_marginBottom="5dp"
-    android:orientation="vertical"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="2dp">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -71,8 +67,8 @@
                 style="@style/MedicineMessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="17dp"
                 android:layout_below="@+id/textViewOrderItemDate"
+                android:layout_marginStart="17dp"
                 android:layout_toEndOf="@+id/imageViewSomething"
                 android:text="@string/insurer_approved_your_prescription" />
 
@@ -110,10 +106,11 @@
                 card_view:srcCompat="@drawable/ic_marker" />
 
         </RelativeLayout>
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#dddddd"/>
+            android:background="#dddddd" />
 
         <LinearLayout
             android:id="@+id/linearLayoutShowReceipt"
@@ -121,9 +118,9 @@
             android:layout_height="51dp"
             android:gravity="left|center_vertical"
             android:orientation="horizontal"
-            android:visibility="gone"
             android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:paddingRight="16dp"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="20dp"
@@ -131,9 +128,9 @@
                 android:src="@drawable/barcode" />
 
             <TextView
+                style="@style/ScanButtonLeftText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/ScanButtonLeftText"
                 android:layout_marginLeft="11dp"
                 android:text="@string/digital_receipt" />
 
@@ -155,16 +152,16 @@
                 android:src="@drawable/ic_qr_code" />
 
             <TextView
+                style="@style/ScanButtonLeftText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/ScanButtonLeftText"
                 android:layout_marginLeft="11dp"
                 android:text="@string/scan_qr_code" />
 
             <TextView
+                style="@style/ScanButtonRightText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/ScanButtonRightText"
                 android:layout_marginLeft="70dp"
                 android:text="@string/will_be_provided_by_tc" />
         </LinearLayout>

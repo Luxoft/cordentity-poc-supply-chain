@@ -20,13 +20,10 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.utils.gone
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
-import com.luxoft.supplychain.sovrinagentapp.utils.visible
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.item_claim.view.*
@@ -62,25 +59,17 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
     inner class ClaimViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        var name: TextView = itemView.tv_claim_attr_name
-        var value: TextView = itemView.tv_claim_attr_value
+        var name: TextView = itemView.tv_name
+        var value: TextView = itemView.tv_value
         var schemaId: TextView = itemView.tv_schema_id
-        var linearLayoutLeft: LinearLayout = itemView.linearLayoutLeft
-        var linearLayoutRight: LinearLayout = itemView.linearLayoutRight
 
         fun bind(item: ClaimAttribute?) {
-            if (!item?.key.equals("authorities") && !item?.key.equals("time")) {//TODO wtf???
-                name.text = item?.key
-                value.text = item?.value
-                schemaId.text = item?.schemaId
-                linearLayoutLeft.visible()
-                linearLayoutRight.visible()
-            } else {
-                linearLayoutLeft.gone()
-                linearLayoutRight.gone()
+            item?.let {
+                name.text = it.key
+                value.text = it.value
+                schemaId.text = it.schemaId
             }
         }
-
     }
 
     //endregion HOLDER

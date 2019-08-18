@@ -29,12 +29,17 @@ import android.view.View
 import android.view.ViewGroup
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
+import com.luxoft.supplychain.sovrinagentapp.application.TIME
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
 import org.koin.android.ext.android.inject
+
+const val CLAIMS_QTY = 7
 
 class ClaimsFragment : Fragment() {
 
@@ -44,32 +49,23 @@ class ClaimsFragment : Fragment() {
     private val realm: Realm = Realm.getDefaultInstance()
     private val indyUser: IndyUser by inject()
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_claims, container, false)
-
-//        val getClaimButton = view.findViewById(R.id.get_claims) as Button
-//        getClaimButton.setOnClickListener {
-//            ContextCompat.startActivity(getClaimButton.context,
-//                    Intent().setClass(getClaimButton.context, SimpleScannerActivity::class.java)
-//                            .putExtra("state", PackageState.GETPROOFS.name), null
-//            )
-//        }
-//        getClaimButtonon.visibility = View.VISIBLE
-        return view
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_claims, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val claimsQty = 7
-        textViewProfileHeaderRight.text = getString(R.string.verified_claims, claimsQty)
+        tvClaims.text = getString(R.string.verified_claims, CLAIMS_QTY)
 
         with(recycler) {
             val linearLayoutManager = LinearLayoutManager(activity)
             layoutManager = linearLayoutManager
             setHasFixedSize(true)
             addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
-            adapterRecycler = ClaimsAdapter(realm.where(ClaimAttribute::class.java).sort("key").notEqualTo("key", "authorities").notEqualTo("key", "time").findAll())
+            adapterRecycler = ClaimsAdapter(realm.where(ClaimAttribute::class.java)
+                .sort(FIELD_KEY)
+                .notEqualTo(FIELD_KEY, AUTHORITIES)
+                .notEqualTo(FIELD_KEY, TIME)
+                .findAll())
             adapter = adapterRecycler
         }
 

@@ -17,13 +17,11 @@
 package com.luxoft.supplychain.sovrinagentapp.ui
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +32,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.HistoryAdapter
 import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_history.*
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -41,44 +40,41 @@ import rx.schedulers.Schedulers
 class HistoryFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
-    private var mAdapter: HistoryAdapter? = null
     private val realm: Realm = Realm.getDefaultInstance()
+    private lateinit var recyclerAdapter: HistoryAdapter
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_history, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_history, container, false)
+    }
 
-        val recyclerView = view.findViewById(R.id.fragment_list_rv) as RecyclerView
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        with(recycler) {
+            layoutManager = LinearLayoutManager(activity)
+            setHasFixedSize(true)
+            recyclerAdapter = HistoryAdapter(Realm.getDefaultInstance())
+            adapter = recyclerAdapter
+        }
 
-        val linearLayoutManager = LinearLayoutManager(activity)
-        recyclerView.layoutManager = linearLayoutManager
-        recyclerView.setHasFixedSize(true)
-
-        mAdapter = HistoryAdapter(Realm.getDefaultInstance())
-        recyclerView.adapter = mAdapter
-
-        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container)
+        mSwipeRefreshLayout = swipe_container
         mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
 
         updateMyOrders()
-
-        return view
     }
 
     private fun updateMyOrders() {
         mSwipeRefreshLayout.isRefreshing = true
         api.getPackages().subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    mSwipeRefreshLayout.isRefreshing = false
-                    saveOrders(it)
-                }, { error ->
-                    mSwipeRefreshLayout.isRefreshing = false
-                    showAlertDialog(context!!, "Error loading history: ${error.message}")
-                    Log.e("Error loading history: ", error.message, error)
-                })
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                mSwipeRefreshLayout.isRefreshing = false
+                saveOrders(it)
+            }, { error ->
+                mSwipeRefreshLayout.isRefreshing = false
+                showAlertDialog(context!!, "Error loading history: ${error.message}")
+                Log.e("Error loading history: ", error.message, error)
+            })
     }
 
     private fun saveOrders(offers: List<Product>) {
@@ -90,16 +86,16 @@ class HistoryFragment : Fragment() {
     }
 
     fun showAlertDialogToProvide() = AlertDialog.Builder(context)
-            .setTitle("Claims request")
-            .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
-            .setCancelable(false)
-            .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which: Int) {
-                }
-            })
-            .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which: Int) {
-                }
-            })
-            .show()
+        .setTitle("Claims request")
+        .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
+        .setCancelable(false)
+        .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface, which: Int) {
+            }
+        })
+        .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface, which: Int) {
+            }
+        })
+        .show()
 }

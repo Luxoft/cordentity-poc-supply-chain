@@ -23,10 +23,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.widget.Toast
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.timeline.TimeLineAdapter
 import io.realm.Realm
-
 
 class TrackPackageActivity : AppCompatActivity() {
 
@@ -34,7 +34,7 @@ class TrackPackageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track_product)
 
-        val product = Realm.getDefaultInstance().where(Product::class.java).equalTo("serial", intent.getStringExtra("serial")).findFirst()
+        val product = Realm.getDefaultInstance().where(Product::class.java).equalTo(SERIAL, intent.getStringExtra(SERIAL)).findFirst()
 
         if(product != null) {
             val timeline = findViewById<RecyclerView>(R.id.recyclerView)

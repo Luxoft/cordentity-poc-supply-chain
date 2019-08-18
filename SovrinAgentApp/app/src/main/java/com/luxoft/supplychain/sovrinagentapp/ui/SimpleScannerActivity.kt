@@ -50,6 +50,7 @@ import com.google.gson.Gson
 import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
+import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
 import retrofit.GsonConverterFactory
@@ -137,7 +138,7 @@ class SimpleScannerActivity : AppCompatActivity() {
             mScannerView!!.stopCamera()
 //            drawProgressBar()
 
-            val serial = intent?.getStringExtra("serial")
+            val serial = intent?.getStringExtra(SERIAL)
             collectedAt = intent?.getLongExtra("collected_at", 0)
 
             when (state) {
@@ -188,7 +189,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 .putExtra("result", result)
                                                 .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
                                                 .putExtra("partyDID", partyDID())
-                                                .putExtra("serial", intent?.getStringExtra("serial")),
+                                                .putExtra(SERIAL, intent?.getStringExtra(SERIAL)),
                                         null
                                 )
 
@@ -216,7 +217,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                         agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
                                             val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
                                                 it.getSchemaIdObject().name.contains("package_receipt") &&
-                                                        it.attributes["serial"] == serial
+                                                        it.attributes[SERIAL] == serial
                                             }!!
                                             val authorities =
                                                     SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
@@ -241,12 +242,12 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                                 val provedAuthorities = authorities.mapValues { (_, authority) ->
                                                                     val proofRequest = proofRequest("package_history_req", "1.0") {
                                                                         reveal("status") {
-                                                                            "serial" shouldBe serial
+                                                                            SERIAL shouldBe serial
                                                                             FilterProperty.IssuerDid shouldBe authority.did
                                                                             FilterProperty.SchemaId shouldBe authority.schemaId
                                                                         }
                                                                         reveal("time") {
-                                                                            "serial" shouldBe serial
+                                                                            SERIAL shouldBe serial
                                                                             FilterProperty.IssuerDid shouldBe authority.did
                                                                             FilterProperty.SchemaId shouldBe authority.schemaId
                                                                         }
