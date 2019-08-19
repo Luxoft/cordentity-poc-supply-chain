@@ -51,6 +51,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.STATE
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
 import retrofit.GsonConverterFactory
@@ -130,7 +131,7 @@ class SimpleScannerActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_QR_SCAN) {
             val result = data?.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
 
-            val state = intent?.getStringExtra("state")
+            val state = intent?.getStringExtra(STATE)
             if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
 //        val content: Invite = Invite("http://172.17.0.3:8095/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJ0cmVhdG1lbnRDZW50ZXIiLCAicmVjaXBpZW50S2V5cyI6IFsiSjY2dUp0RVVCMzkxOXB5aTZxUWYydDZTNFdwNkFiMXFnU01aalc3YzV1Q2oiXSwgInNlcnZpY2VFbmRwb2ludCI6ICJodHRwOi8vMTcyLjE3LjAuMzo4MDk1L2luZHkiLCAiQGlkIjogIjA2MjhlMjFhLWJmZGItNDEzNy05OGVjLTE2ZWVhMTIzZDdkOSJ9", "7170c4d8-0477-44b0-86a7-463209e22b00")
             val content by lazy { SerializationUtils.jSONToAny<Invite>(result) }

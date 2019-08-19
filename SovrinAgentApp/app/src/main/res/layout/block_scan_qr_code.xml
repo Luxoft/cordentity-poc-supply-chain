@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayoutScanQr"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@drawable/gradient"
+    android:gravity="start|center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_qr_code" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        style="@style/ScanButtonLeftText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        tools:text="@string/scan_pack_qr_code" />
+
+    <TextView
+        android:id="@+id/tvText"
+        style="@style/ScanButtonRightText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        tools:text="@string/to_check_the_license_list" />
+
+</LinearLayout>

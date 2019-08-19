@@ -16,9 +16,11 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,28 +28,19 @@ import android.view.ViewGroup
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.model.OrdersAdapter
+import com.luxoft.supplychain.sovrinagentapp.utils.showPopup
 import io.realm.Realm
+import io.realm.RealmResults
+import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.util.concurrent.atomic.AtomicInteger
-import android.view.Gravity
-import android.view.WindowManager
-import android.app.Dialog
-import android.content.Context
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.widget.TextView
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
-import com.luxoft.supplychain.sovrinagentapp.utils.showPopup
-import io.realm.RealmResults
-import kotlinx.android.synthetic.main.fragment_orders.*
-import rx.Observable
-import java.util.concurrent.TimeUnit
 
 class OrdersFragment : Fragment() {
 
@@ -62,11 +55,11 @@ class OrdersFragment : Fragment() {
     private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_orders, container, false)
+        return inflater.inflate(R.layout.fragment_recycler, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        with (recycler) {
+        with(recycler) {
             layoutManager = LinearLayoutManager(activity)
             setHasFixedSize(true)
             recyclerAdapter = OrdersAdapter(Realm.getDefaultInstance())
@@ -94,27 +87,27 @@ class OrdersFragment : Fragment() {
 
     private fun updateMyOrders2() {
         api.getPackages().subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    loaded()
-                    saveOrders(it)
-                }, { error ->
-                    Log.e("Get Packages Error: ", error.message, error)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                loaded()
+                saveOrders(it)
+            }, { error ->
+                Log.e("Get Packages Error: ", error.message, error)
 //                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
-                })
+            })
     }
 
     private fun updateMyOrders() {
         mSwipeRefreshLayout.isRefreshing = true
         api.getPackages().subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    loaded()
-                    saveOrders(it)
-                }, { error ->
-                    Log.e("Get Packages Error: ", error.message, error)
-                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
-                })
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                loaded()
+                saveOrders(it)
+            }, { error ->
+                Log.e("Get Packages Error: ", error.message, error)
+                showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
+            })
     }
 
     private fun loaded() {

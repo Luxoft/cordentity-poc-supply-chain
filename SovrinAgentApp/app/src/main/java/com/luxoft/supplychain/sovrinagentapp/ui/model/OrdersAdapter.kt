@@ -26,6 +26,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.STATE
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.*
@@ -97,7 +98,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
         var textViewOrderItemDate: TextView = itemView.textViewOrderItemDate as TextView
         var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
-        var qrButton: View = itemView.linearLayoutScanQr
+        var qrButton: View = itemView.scanQrCode
 //        var sn: TextView = itemView.listitem_sn as TextView
 
         fun bind(order: Product?) {
@@ -112,14 +113,14 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
                     ContextCompat.startActivity(qrButton.context,
                         Intent().setClass(qrButton.context, SimpleScannerActivity::class.java)
                             .putExtra(SERIAL, order.serial)
-                            .putExtra("state", order.state), null
+                            .putExtra(STATE, order.state), null
                     )
                 }
                 showReceiptButton.setOnClickListener {
                     ContextCompat.startActivity(showReceiptButton.context,
                         Intent().setClass(showReceiptButton.context, DigitalReceiptActivity::class.java)
                             .putExtra(SERIAL, order.serial)
-                            .putExtra("state", order.state), null
+                            .putExtra(STATE, order.state), null
                     )
                 }
                 if (it.state.equals(PackageState.ISSUED.name) || it.state.equals(PackageState.PROCESSED.name)) {

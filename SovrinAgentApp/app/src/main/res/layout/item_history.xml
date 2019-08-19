@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:attrs="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardlist_item"
     style="@style/Card"
-    android:layout_marginLeft="24dp"
-    android:layout_marginRight="24dp"
     android:layout_marginBottom="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
+        android:background="@color/white"
         android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="117dp"
-            android:background="#ffffff"
             android:paddingLeft="16dp"
             android:paddingTop="16dp"
             android:paddingRight="16dp">
@@ -27,7 +24,7 @@
                 android:layout_height="47dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="32dp"
-                card_view:srcCompat="@drawable/medicine" />
+                android:src="@drawable/medicine" />
 
             <TextView
                 android:id="@+id/textViewHistoryItemMedicineName"
@@ -58,10 +55,9 @@
                 android:layout_toEndOf="@+id/imageViewSomething"
                 android:text="@string/_18_package_collected_status_check" />
 
-
         </RelativeLayout>
 
-        <FrameLayout
+        <Space
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#dddddd" />
@@ -70,14 +66,12 @@
             android:id="@+id/linearLayoutLicenseList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ffffff"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/linearLayoutExpand"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="#ffffff"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -89,28 +83,23 @@
 
                 <TextView
                     style="@style/LicenseListHeaderText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="14dp"
+                    android:layout_weight="1"
                     android:text="@string/license_list" />
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical">
 
-                    <ImageView
-                        android:id="@+id/imageViewExpand"
-                        android:layout_width="16dp"
-                        android:layout_height="8dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="18dp"
-                        android:layout_marginEnd="22dp"
-                        android:src="@drawable/down" />
-
-                </RelativeLayout>
-
+                <ImageView
+                    android:id="@+id/imageViewExpand"
+                    android:layout_width="16dp"
+                    android:layout_height="8dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="22dp"
+                    android:src="@drawable/down" />
 
             </LinearLayout>
 
@@ -118,7 +107,6 @@
                 android:id="@+id/linearLayoutHistoryContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
                 android:orientation="vertical"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
@@ -126,35 +114,12 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/linearLayoutScanQr"
+        <com.luxoft.supplychain.sovrinagentapp.ui.views.ScanQrCodeView
+            android:id="@+id/scanQrCode"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/gradient"
-            android:gravity="left|center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_qr_code" />
-
-            <TextView
-                style="@style/ScanButtonLeftText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="@string/scan_pack_qr_code" />
-
-            <TextView
-                style="@style/ScanButtonRightText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:text="@string/to_check_the_license_list" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            attrs:qr_code_title="@string/scan_pack_qr_code"
+            attrs:qr_code_text="@string/to_check_the_license_list" />
 
     </LinearLayout>
 

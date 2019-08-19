@@ -28,6 +28,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.STATE
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
@@ -64,12 +65,8 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
     }
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
-        val order = orders[position]
-
-        if (order == null) {
-            Log.i("TAG", "Item not found for index $position")
-        } else {
-            bindNormalItem(order, holder)
+        orders[position]?.let {
+            holder.bind(it)
         }
     }
 
@@ -79,76 +76,76 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
 
     //endregion OVERRIDE
 
-    private fun bindNormalItem(order: Product, holder: OrderViewHolder) {
-        holder.title.text = order.medicineName
-//        holder.sn.text = "SN: " + order.serial
-        holder.message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
-        holder.title.setOnClickListener {
-            startActivity(holder.title.context, Intent().setClass(holder.title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
-        }
-        holder.qrButton.setOnClickListener {
-            ContextCompat.startActivity(holder.qrButton.context,
-                Intent().setClass(holder.qrButton.context, SimpleScannerActivity::class.java)
-                    .putExtra("collected_at", order.collectedAt)
-                    .putExtra(SERIAL, order.serial)
-                    .putExtra("state", order.state), null
-            )
-        }
-        holder.linearLayoutExpand.setOnClickListener {
-            if (holder.linearLayoutHistoryContent.visibility == View.GONE) {
-                holder.linearLayoutHistoryContent.visible()
-                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.up))
-            } else {
-                holder.linearLayoutHistoryContent.gone()
-                holder.imageViewExpand.setImageDrawable(holder.imageViewExpand.context.getDrawable(R.drawable.down))
-            }
-        }
-
-        holder.linearLayoutHistoryContent.removeAllViews()
-
-
-        //TODO wtf???
-        val view: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-        val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-        val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-        textViewHistoryContentItemHeader.text = "DID LICENSE"
-        textViewHistoryContentItemName.text = "09928390239TYDVCHD8999"
-        holder.linearLayoutHistoryContent.addView(view)
-
-        val view1: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-        val textViewHistoryContentItemHeader1 = view1?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-        val textViewHistoryContentItemName1 = view1?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-        textViewHistoryContentItemHeader1.text = "AUTHORITY"
-        textViewHistoryContentItemName1.text = "TC SEEHOF"
-        holder.linearLayoutHistoryContent.addView(view1)
-
-        val view2: View? = View.inflate(holder.itemView.context, R.layout.item_history_content, null)
-        val textViewHistoryContentItemHeader2 = view2?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-        val textViewHistoryContentItemName2 = view2?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-        textViewHistoryContentItemHeader2.text = "MANUFACTURE"
-        textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
-        holder.linearLayoutHistoryContent.addView(view2)
-
-        holder.qrButton.visible()
-        holder.linearLayoutLicenseList.gone()
-        for (productOperation in productOperations) {
-            if (productOperation.at!! == order.collectedAt && productOperation.by.equals("approved")) {
-                holder.qrButton.gone()
-                holder.linearLayoutLicenseList.visible()
-            }
-        }
-        holder.textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
-    }
-
     inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
         var message: TextView = itemView.textViewHistoryItemMessage as TextView
         var textViewHistoryItemDate: TextView = itemView.textViewHistoryItemDate as TextView
-        var qrButton: View = itemView.linearLayoutScanQr
+        var qrButton: View = itemView.scanQrCode
         var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
         var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
         var linearLayoutExpand: LinearLayout = itemView.linearLayoutExpand
         var imageViewExpand: ImageView = itemView.imageViewExpand
 //        var sn: TextView = itemView.listitem_sn as TextView
+
+        fun bind(order: Product) {
+            title.text = order.medicineName
+//        holder.sn.text = "SN: " + order.serial
+            message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
+            title.setOnClickListener {
+                startActivity(title.context, Intent().setClass(title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
+            }
+            qrButton.setOnClickListener {
+                ContextCompat.startActivity(qrButton.context,
+                    Intent().setClass(qrButton.context, SimpleScannerActivity::class.java)
+                        .putExtra("collected_at", order.collectedAt)
+                        .putExtra(SERIAL, order.serial)
+                        .putExtra(STATE, order.state), null
+                )
+            }
+            linearLayoutExpand.setOnClickListener {
+                if (linearLayoutHistoryContent.visibility == View.GONE) {
+                    linearLayoutHistoryContent.visible()
+                    imageViewExpand.setImageDrawable(imageViewExpand.context.getDrawable(R.drawable.up))
+                } else {
+                    linearLayoutHistoryContent.gone()
+                    imageViewExpand.setImageDrawable(imageViewExpand.context.getDrawable(R.drawable.down))
+                }
+            }
+
+            linearLayoutHistoryContent.removeAllViews()
+
+
+            //TODO wtf???
+            val view: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
+            val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+            val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+            textViewHistoryContentItemHeader.text = "DID LICENSE"
+            textViewHistoryContentItemName.text = "09928390239TYDVCHD8999"
+            linearLayoutHistoryContent.addView(view)
+
+            val view1: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
+            val textViewHistoryContentItemHeader1 = view1?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+            val textViewHistoryContentItemName1 = view1?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+            textViewHistoryContentItemHeader1.text = "AUTHORITY"
+            textViewHistoryContentItemName1.text = "TC SEEHOF"
+            linearLayoutHistoryContent.addView(view1)
+
+            val view2: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
+            val textViewHistoryContentItemHeader2 = view2?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
+            val textViewHistoryContentItemName2 = view2?.findViewById(R.id.textViewHistoryContentItemName) as TextView
+            textViewHistoryContentItemHeader2.text = "MANUFACTURE"
+            textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
+            linearLayoutHistoryContent.addView(view2)
+
+            qrButton.visible()
+            linearLayoutLicenseList.gone()
+            for (productOperation in productOperations) {
+                if (productOperation.at!! == order.collectedAt && productOperation.by.equals("approved")) {
+                    qrButton.gone()
+                    linearLayoutLicenseList.visible()
+                }
+            }
+            textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
+        }
     }
 }

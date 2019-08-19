@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:attrs="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardlist_item"
     style="@style/Card"
-    android:layout_marginRight="24dp"
     android:layout_marginBottom="5dp"
     android:orientation="vertical">
 
@@ -136,35 +136,12 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/linearLayoutScanQr"
+        <com.luxoft.supplychain.sovrinagentapp.ui.views.ScanQrCodeView
+            android:id="@+id/scanQrCode"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/gradient"
-            android:gravity="left|center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_qr_code" />
-
-            <TextView
-                style="@style/ScanButtonLeftText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="11dp"
-                android:text="@string/scan_qr_code" />
-
-            <TextView
-                style="@style/ScanButtonRightText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="70dp"
-                android:text="@string/will_be_provided_by_tc" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            attrs:qr_code_text="@string/will_be_provided_by_tc"
+            attrs:qr_code_title="@string/scan_qr_code" />
 
     </LinearLayout>
 

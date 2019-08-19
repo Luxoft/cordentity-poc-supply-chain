@@ -11,5 +11,6 @@
     <color name="gray_light">#818181</color>
     <color name="gray_dark">#5a564e</color>
     <color name="gray_bg">#f4f4f4</color>
+    <color name="gray_header">#363636</color>
 
 </resources>

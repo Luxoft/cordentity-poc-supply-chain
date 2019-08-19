@@ -60,7 +60,7 @@
         <item name="android:textSize">16.5sp</item>
         <item name="android:fontFamily">roboto-regular</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#363636</item>
+        <item name="android:textColor">@color/gray_header</item>
     </style>
 
     <style name="MedicineMessageText">
@@ -123,14 +123,7 @@
         <item name="android:textSize">23sp</item>
         <item name="android:fontFamily">roboto-regular</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#363636</item>
-    </style>
-
-    <style name="ReceiptBottomText">
-        <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">roboto-light</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#b5b5b5</item>
+        <item name="android:textColor">@color/gray_header</item>
     </style>
 
     <style name="ReceiptItemHeaderText">

@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:background="@drawable/gradient"
-        android:text="Agree"
+        android:text="@string/btn_agree"
         tools:layout_editor_absoluteX="33dp" />
+
 </LinearLayout>

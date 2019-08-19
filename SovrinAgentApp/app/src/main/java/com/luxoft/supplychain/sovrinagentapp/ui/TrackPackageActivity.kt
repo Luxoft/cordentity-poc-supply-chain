@@ -27,6 +27,7 @@ import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.timeline.TimeLineAdapter
 import io.realm.Realm
+import kotlinx.android.synthetic.main.activity_track_product.*
 
 class TrackPackageActivity : AppCompatActivity() {
 
@@ -36,15 +37,17 @@ class TrackPackageActivity : AppCompatActivity() {
 
         val product = Realm.getDefaultInstance().where(Product::class.java).equalTo(SERIAL, intent.getStringExtra(SERIAL)).findFirst()
 
-        if(product != null) {
-            val timeline = findViewById<RecyclerView>(R.id.recyclerView)
-            timeline.adapter = TimeLineAdapter(product)
-            timeline.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-            timeline.setHasFixedSize(true)
-
+        if (product != null) {
+            with(recyclerView) {
+                adapter = TimeLineAdapter(product)
+                layoutManager = LinearLayoutManager(this@TrackPackageActivity, LinearLayoutManager.VERTICAL, false)
+                setHasFixedSize(true)
+            }
             title = product.medicineName
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
+            supportActionBar?.let {
+                it.setDisplayHomeAsUpEnabled(true)
+                it.setHomeAsUpIndicator(R.drawable.ic_back)
+            }
         } else {
             Toast.makeText(this, "Item not found", Toast.LENGTH_LONG).show()
             finish()

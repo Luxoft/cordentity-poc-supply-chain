@@ -50,26 +50,29 @@ class DigitalReceiptActivity : AppCompatActivity() {
         var textViewReceiptItemDID: TextView
         var textViewReceiptItemSchemaId: TextView
 
-        for (mutableEntry in authorityInfoMap) {
+        authorityInfoMap?.let {
+            for (mutableEntry in authorityInfoMap) {
 
-            val view: View? = layoutInflater.inflate(R.layout.item_receipt, null)
-            textViewReceiptItemHeader = view?.findViewById(R.id.textViewReceiptItemHeader) as TextView
-            textViewReceiptItemName = view?.findViewById(R.id.textViewReceiptItemName) as TextView
-            textViewReceiptItemDID = view?.findViewById(R.id.textViewReceiptItemDID) as TextView
-            textViewReceiptItemSchemaId = view?.findViewById(R.id.textViewReceiptItemSchemaId) as TextView
+                val view: View? = layoutInflater.inflate(R.layout.item_receipt, null)
+                textViewReceiptItemHeader = view?.findViewById(R.id.textViewReceiptItemHeader) as TextView
+                textViewReceiptItemName = view?.findViewById(R.id.textViewReceiptItemName) as TextView
+                textViewReceiptItemDID = view?.findViewById(R.id.textViewReceiptItemDID) as TextView
+                textViewReceiptItemSchemaId = view?.findViewById(R.id.textViewReceiptItemSchemaId) as TextView
 
-            textViewReceiptItemHeader.text = mutableEntry.key
-            if (mutableEntry.key.startsWith("T")) {
-                textViewReceiptItemName.text = "TC SEEHOF"
-            } else {
-                textViewReceiptItemName.text = "Manufacturing Astura 673434"
+                textViewReceiptItemHeader.text = mutableEntry.key
+                if (mutableEntry.key.startsWith("T")) {
+                    textViewReceiptItemName.text = "TC SEEHOF"
+                } else {
+                    textViewReceiptItemName.text = "Manufacturing Astura 673434"
+                }
+                textViewReceiptItemDID.text = mutableEntry.value.did
+                textViewReceiptItemSchemaId.text = mutableEntry.value.schemaId
+
+
+                linearLayoutReceiptContent.addView(view)
             }
-            textViewReceiptItemDID.text = mutableEntry.value.did
-            textViewReceiptItemSchemaId.text = mutableEntry.value.schemaId
-
-
-            linearLayoutReceiptContent.addView(view)
         }
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
