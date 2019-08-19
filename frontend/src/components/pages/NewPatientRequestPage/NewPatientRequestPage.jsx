@@ -1,19 +1,18 @@
 import React from 'react';
-import Icon1 from '../../../assets/img/icon-first.png';
-import Icon2 from '../../../assets/img/icon-second.png';
-import Icon3 from '../../../assets/img/icon-third.png';
+import QRCode from '../../../assets/img/qr-code.png';
+import BackBtn from '../../../assets/img/back-btn.svg';
 import BgPNG from '../../../assets/img/back@3x.png';
 import SchemePNG from '../../../assets/img/cvc@3x.png';
 import Scheme1PNG from '../../../assets/img/scheme1.png';
 import luxLogoPng from '../../../assets/img/luxoft-03-logo-white@3x.png';
 import classSet from 'react-classset';
-import './HomePage.scss';
+import './NewPatientRequestPage.scss';
 import {doNavigate} from '../../../index';
 import {ENTITY_MODIFIERS, users} from '../../../utils';
 import Footer from '../../common/Footer/Footer';
 
 
-export default class HomePage extends React.Component {
+export default class NewPatientRequestPage extends React.Component {
     state = {
         cardClicked: false,
         loaded: false,
@@ -64,9 +63,6 @@ export default class HomePage extends React.Component {
                         </div>
                         <div className='header-wrapper'>
                             <h1>Blockchain-powered solution for personalized medicine</h1>
-                            <button onClick={this.handleNewRequestClick} className='new-request-btn'>
-                                New patient request
-                            </button>
                         </div>
                         <nav>
                             <ul>
@@ -96,46 +92,18 @@ export default class HomePage extends React.Component {
                                 </div>
                                 : page === 1
                                 ? <div className={demoClasses}>
-                                    <div className='text-card'>
-                                        <img className='icon' src={Icon1} alt=""/>
-                                        <div className='text'>
-                                            <p>
-                                                <b>Patients</b> have all their identity verifications in the app,
-                                                giving them ability to identify themselves at <b>treatment centres</b> in
-                                                order to request a personalized medicine for their condition.
-                                            </p>
-                                            <p>
-                                                They can track <b>delivery process</b> and receive <b>notifications</b> when
-                                                the medicine is ready.
-                                            </p>
-                                        </div>
+                                    <img onClick={this.handleToHomeClick} src={BackBtn} alt="" className="back-btn"/>
+                                    <div className="scan-qr-area">
+                                        <img src={QRCode} alt=""/>
                                     </div>
-                                    <div className='text-card'>
-                                        <img className='icon' src={Icon2} alt=""/>
-                                        <div className='text'>
-                                            <p>
-                                                <b>Treatment centres</b> are authorised to create medicine production
-                                                requests to the <b>Manufacturing companies</b>.
-                                            </p>
-                                            <p>
-                                                After the request is made, it is possible
-                                                to <b>track the manufacturing</b> and <b>delivery process</b>.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className='text-card'>
-                                        <img className='icon' src={Icon3} alt=""/>
-                                        <div className='text'>
-                                            <p>
-                                                <b>Manufacturers</b> digitalize production, so that is it clear when
-                                                the drug is ready, packed and shipped.
-                                            </p>
-                                            <p>
-                                                Shared information includes delivery requirements, such as temperature
-                                                and vibration levels, which can be synced with the smart Dewar
-                                                containers automatically when needed.
-                                            </p>
-                                        </div>
+                                    <div className='description'>
+                                        <p><b>New patient request</b></p>
+                                        <p>
+                                            Ask patient to scan this QR code in order to verify the identity and prescription.
+                                        </p>
+                                        <p>
+                                            Once confirmed, the request will be sent to the assigned Manufacturer.
+                                        </p>
                                     </div>
                                 </div>
                                 : <div className={archClasses}>
@@ -192,9 +160,9 @@ export default class HomePage extends React.Component {
         }
     };
 
-    handleNewRequestClick = () => {
+    handleToHomeClick = () => {
         setTimeout(() => {
-            doNavigate('/request');
+            doNavigate('/');
         }, 300)
     };
 }

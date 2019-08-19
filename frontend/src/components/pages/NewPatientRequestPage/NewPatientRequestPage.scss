@@ -32,28 +32,6 @@
           margin: 0;
           width: 50%
         }
-
-        .new-request-btn {
-          position: relative;
-          padding: 20px 50px;
-          font-size: 16px;
-          font-family: Roboto, Arial, sans-serif;
-          color: white;
-          font-weight: 100;
-          border-radius: 12px;
-          background: rgb(19,19,19);
-          background: linear-gradient(0deg, rgba(19,19,19,1) 0%, rgba(38,38,38,1) 100%);
-          border: 1px solid #55487f;
-
-          box-shadow: 0px 0px 28px 0px rgba(145, 46, 208, 0.21);
-          cursor: pointer;
-
-          transition: box-shadow .3s ease;
-
-          &:hover {
-            box-shadow: 0px 0px 28px 0px rgba(145, 46, 208, 0.5);
-          }
-        }
       }
 
       nav {
@@ -169,23 +147,44 @@
         flex-flow: row nowrap !important;
         padding-top: 50px;
 
-        .text-card {
+        .back-btn {
+          position: absolute;
+          left: -70px;
+          cursor: pointer;
+        }
+
+        .scan-qr-area {
+          height: 100%;
+          background-color: white;
+          border-radius: 6px;
+          width: 550px;
+          position: relative;
           display: flex;
           flex-flow: row nowrap;
           align-items: flex-start;
-          margin-right: 100px;
+          justify-content: center;
+          padding-top: 100px;
+          margin-bottom: -100%;
+          z-index: 10;
 
-          .icon {
-            width: 45px;
-            margin-right: 17px;
+          img {
+            width: 334px;
+            height: 334px;
           }
+        }
 
-          .text {
-            font-weight: lighter;
-            font-size: 16px;
-            line-height: 18px;
-            color: white;
-            width: 240px;
+        p {
+          margin: 0;
+        }
+
+        .description {
+          margin-left: 80px;
+          font-size: 22px;
+          width: 400px;
+          color: white;
+
+          p {
+            margin-top: 20px;
           }
         }
       }

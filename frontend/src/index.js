@@ -11,6 +11,7 @@ import HomePage from './components/pages/HomePage/HomePage';
 import TreatmentCenterPage from './components/pages/TreatmentCenterPage/TreatmentCenterPage';
 import PatientPage from './components/pages/PatientPage/PatientPage';
 import ManufacturePage from './components/pages/ManufacturePage/ManufacturePage';
+import NewPatientRequestPage from "./components/pages/NewPatientRequestPage/NewPatientRequestPage";
 
 
 const history = createHistory();
@@ -32,9 +33,7 @@ ReactDOM.render(
         <ConnectedRouter history={history}>
             <div id='page-wrapper'>
                 <Route exact path='/' component={HomePage}/>
-                <Route path='/tc' component={TreatmentCenterPage}/>
-                <Route path='/pa' component={PatientPage}/>
-                <Route path='/mf' component={ManufacturePage}/>
+                <Route path='/request' component={NewPatientRequestPage} />
             </div>
         </ConnectedRouter>
     </Provider>,
