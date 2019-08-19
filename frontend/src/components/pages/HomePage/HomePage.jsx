@@ -1,8 +1,9 @@
 import React from 'react';
 import Card from '../../common/Card/Card';
 import BgPNG from '../../../assets/img/back@3x.png';
-import SchemePNG from '../../../assets/img/scheme@3x.png';
+import SchemePNG from '../../../assets/img/cvc@3x.png';
 import Scheme1PNG from '../../../assets/img/scheme1.png';
+import luxLogoPng from '../../../assets/img/luxoft-03-logo-white@3x.png';
 import classSet from 'react-classset';
 import './HomePage.scss';
 import {doNavigate} from '../../../index';
@@ -37,11 +38,13 @@ export default class HomePage extends React.Component {
         const tc = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
         const mf = users[ENTITY_MODIFIERS.MANUFACTURER];
         const cr = users[ENTITY_MODIFIERS.COURIER];
+        const rm = users[ENTITY_MODIFIERS.RISK_MANAGER];
 
         const archClasses = classSet({
             architecture: true,
             fade: true,
-            active: pageChanged
+            active: pageChanged,
+            about: page === -1
         });
 
         const demoClasses = classSet({
@@ -53,28 +56,31 @@ export default class HomePage extends React.Component {
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
                 <header>
-                    <h1>Blockchain-powered solution for personalized medicine</h1>
+                    <div className='title-wrapper'>
+                        <h1>Blockchain-powered solution for personalized medicine</h1>
+                        <nav>
+                            <ul>
+                                <li>
+                                    <a className={page === 1 ? 'active' : ''} onClick={this.handleToDemo}>Demo</a>
+                                </li>
+                                <li>
+                                    <a className={page === 0 ? 'active' : ''} onClick={this.handleToArchitecture}>
+                                        Architecture
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className={page === -1 ? 'active' : ''} onClick={this.handleToAbout}>
+                                        About
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div className='logo-wrapper'>
+                        <img src={luxLogoPng} alt='Luxoft Logo' />
+                    </div>
                 </header>
                 <article>
-                    <nav>
-                        <ul>
-                            <li>
-                                <a onClick={this.handleToAbout}>
-                                    {page === -1 ? <b>About</b> : 'About'}
-                                </a>
-                            </li>
-                            <li>
-                                <a onClick={this.handleToArchitecture}>
-                                    {page === 0 ? <b>Architecture</b> : 'Architecture'}
-                                </a>
-                            </li>
-                            <li>
-                                <a onClick={this.handleToDemo}>
-                                    {page === 1 ? <b>Demo</b> : 'Demo'}
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
                     <div className="content-wrapper">
                         {
                             page === 0
@@ -89,10 +95,17 @@ export default class HomePage extends React.Component {
                                           imgTitle={tc.name}/>
                                     <Card onClick={this.handleCardClick(mf.url)} header={mf.description} imgSrc={mf.avatar}
                                           imgTitle={mf.name}/>
-                                    <Card onClick={this.handleCardClick(cr.url)} disabled header={cr.description}
-                                          imgSrc={cr.avatar} imgTitle={cr.name}/>
+                                    <Card disabled header={cr.description} imgSrc={cr.avatar} imgTitle={cr.name}/>
+                                    <Card disabled header={rm.description} imgSrc={rm.avatar} imgTitle={rm.name}/>
                                 </div>
                                 : <div className={archClasses}>
+                                    <div className='text-wrapper'>
+                                        <p>Trusted Identity backed by credentials</p>
+                                        <p>Patient privacy is preserved</p>
+                                        <p>Digital proof of every change of custody is tracked</p>
+                                        <p>Quality certificates are attached to the package</p>
+                                        <p>Embedded license and certification enforcement</p>
+                                    </div>
                                     <img src={SchemePNG} data-rjs="3" alt="About"/>
                                 </div>
                         }

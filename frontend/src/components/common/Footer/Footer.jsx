@@ -12,9 +12,6 @@ export default class Footer extends React.Component {
     render() {
         return (
             <footer className='footer'>
-                <div className='luxoft-logo'>
-                    <img src={LuxoftLogoPNG} data-rjs="3" alt="Luxoft"/>
-                </div>
                 <div className='partners-logos'>
                     <img id='sovrin-logo' src={SovrinLogoPNG} alt="Sovrin"/>
                     <img src={CordaLogoPNG} alt="Corda"/>
