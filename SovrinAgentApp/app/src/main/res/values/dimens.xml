@@ -3,8 +3,14 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <dimen name="screen_padding">16dp</dimen>
+
     <dimen name="text_small">10sp</dimen>
     <dimen name="text_medium">12sp</dimen>
     <dimen name="text_big">15.5sp</dimen>
     <dimen name="text_title">17.5sp</dimen>
+
+    <dimen name="card_corners">4dp</dimen>
+    <dimen name="card_item_image_width">56dp</dimen>
+    <dimen name="card_item_image_height">47dp</dimen>
 </resources>

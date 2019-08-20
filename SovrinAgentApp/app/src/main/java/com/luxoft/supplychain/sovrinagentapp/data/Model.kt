@@ -18,6 +18,7 @@ package com.luxoft.supplychain.sovrinagentapp.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.realm.RealmObject
+import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 import kotlin.collections.HashMap

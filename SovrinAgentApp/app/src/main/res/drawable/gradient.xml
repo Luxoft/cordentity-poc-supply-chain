@@ -7,9 +7,9 @@
             android:angle="270" />
 
     <corners
-            android:bottomRightRadius="4dp"
-            android:bottomLeftRadius="4dp"
-            android:topLeftRadius="4dp"
-            android:topRightRadius="4dp"/>
+            android:bottomRightRadius="@dimen/card_corners"
+            android:bottomLeftRadius="@dimen/card_corners"
+            android:topLeftRadius="@dimen/card_corners"
+            android:topRightRadius="@dimen/card_corners"/>
 
 </shape>

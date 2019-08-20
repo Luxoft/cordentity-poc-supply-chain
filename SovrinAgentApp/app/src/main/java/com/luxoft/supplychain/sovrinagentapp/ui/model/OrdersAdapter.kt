@@ -21,7 +21,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.*
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
@@ -29,7 +30,9 @@ import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.STATE
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.ui.*
+import com.luxoft.supplychain.sovrinagentapp.ui.DigitalReceiptActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
 import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
 import com.luxoft.supplychain.sovrinagentapp.utils.gone
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
@@ -38,6 +41,7 @@ import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import io.realm.Sort
+import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_order.view.*
 
 class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderViewHolder>() {
@@ -79,7 +83,7 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         holder.setIsRecyclable(false)
-        holder.bind(orders[position])
+        orders[position]?.let { holder.bind(it) }
     }
 
     override fun getItemCount(): Int {
@@ -91,56 +95,57 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
     //region ******************** HOLDERS **********************************************************
 
     open inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.textViewOrderItemMedicineName as TextView
-        var message: TextView = itemView.textViewOrderItemMessage as TextView
-        var textViewAddressHeader: TextView = itemView.textViewAddressHeader as TextView
-        var textViewAddress: TextView = itemView.textViewAddress as TextView
-        var textViewOrderItemDate: TextView = itemView.textViewOrderItemDate as TextView
-        var imageViewMapMarker: ImageView = itemView.imageViewMapMarker as ImageView
+        var title: TextView = itemView.tvName
+        var message: TextView = itemView.tvMessage
+        var addressHeader: TextView = itemView.tvAddressHeader
+        var address: TextView = itemView.tvAddress
+        var date: TextView = itemView.tvDate
+        var marker: ImageView = itemView.marker
         var showReceiptButton: View = itemView.linearLayoutShowReceipt
         var qrButton: View = itemView.scanQrCode
-//        var sn: TextView = itemView.listitem_sn as TextView
 
-        fun bind(order: Product?) {
-            order?.let {
-                title.text = it.medicineName
-//                sn.text = "SN: " + order.serial
-                message.text = it.currentStateMessage(PackageState.valueOf(it.state!!).ordinal)
-                title.setOnClickListener {
-                    startActivity(title.context, Intent().setClass(title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
-                }
-                qrButton.setOnClickListener {
-                    ContextCompat.startActivity(qrButton.context,
-                        Intent().setClass(qrButton.context, SimpleScannerActivity::class.java)
-                            .putExtra(SERIAL, order.serial)
-                            .putExtra(STATE, order.state), null
-                    )
-                }
-                showReceiptButton.setOnClickListener {
-                    ContextCompat.startActivity(showReceiptButton.context,
-                        Intent().setClass(showReceiptButton.context, DigitalReceiptActivity::class.java)
-                            .putExtra(SERIAL, order.serial)
-                            .putExtra(STATE, order.state), null
-                    )
-                }
-                if (it.state.equals(PackageState.ISSUED.name) || it.state.equals(PackageState.PROCESSED.name)) {
-                    qrButton.gone()
-                    showReceiptButton.visible()
-                    textViewAddressHeader.gone()
-                    textViewAddress.gone()
-                    imageViewMapMarker.gone()
-                }
-                if (order.state.equals(PackageState.DELIVERED.name)) {
-                    qrButton.visible()
-                    showReceiptButton.visible()
-                    textViewAddressHeader.gone()
-                    textViewAddress.gone()
-                    imageViewMapMarker.gone()
-                }
-                textViewOrderItemDate.text =  DateTimeUtils.parseDateTime (it.deliveredAt
-                    ?: it.processedAt ?: it.issuedAt
-                    ?: System.currentTimeMillis(), "dd MMM yyyy")
+        fun bind(order: Product) {
+            title.text = order.medicineName
+            message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
+            title.setOnClickListener {
+                startActivity(title.context, Intent().setClass(title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
             }
+            qrButton.setOnClickListener {
+                ContextCompat.startActivity(qrButton.context,
+                    Intent().setClass(qrButton.context, SimpleScannerActivity::class.java)
+                        .putExtra(SERIAL, order.serial)
+                        .putExtra(STATE, order.state), null
+                )
+            }
+            showReceiptButton.setOnClickListener {
+                ContextCompat.startActivity(showReceiptButton.context,
+                    Intent().setClass(showReceiptButton.context, DigitalReceiptActivity::class.java)
+                        .putExtra(SERIAL, order.serial)
+                        .putExtra(STATE, order.state), null
+                )
+            }
+            if (order.state.equals(PackageState.ISSUED.name) || order.state.equals(PackageState.PROCESSED.name)) {
+                qrButton.gone()
+                showReceiptButton.visible()
+                addressHeader.gone()
+                address.gone()
+                marker.gone()
+            }
+            if (order.state.equals(PackageState.DELIVERED.name)) {
+                qrButton.visible()
+                showReceiptButton.visible()
+                addressHeader.gone()
+                address.gone()
+                marker.gone()
+            }
+            else {
+                address.visible()
+                addressHeader.visible()
+                marker.visible()
+            }
+            date.text = DateTimeUtils.parseDateTime(order.deliveredAt
+                ?: order.processedAt ?: order.issuedAt
+                ?: System.currentTimeMillis(), "dd MMM yyyy")
         }
     }
     //endregion HOLDERS

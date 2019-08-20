@@ -16,11 +16,13 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.model
 
+import android.content.Context
 import android.content.Intent
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.util.SparseBooleanArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -42,14 +44,35 @@ import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
 import io.realm.Sort
+import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_history.view.*
+import kotlinx.android.synthetic.main.item_history_content.view.*
 
 class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
 
     private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("collectedAt", Sort.DESCENDING).isNotNull("collectedAt").findAll()
     private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
-    var realmChangeListener = RealmChangeListener<Realm> {
+    private val itemsState = SparseBooleanArray()
+
+    private val qrCodeClickListener = object : OrderClickListener{
+        override fun click(order: Product, context: Context) {
+            ContextCompat.startActivity(context,
+                Intent().setClass(context, SimpleScannerActivity::class.java)
+                    .putExtra("collected_at", order.collectedAt)
+                    .putExtra(SERIAL, order.serial)
+                    .putExtra(STATE, order.state), null
+            )
+        }
+    }
+
+    private val itemClickListener = object : OrderClickListener{
+        override fun click(order: Product, context: Context) {
+            startActivity(context, Intent().setClass(context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
+        }
+    }
+
+    private var realmChangeListener = RealmChangeListener<Realm> {
         Log.i("TAG", "Change occurred!")
         this.notifyDataSetChanged()
     }
@@ -65,9 +88,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
     }
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
-        orders[position]?.let {
-            holder.bind(it)
-        }
+        orders[position]?.let { holder.bind(it, position) }
     }
 
     override fun getItemCount(): Int {
@@ -77,75 +98,78 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
     //endregion OVERRIDE
 
     inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.textViewHistoryItemMedicineName as TextView
-        var message: TextView = itemView.textViewHistoryItemMessage as TextView
-        var textViewHistoryItemDate: TextView = itemView.textViewHistoryItemDate as TextView
+        var title: TextView = itemView.tvName
+        var message: TextView = itemView.tvMessage
+        var date: TextView = itemView.tvDate
         var qrButton: View = itemView.scanQrCode
-        var linearLayoutHistoryContent: LinearLayout = itemView.linearLayoutHistoryContent
-        var linearLayoutLicenseList: LinearLayout = itemView.linearLayoutLicenseList
-        var linearLayoutExpand: LinearLayout = itemView.linearLayoutExpand
-        var imageViewExpand: ImageView = itemView.imageViewExpand
-//        var sn: TextView = itemView.listitem_sn as TextView
+        var historyContent: LinearLayout = itemView.linearLayoutHistoryContent
+        var licenseList: LinearLayout = itemView.linearLayoutLicenseList
+        var expandContainer: LinearLayout = itemView.linearLayoutExpand
+        var image: ImageView = itemView.imageViewExpand
 
-        fun bind(order: Product) {
+        fun bind(order: Product, position: Int) {
             title.text = order.medicineName
-//        holder.sn.text = "SN: " + order.serial
             message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
             title.setOnClickListener {
-                startActivity(title.context, Intent().setClass(title.context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
+                itemClickListener.click(order, it.context)
             }
             qrButton.setOnClickListener {
-                ContextCompat.startActivity(qrButton.context,
-                    Intent().setClass(qrButton.context, SimpleScannerActivity::class.java)
-                        .putExtra("collected_at", order.collectedAt)
-                        .putExtra(SERIAL, order.serial)
-                        .putExtra(STATE, order.state), null
-                )
-            }
-            linearLayoutExpand.setOnClickListener {
-                if (linearLayoutHistoryContent.visibility == View.GONE) {
-                    linearLayoutHistoryContent.visible()
-                    imageViewExpand.setImageDrawable(imageViewExpand.context.getDrawable(R.drawable.up))
-                } else {
-                    linearLayoutHistoryContent.gone()
-                    imageViewExpand.setImageDrawable(imageViewExpand.context.getDrawable(R.drawable.down))
-                }
+                qrCodeClickListener.click(order, it.context)
             }
 
-            linearLayoutHistoryContent.removeAllViews()
-
-
-            //TODO wtf???
-            val view: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
-            val textViewHistoryContentItemHeader = view?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-            val textViewHistoryContentItemName = view?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-            textViewHistoryContentItemHeader.text = "DID LICENSE"
-            textViewHistoryContentItemName.text = "09928390239TYDVCHD8999"
-            linearLayoutHistoryContent.addView(view)
-
-            val view1: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
-            val textViewHistoryContentItemHeader1 = view1?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-            val textViewHistoryContentItemName1 = view1?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-            textViewHistoryContentItemHeader1.text = "AUTHORITY"
-            textViewHistoryContentItemName1.text = "TC SEEHOF"
-            linearLayoutHistoryContent.addView(view1)
-
-            val view2: View? = View.inflate(itemView.context, R.layout.item_history_content, null)
-            val textViewHistoryContentItemHeader2 = view2?.findViewById(R.id.textViewHistoryContentItemHeader) as TextView
-            val textViewHistoryContentItemName2 = view2?.findViewById(R.id.textViewHistoryContentItemName) as TextView
-            textViewHistoryContentItemHeader2.text = "MANUFACTURE"
-            textViewHistoryContentItemName2.text = "Manufacturing Astura 673434"
-            linearLayoutHistoryContent.addView(view2)
-
+            historyContent.removeAllViews()
             qrButton.visible()
-            linearLayoutLicenseList.gone()
+            licenseList.gone()
             for (productOperation in productOperations) {
                 if (productOperation.at!! == order.collectedAt && productOperation.by.equals("approved")) {
                     qrButton.gone()
-                    linearLayoutLicenseList.visible()
+                    licenseList.visible()
+                    fillLicenseList()
+                    if (itemsState.get(position)) expandLicenseList()
+                    else collapseLicenseList()
+
+                    expandContainer.setOnClickListener {
+                        if (historyContent.visibility == View.GONE) {
+                            itemsState.append(position, true)
+                            expandLicenseList()
+                        } else {
+                            itemsState.append(position, false)
+                            collapseLicenseList()
+                        }
+                    }
+                    break
                 }
             }
-            textViewHistoryItemDate.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
+            date.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
         }
+
+        private fun expandLicenseList() {
+            historyContent.visible()
+            image.setImageDrawable(image.context.getDrawable(R.drawable.up))
+        }
+
+        private fun collapseLicenseList() {
+            historyContent.gone()
+            image.setImageDrawable(image.context.getDrawable(R.drawable.down))
+        }
+
+        private fun fillLicenseList() {
+            fun createView(title: String, text: String): View {
+                val result = itemView.context.inflate(R.layout.item_history_content)
+                result.tv_item_history_title.text = title
+                result.tv_item_history_name.text = text
+
+                return result
+            }
+
+            historyContent.addView(createView("DID LICENSE", "09928390239TYDVCHD8999"))
+            historyContent.addView(createView("AUTHORITY", "TC SEEHOF"))
+            historyContent.addView(createView("MANUFACTURE", "Manufacturing Astura 673434"))
+
+        }
+    }
+
+    private interface OrderClickListener {
+        fun click(order: Product, context: Context)
     }
 }

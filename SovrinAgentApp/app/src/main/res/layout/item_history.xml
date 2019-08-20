@@ -11,73 +11,29 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="117dp"
-            android:paddingLeft="16dp"
-            android:paddingTop="16dp"
-            android:paddingRight="16dp">
-
-            <ImageView
-                android:id="@+id/imageViewSomething"
-                android:layout_width="56dp"
-                android:layout_height="47dp"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="32dp"
-                android:src="@drawable/medicine" />
-
-            <TextView
-                android:id="@+id/textViewHistoryItemMedicineName"
-                style="@style/MedicineHeaderText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:text="Santorium Plus" />
-
-            <TextView
-                android:id="@+id/textViewHistoryItemDate"
-                style="@style/OrderItemDateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="28dp"
-                android:layout_toEndOf="@+id/imageViewSomething"
-                android:text="@string/_24_apr_2018" />
-
-            <TextView
-                android:id="@+id/textViewHistoryItemMessage"
-                style="@style/MedicineMessageText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/textViewHistoryItemDate"
-                android:layout_marginStart="17dp"
-                android:layout_toEndOf="@+id/imageViewSomething"
-                android:text="@string/_18_package_collected_status_check" />
-
-        </RelativeLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#dddddd" />
+        <include layout="@layout/block_medicine_info" />
 
         <LinearLayout
             android:id="@+id/linearLayoutLicenseList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/separator_line"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/linearLayoutExpand"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:background="@color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="18dp"
                     android:src="@drawable/ic_blur_on" />
 
@@ -85,18 +41,14 @@
                     style="@style/LicenseListHeaderText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="14dp"
                     android:layout_weight="1"
                     android:text="@string/license_list" />
-
 
                 <ImageView
                     android:id="@+id/imageViewExpand"
                     android:layout_width="16dp"
                     android:layout_height="8dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="22dp"
                     android:src="@drawable/down" />
@@ -107,9 +59,10 @@
                 android:id="@+id/linearLayoutHistoryContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#fafafa"
                 android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:paddingTop="@dimen/screen_padding"
+                android:paddingBottom="@dimen/screen_padding"
                 android:visibility="gone" />
 
         </LinearLayout>
@@ -118,8 +71,8 @@
             android:id="@+id/scanQrCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            attrs:qr_code_title="@string/scan_pack_qr_code"
-            attrs:qr_code_text="@string/to_check_the_license_list" />
+            attrs:qr_code_text="@string/to_check_the_license_list"
+            attrs:qr_code_title="@string/scan_pack_qr_code" />
 
     </LinearLayout>
 

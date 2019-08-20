@@ -19,27 +19,22 @@ package com.luxoft.supplychain.sovrinagentapp.ui
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.*
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
-import android.view.Gravity
-import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
-import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.di.indyInitialize
 import com.luxoft.supplychain.sovrinagentapp.ui.model.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.showPopup
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
-import org.koin.dsl.module.applicationContext
-import rx.Observable
 import java.io.File
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
 
@@ -67,8 +62,8 @@ class MainActivity : AppCompatActivity() {
         setupCollapsingToolbar()
 
         requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE),
-                REQUEST_CODE
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE),
+            REQUEST_CODE
         )
 
         dialog = Dialog(this)
@@ -105,27 +100,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.title = "Mark Rubinshtein"
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(false)
+            it.title = "Mark Rubinshtein"
+        }
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.menu_claims, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//
-//        return when (item.itemId) {
-//            R.id.action_settings ->
-//                return true
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
 
     private fun initGenesis() {
         val genesis = File(GENESIS_PATH)
@@ -147,18 +126,18 @@ class MainActivity : AppCompatActivity() {
         fun progressBarFactory(context: Context) = ProgressBar(context, null, android.R.attr.progressBarStyleSmall)
 
         fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
-                .setTitle("Error")
-                .setMessage(cause)
-                .setCancelable(false)
-                .setPositiveButton("ok", object : DialogInterface.OnClickListener {
-                    override fun onClick(dialog: DialogInterface, which: Int) {
-                        callback()
-                    }
-                }).show()
+            .setTitle("Error")
+            .setMessage(cause)
+            .setCancelable(false)
+            .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, which: Int) {
+                    callback()
+                }
+            }).show()
     }
 
     lateinit var dialog: Dialog
-    lateinit var ordersFragment:OrdersFragment
+    lateinit var ordersFragment: OrdersFragment
 
     var uiHandler: Handler? = null
     lateinit var myTimer: Timer
@@ -182,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             3 -> {
-                if (dialog != null &&  inProgress) {
+                if (dialog != null && inProgress) {
                     inProgress = false
                     dialog.dismiss()
                     showPopup("Package history", "Your package history is available", false, this)

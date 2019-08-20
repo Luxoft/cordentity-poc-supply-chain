@@ -39,8 +39,6 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
 import org.koin.android.ext.android.inject
 
-const val CLAIMS_QTY = 7
-
 class ClaimsFragment : Fragment() {
 
     private lateinit var adapterRecycler: ClaimsAdapter
@@ -54,18 +52,20 @@ class ClaimsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        tvClaims.text = getString(R.string.verified_claims, CLAIMS_QTY)
+        val claims = realm.where(ClaimAttribute::class.java)
+            .sort(FIELD_KEY)
+            .notEqualTo(FIELD_KEY, AUTHORITIES)
+            .notEqualTo(FIELD_KEY, TIME)
+            .findAll()
+        tvClaims.text = getString(R.string.verified_claims, claims.size)
 
         with(recycler) {
             val linearLayoutManager = LinearLayoutManager(activity)
             layoutManager = linearLayoutManager
             setHasFixedSize(true)
             addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
-            adapterRecycler = ClaimsAdapter(realm.where(ClaimAttribute::class.java)
-                .sort(FIELD_KEY)
-                .notEqualTo(FIELD_KEY, AUTHORITIES)
-                .notEqualTo(FIELD_KEY, TIME)
-                .findAll())
+
+            adapterRecycler = ClaimsAdapter(claims)
             adapter = adapterRecycler
         }
 

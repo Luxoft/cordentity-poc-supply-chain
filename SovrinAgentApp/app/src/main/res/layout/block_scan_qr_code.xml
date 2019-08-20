@@ -4,7 +4,7 @@
     android:id="@+id/linearLayoutScanQr"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="@drawable/gradient"
+    android:background="@drawable/bg_block_qr_code"
     android:gravity="start|center_vertical"
     android:orientation="horizontal"
     android:paddingLeft="16dp"
