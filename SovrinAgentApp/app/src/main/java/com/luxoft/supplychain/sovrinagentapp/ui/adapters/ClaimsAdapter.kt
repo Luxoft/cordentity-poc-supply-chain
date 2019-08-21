@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui.model
+package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -46,7 +46,7 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
     }
 
     override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
-        holder.bind(claims[position])
+        claims[position]?.let { holder.bind(it) }
     }
 
     override fun getItemCount(): Int {

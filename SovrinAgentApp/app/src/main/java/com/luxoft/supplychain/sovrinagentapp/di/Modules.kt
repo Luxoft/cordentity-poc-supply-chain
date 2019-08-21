@@ -28,13 +28,9 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
-import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.ui.GENESIS_PATH
-import io.realm.Realm
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
@@ -98,22 +94,6 @@ fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     }
 
     return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
-}
-
-fun WalletUser.updateCredentialsInRealm() {
-    Realm.getDefaultInstance().executeTransaction {
-        val claims = this.getCredentials().asSequence().map { credRef ->
-            credRef.attributes.entries.map {
-                ClaimAttribute().apply {
-                    key = it.key
-                    value = it.value?.toString()
-                    schemaId = credRef.schemaIdRaw
-                }
-            }
-        }.flatten().toList()
-        it.delete(ClaimAttribute::class.java)
-        it.copyToRealmOrUpdate(claims)
-    }
 }
 
 fun provideApiClient(gson: Gson): SovrinAgentService {

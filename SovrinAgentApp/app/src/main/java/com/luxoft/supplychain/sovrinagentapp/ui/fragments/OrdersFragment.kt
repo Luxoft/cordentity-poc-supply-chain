@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui
+package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -31,9 +31,9 @@ import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
-import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
-import com.luxoft.supplychain.sovrinagentapp.ui.model.OrdersAdapter
-import com.luxoft.supplychain.sovrinagentapp.utils.showPopup
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.OrdersAdapter
+import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_recycler.*
@@ -130,7 +130,7 @@ class OrdersFragment : Fragment() {
                         && productOperation.by.equals("delivered")) delivered = true
                 }
                 if (!delivered) {
-                    showPopup(getString(R.string.your_package_is_ready), getString(R.string.visit_your), true, activity!!)
+                    showNotification(activity!!, getString(R.string.your_package_is_ready), getString(R.string.visit_your))
                     Realm.getDefaultInstance().executeTransaction {
                         val productOperation = it.createObject(ProductOperation::class.java, offer.deliveredAt)
                         productOperation.by = "delivered"

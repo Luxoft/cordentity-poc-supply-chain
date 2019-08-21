@@ -14,13 +14,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui
+package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -33,8 +30,8 @@ import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.TIME
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
-import com.luxoft.supplychain.sovrinagentapp.di.updateCredentialsInRealm
-import com.luxoft.supplychain.sovrinagentapp.ui.model.ClaimsAdapter
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ClaimsAdapter
+import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
 import org.koin.android.ext.android.inject
@@ -72,10 +69,7 @@ class ClaimsFragment : Fragment() {
         swipeRefreshLayout = swipe_container
         swipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
 
-        if (ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            //TODO: Breaks async UX
-            updateMyClaims()
-        }
+        updateMyClaims()
     }
 
     private fun updateMyClaims() {

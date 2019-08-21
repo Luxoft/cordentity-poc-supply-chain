@@ -21,6 +21,9 @@ import android.support.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import io.realm.Realm
 
 fun Context.inflate(@LayoutRes res: Int, parent: ViewGroup? = null) : View {
     return LayoutInflater.from(this).inflate(res, parent, false)
@@ -36,4 +39,20 @@ fun View.invisible() {
 
 fun View.gone() {
     visibility = View.GONE
+}
+
+fun WalletUser.updateCredentialsInRealm() {
+    Realm.getDefaultInstance().executeTransaction {
+        val claims = this.getCredentials().asSequence().map { credRef ->
+            credRef.attributes.entries.map {
+                ClaimAttribute().apply {
+                    key = it.key
+                    value = it.value?.toString()
+                    schemaId = credRef.schemaIdRaw
+                }
+            }
+        }.flatten().toList()
+        it.delete(ClaimAttribute::class.java)
+        it.copyToRealmOrUpdate(claims)
+    }
 }

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui
+package com.luxoft.supplychain.sovrinagentapp.ui.activities
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -25,8 +25,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.popupStatus
-import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.popupStatus
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import io.realm.Realm
 import org.koin.android.ext.android.inject
 import rx.Completable

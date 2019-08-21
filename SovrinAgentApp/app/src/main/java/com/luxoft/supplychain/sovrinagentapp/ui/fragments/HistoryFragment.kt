@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui
+package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -29,8 +29,8 @@ import android.view.ViewGroup
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.ui.MainActivity.Companion.showAlertDialog
-import com.luxoft.supplychain.sovrinagentapp.ui.model.HistoryAdapter
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.HistoryAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject

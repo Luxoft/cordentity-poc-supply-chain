@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui.model
+package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.content.Context
 import android.content.Intent
@@ -34,8 +34,8 @@ import com.luxoft.supplychain.sovrinagentapp.application.STATE
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
-import com.luxoft.supplychain.sovrinagentapp.ui.SimpleScannerActivity
-import com.luxoft.supplychain.sovrinagentapp.ui.TrackPackageActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.TrackPackageActivity
 import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
 import com.luxoft.supplychain.sovrinagentapp.utils.gone
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate

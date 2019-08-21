@@ -38,9 +38,9 @@
                     android:src="@drawable/ic_blur_on" />
 
                 <TextView
-                    style="@style/LicenseListHeaderText"
+                    style="@style/Text"
+                    android:textColor="@color/almost_black"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
                     android:layout_weight="1"
                     android:text="@string/license_list" />

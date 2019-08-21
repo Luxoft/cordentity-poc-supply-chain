@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui
+package com.luxoft.supplychain.sovrinagentapp.ui.activities
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.widget.Toast
 import com.luxoft.supplychain.sovrinagentapp.R

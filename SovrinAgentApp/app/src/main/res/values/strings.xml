@@ -104,17 +104,18 @@
     <string name="santorium_plus">Santorium Plus</string>
     <string name="manufacture">MANUFACTURE</string>
     <string name="manufacturing_astura_673434">Manufacturing Astura 673434</string>
-    <string name="did_09928390239tydvchd8634">DID: 09928390239TYDVCHD8634</string>
-    <string name="schema_id_28379280293">Schema ID: 28379280293</string>
-    <string name="_24_apr_2018">24 Apr 2018</string>
-    <string name="_15_09_pm">15:09 PM</string>
     <string name="new_digital_receipt">New digital receipt</string>
     <string name="your_package_is_ready">Your package is ready for pick-up</string>
     <string name="you_ve_received">You\'ve received digital receipt for your Santorium Plus prescription</string>
     <string name="visit_your">Visit your treatment centre to pick up the package</string>
     <string name="to_check_the_license_list">to check the license list</string>
     <string name="_18_package_collected_status_check">18 Package collected, status: check</string>
+
     <string name="verified">verified</string>
     <string name="license_list">License list</string>
     <string name="btn_agree">Agree</string>
+    <string name="receipt_did">DID: %s</string>
+    <string name="receipt_schema_id">Schema ID: %s</string>
+
+    <string name="title_digital_receipt">Digital Receipt</string>
 </resources>

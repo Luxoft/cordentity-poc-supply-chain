@@ -47,7 +47,7 @@
             android:textColor="#8a000000"
             android:textSize="@dimen/text_small"
             android:visibility="gone"
-            tools:text="@string/_15_09_pm"
+            tools:text="15:09 PM"
             tools:visibility="visible" />
 
     </LinearLayout>

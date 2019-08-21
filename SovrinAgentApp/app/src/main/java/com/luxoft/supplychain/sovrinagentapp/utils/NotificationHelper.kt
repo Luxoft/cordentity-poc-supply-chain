@@ -16,30 +16,44 @@
 
 package com.luxoft.supplychain.sovrinagentapp.utils
 
-import android.app.Dialog
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
-import android.view.Gravity
-import android.view.WindowManager
-import android.widget.TextView
+import android.graphics.BitmapFactory
+import android.os.Build
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import com.luxoft.supplychain.sovrinagentapp.R
-import rx.Observable
-import java.util.concurrent.TimeUnit
+import com.luxoft.supplychain.sovrinagentapp.application.NOTIFICATION_CHANNEL_ID
+import com.luxoft.supplychain.sovrinagentapp.application.NOTIFICATION_CHANNEL_NAME
 
-fun showPopup(header: String, message: String, autoDismiss: Boolean, context: Context) {
-    //TODO to notification
-    val dialog = Dialog(context)
-    dialog.setContentView(R.layout.popup_layout)
-    val textViewPopupHeader: TextView = dialog.findViewById(R.id.tvHeader)
-    val textViewPopupMessage: TextView = dialog.findViewById(R.id.tvMessage)
-    textViewPopupHeader.text = header
-    textViewPopupMessage.text = message
-    dialog.window?.let {
-        it.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
-        it.setGravity(Gravity.TOP)
-    }
-    dialog.show()
+fun showNotification(context: Context, title: String, message: String) {
+    val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.something)
 
-    if (autoDismiss) {
-        Observable.timer(10, TimeUnit.SECONDS).subscribe { dialog.dismiss() }
+    val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+        .setAutoCancel(true)
+        .setLargeIcon(bitmap)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+        .setContentTitle(title)
+        .setContentText(message)
+        .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        builder.setSmallIcon(R.drawable.ic_notification)
+        builder.color = ContextCompat.getColor(context, R.color.colorPrimary)
+
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+    notificationManager?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
+            notificationChannel.enableVibration(true)
+            builder.setChannelId(NOTIFICATION_CHANNEL_ID)
+
+            it.createNotificationChannel(notificationChannel)
+        }
+
+        it.notify(100, builder.build())
     }
 }

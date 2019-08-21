@@ -37,9 +37,8 @@
                 android:src="@drawable/barcode" />
 
             <TextView
-                style="@style/ScanButtonLeftText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/Text"
+                android:textColor="@color/almost_black"
                 android:layout_marginLeft="11dp"
                 android:text="@string/digital_receipt" />
 

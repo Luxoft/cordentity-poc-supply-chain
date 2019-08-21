@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="6dp"
-    android:paddingTop="6dp">
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
     <TextView
         android:id="@+id/tv_item_history_title"
-        style="@style/ReceiptItemHeaderText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Text"
         android:layout_marginStart="18dp"
-        android:text="@string/manufacture" />
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/manufacture"
+        android:textColor="#bbbbbb"
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,22 +30,19 @@
 
         <TextView
             android:id="@+id/tv_item_history_name"
-            style="@style/MedicineMessageText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="14dp"
+            style="@style/Text"
+            android:textColor="@color/gray_dark"
             android:layout_gravity="bottom"
+            android:layout_marginLeft="14dp"
             android:text="@string/manufacturing_astura_673434" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tv_item_history_did"
-        style="@style/HistoryContentItemBottomText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Text"
         android:layout_marginStart="56dp"
         android:layout_marginTop="4dp"
-        android:text="@string/verified" />
-
+        android:text="@string/verified"
+        android:textColor="#7ed321" />
 
 </LinearLayout>

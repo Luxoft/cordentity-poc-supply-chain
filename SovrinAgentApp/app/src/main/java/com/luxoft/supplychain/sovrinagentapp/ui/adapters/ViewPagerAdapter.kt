@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui.model
+package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager

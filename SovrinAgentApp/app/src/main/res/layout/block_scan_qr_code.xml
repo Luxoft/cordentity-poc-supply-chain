@@ -17,19 +17,19 @@
 
     <TextView
         android:id="@+id/tvTitle"
-        style="@style/ScanButtonLeftText"
+        style="@style/Text"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_weight="1"
+        android:textColor="@color/almost_black"
         tools:text="@string/scan_pack_qr_code" />
 
     <TextView
         android:id="@+id/tvText"
-        style="@style/ScanButtonRightText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Text"
         android:layout_marginLeft="12dp"
+        android:textColor="#424242"
+        android:textSize="@dimen/text_small"
         tools:text="@string/to_check_the_license_list" />
 
 </LinearLayout>
