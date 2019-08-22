@@ -36,8 +36,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
-import com.luxoft.supplychain.sovrinagentapp.application.STATE
+import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
@@ -78,22 +77,21 @@ class SimpleScannerActivity : AppCompatActivity() {
             it.setHomeAsUpIndicator(R.drawable.ic_back)
         }
 
-        val i = Intent(this@SimpleScannerActivity, QrCodeActivity::class.java)
-        startActivityForResult(i, requestCodeScan)
+        startActivityForResult(Intent(this@SimpleScannerActivity, QrCodeActivity::class.java), requestCodeScan)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == requestCodeScan) {
             if (resultCode == Activity.RESULT_OK) {
-                val result = data?.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
+                val result = data?.getStringExtra(QR_SCANNER_CODE_EXTRA)
 
-                val state = intent?.getStringExtra(STATE)
+                val state = intent?.getStringExtra(EXTRA_STATE)
                 if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
                 val content by lazy { SerializationUtils.jSONToAny<Invite>(result) }
 
                 mScannerView!!.stopCamera()
 
-                val serial = intent?.getStringExtra(SERIAL)
+                val serial = intent?.getStringExtra(EXTRA_SERIAL)
                 collectedAt = intent?.getLongExtra("collected_at", 0)
 
                 when (state) {
@@ -144,7 +142,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             .putExtra("result", result)
                                             .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
                                             .putExtra("partyDID", partyDID())
-                                            .putExtra(SERIAL, intent?.getStringExtra(SERIAL)),
+                                            .putExtra(EXTRA_SERIAL, intent?.getStringExtra(EXTRA_SERIAL)),
                                         null
                                     )
 
@@ -173,10 +171,10 @@ class SimpleScannerActivity : AppCompatActivity() {
                                         agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
                                             val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
                                                 it.getSchemaIdObject().name.contains("package_receipt") &&
-                                                    it.attributes[SERIAL] == serial
+                                                    it.attributes[EXTRA_SERIAL] == serial
                                             }!!
                                             val authorities =
-                                                SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes["authorities"].toString())
+                                                SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes[AUTHORITIES].toString())
 
                                             val proofRequest = receiveProofRequest().toBlocking().value()
                                             val requestedDataBuilder = StringBuilder()
@@ -198,12 +196,12 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                             val provedAuthorities = authorities.mapValues { (_, authority) ->
                                                                 val proofRequest = proofRequest("package_history_req", "1.0") {
                                                                     reveal("status") {
-                                                                        SERIAL shouldBe serial
+                                                                        EXTRA_SERIAL shouldBe serial
                                                                         FilterProperty.IssuerDid shouldBe authority.did
                                                                         FilterProperty.SchemaId shouldBe authority.schemaId
                                                                     }
-                                                                    reveal("time") {
-                                                                        SERIAL shouldBe serial
+                                                                    reveal(TIME) {
+                                                                        EXTRA_SERIAL shouldBe serial
                                                                         FilterProperty.IssuerDid shouldBe authority.did
                                                                         FilterProperty.SchemaId shouldBe authority.schemaId
                                                                     }

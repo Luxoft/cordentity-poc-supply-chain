@@ -52,7 +52,6 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(recycler) {
             layoutManager = LinearLayoutManager(activity)
-            setHasFixedSize(true)
             recyclerAdapter = HistoryAdapter(Realm.getDefaultInstance())
             adapter = recyclerAdapter
         }

@@ -22,9 +22,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import android.widget.Toast
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.ui.timeline.TimeLineAdapter
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.TimeLineAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_track_product.*
 
@@ -34,7 +34,7 @@ class TrackPackageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track_product)
 
-        val product = Realm.getDefaultInstance().where(Product::class.java).equalTo(SERIAL, intent.getStringExtra(SERIAL)).findFirst()
+        val product = Realm.getDefaultInstance().where(Product::class.java).equalTo(EXTRA_SERIAL, intent.getStringExtra(EXTRA_SERIAL)).findFirst()
 
         if (product != null) {
             with(recyclerView) {

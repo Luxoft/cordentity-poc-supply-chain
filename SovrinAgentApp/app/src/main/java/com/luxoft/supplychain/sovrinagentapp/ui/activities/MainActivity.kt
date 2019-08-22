@@ -21,8 +21,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
@@ -33,7 +31,6 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,7 +83,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         var popupStatus: AtomicInteger = AtomicInteger(0)
         var inProgress: Boolean = false
-        fun progressBarFactory(context: Context) = ProgressBar(context, null, android.R.attr.progressBarStyleSmall)
 
         fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
             .setTitle("Error")
@@ -99,8 +95,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var myTimer: Timer
     val timeoutRunnable = Runnable {
         when (popupStatus.get()) {
-            0 -> {
-            }
+            0 -> {}
             1 -> {//in progress
                 if (!inProgress) {
                     showNotification(this, "In progress", "")
@@ -133,14 +128,4 @@ class MainActivity : AppCompatActivity() {
         uiHandler = Handler()
         myTimer.schedule(timeoutTimerTask, 1L * 1000, 1L * 1000)
     }
-}
-
-fun AppCompatActivity.drawProgressBar(sizeInDP: Int = 100) {
-    val dpDensity = getResources().getDisplayMetrics().density
-    val layout = RelativeLayout(this)
-    val params = RelativeLayout.LayoutParams((sizeInDP * dpDensity).roundToInt(), (sizeInDP * dpDensity).roundToInt())
-    params.addRule(RelativeLayout.CENTER_IN_PARENT)
-    layout.addView(MainActivity.progressBarFactory(baseContext), params)
-
-    setContentView(layout)
 }

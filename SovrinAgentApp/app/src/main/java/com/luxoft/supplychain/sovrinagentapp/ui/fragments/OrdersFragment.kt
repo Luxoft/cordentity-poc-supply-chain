@@ -45,9 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class OrdersFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
-    private val agentConnection: AgentConnection by inject()
-    private var recyclerAdapter: OrdersAdapter? = null
     private val realm: Realm = Realm.getDefaultInstance()
+    private var recyclerAdapter: OrdersAdapter? = null
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private val loaded = AtomicInteger(0)
@@ -61,7 +60,6 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(recycler) {
             layoutManager = LinearLayoutManager(activity)
-            setHasFixedSize(true)
             recyclerAdapter = OrdersAdapter(Realm.getDefaultInstance())
             adapter = recyclerAdapter
         }

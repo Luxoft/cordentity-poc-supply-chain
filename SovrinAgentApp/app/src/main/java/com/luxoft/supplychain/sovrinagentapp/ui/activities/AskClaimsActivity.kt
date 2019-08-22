@@ -65,7 +65,7 @@ class AskClaimsActivity : AppCompatActivity() {
     private fun provide() {
         Completable.complete().observeOn(Schedulers.io()).subscribe({
             popupStatus = AtomicInteger(1)
-            finish()
+            finish() //TODO??????
 
             val partyDid = intent?.getStringExtra("partyDID")!!
             val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)

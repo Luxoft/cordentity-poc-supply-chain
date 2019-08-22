@@ -59,7 +59,6 @@ class ClaimsFragment : Fragment() {
         with(recycler) {
             val linearLayoutManager = LinearLayoutManager(activity)
             layoutManager = linearLayoutManager
-            setHasFixedSize(true)
             addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
 
             adapterRecycler = ClaimsAdapter(claims)

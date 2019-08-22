@@ -29,17 +29,16 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.SERIAL
-import com.luxoft.supplychain.sovrinagentapp.application.STATE
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_COLLECTED_AT
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.TrackPackageActivity
-import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
-import com.luxoft.supplychain.sovrinagentapp.utils.gone
-import com.luxoft.supplychain.sovrinagentapp.utils.inflate
-import com.luxoft.supplychain.sovrinagentapp.utils.visible
+import com.luxoft.supplychain.sovrinagentapp.utils.*
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
@@ -47,28 +46,34 @@ import io.realm.Sort
 import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_history.view.*
 import kotlinx.android.synthetic.main.item_history_content.view.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
 
-    private val orders: RealmResults<Product> = realm.where(Product::class.java).sort("collectedAt", Sort.DESCENDING).isNotNull("collectedAt").findAll()
+    private val orders: RealmResults<Product> = realm.where(Product::class.java)
+        .sort(FIELD_COLLECTED_AT, Sort.DESCENDING)
+        .isNotNull(FIELD_COLLECTED_AT)
+        .findAll()
     private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
     private val itemsState = SparseBooleanArray()
+    private val dateFormatter = createFormatter("dd MMM yyyy HH:mm:ss")
 
     private val qrCodeClickListener = object : OrderClickListener{
         override fun click(order: Product, context: Context) {
             ContextCompat.startActivity(context,
                 Intent().setClass(context, SimpleScannerActivity::class.java)
-                    .putExtra("collected_at", order.collectedAt)
-                    .putExtra(SERIAL, order.serial)
-                    .putExtra(STATE, order.state), null
+                    .putExtra(EXTRA_COLLECTED_AT, order.collectedAt)
+                    .putExtra(EXTRA_SERIAL, order.serial)
+                    .putExtra(EXTRA_STATE, order.state), null
             )
         }
     }
 
     private val itemClickListener = object : OrderClickListener{
         override fun click(order: Product, context: Context) {
-            startActivity(context, Intent().setClass(context, TrackPackageActivity::class.java).putExtra(SERIAL, order.serial), null)
+            startActivity(context, Intent().setClass(context, TrackPackageActivity::class.java).putExtra(EXTRA_SERIAL, order.serial), null)
         }
     }
 
@@ -98,24 +103,22 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
     //endregion OVERRIDE
 
     inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var title: TextView = itemView.tvName
-        var message: TextView = itemView.tvMessage
-        var date: TextView = itemView.tvDate
-        var qrButton: View = itemView.scanQrCode
-        var historyContent: LinearLayout = itemView.linearLayoutHistoryContent
-        var licenseList: LinearLayout = itemView.linearLayoutLicenseList
-        var expandContainer: LinearLayout = itemView.linearLayoutExpand
-        var image: ImageView = itemView.imageViewExpand
+        private val title: TextView = itemView.tvName
+        private val message: TextView = itemView.tvMessage
+        private val date: TextView = itemView.tvDate
+        private val qrButton: View = itemView.scanQrCode
+        private val historyContent: LinearLayout = itemView.linearLayoutHistoryContent
+        private val licenseList: LinearLayout = itemView.linearLayoutLicenseList
+        private val expandContainer: LinearLayout = itemView.linearLayoutExpand
+        private val image: ImageView = itemView.imageViewExpand
 
         fun bind(order: Product, position: Int) {
-            title.text = order.medicineName
+            with(title) {
+                text = order.medicineName
+                setOnClickListener { itemClickListener.click(order, it.context) }
+            }
             message.text = order.currentStateMessage(PackageState.valueOf(order.state!!).ordinal)
-            title.setOnClickListener {
-                itemClickListener.click(order, it.context)
-            }
-            qrButton.setOnClickListener {
-                qrCodeClickListener.click(order, it.context)
-            }
+            qrButton.setOnClickListener { qrCodeClickListener.click(order, it.context) }
 
             historyContent.removeAllViews()
             qrButton.visible()
@@ -140,7 +143,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
                     break
                 }
             }
-            date.text = DateTimeUtils.parseDateTime(order.collectedAt!!, "dd MMM yyyy HH:mm:ss")
+            date.text = parseDateTime(order.collectedAt!!, dateFormatter)
         }
 
         private fun expandLicenseList() {
@@ -165,11 +168,6 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
             historyContent.addView(createView("DID LICENSE", "09928390239TYDVCHD8999"))
             historyContent.addView(createView("AUTHORITY", "TC SEEHOF"))
             historyContent.addView(createView("MANUFACTURE", "Manufacturing Astura 673434"))
-
         }
-    }
-
-    private interface OrderClickListener {
-        fun click(order: Product, context: Context)
     }
 }

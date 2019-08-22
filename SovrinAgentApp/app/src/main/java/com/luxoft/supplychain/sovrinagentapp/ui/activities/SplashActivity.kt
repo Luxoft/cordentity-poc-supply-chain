@@ -42,8 +42,7 @@ class SplashActivity : AppCompatActivity() {
 
     private fun initGenesis() {
         val genesis = File(GENESIS_PATH)
-        if (genesis.exists())
-            genesis.delete()
+        if (genesis.exists()) genesis.delete()
         genesis.createNewFile()
         genesis.writeText(GENESIS_CONTENT)
     }

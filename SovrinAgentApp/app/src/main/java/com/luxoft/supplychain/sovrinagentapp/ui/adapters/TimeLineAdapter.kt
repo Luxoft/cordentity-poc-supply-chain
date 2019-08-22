@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.luxoft.supplychain.sovrinagentapp.ui.timeline
+package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -24,31 +24,24 @@ import com.github.vipulasri.timelineview.TimelineView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.utils.DateTimeUtils
-import com.luxoft.supplychain.sovrinagentapp.utils.gone
-import com.luxoft.supplychain.sovrinagentapp.utils.inflate
-import com.luxoft.supplychain.sovrinagentapp.utils.visible
+import com.luxoft.supplychain.sovrinagentapp.utils.*
 import kotlinx.android.synthetic.main.item_timeline.view.*
 
 class TimeLineAdapter(private val product: Product) : RecyclerView.Adapter<TimeLineAdapter.Holder>() {
 
+    private val dateFormatter = createFormatter("MMM dd, yyyy HH:mm")
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(parent.context.inflate(R.layout.item_timeline, parent), viewType)
+        return Holder(parent.context.inflate(R.layout.item_timeline, parent))
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val stateOrder = position.inc()
         val timestamp = product.currentStateTimestamp(stateOrder)
         val message = product.currentStateMessage(stateOrder)
+        val lineType = TimelineView.getTimeLineViewType(position, itemCount)
 
-        if (timestamp != null) {
-            holder.mDate.visible()
-            holder.mDate.text = DateTimeUtils.parseDateTime(timestamp, "MMM dd, yyyy HH:mm")
-        } else {
-            holder.mDate.gone()
-        }
-
-        holder.mMessage.text = message
+        holder.bind(timestamp, message, lineType)
     }
 
     override fun getItemCount(): Int {
@@ -59,14 +52,22 @@ class TimeLineAdapter(private val product: Product) : RecyclerView.Adapter<TimeL
         return TimelineView.getTimeLineViewType(position, itemCount)
     }
 
-    class Holder(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
+    inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        var mDate: TextView = itemView.text_timeline_date
-        var mMessage: TextView = itemView.text_timeline_title
-        var mTimelineView: TimelineView = itemView.time_marker
+        private val tvDate: TextView = itemView.text_timeline_date
+        private val tvMessage: TextView = itemView.text_timeline_title
+        private val timelineView: TimelineView = itemView.time_marker
 
-        init {
-            mTimelineView.initLine(viewType)
+        fun bind(time: Long?, message: String?, lineType: Int) {
+            if (time != null) {
+                tvDate.visible()
+                tvDate.text = parseDateTime(time, dateFormatter)
+            } else {
+                tvDate.gone()
+            }
+
+            tvMessage.text = message
+            timelineView.initLine(lineType)
         }
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
 import com.luxoft.supplychain.sovrinagentapp.data.AuthorityInfoMap
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
@@ -25,7 +26,7 @@ class DigitalReceiptActivity : AppCompatActivity() {
             it.setHomeAsUpIndicator(R.drawable.ic_back)
         }
 
-        claims.find { it.key.equals("authorities") }
+        claims.find { it.key.equals(AUTHORITIES) }
             ?.let { attr ->
                 SerializationUtils.jSONToAny(attr.value!!, AuthorityInfoMap::class.java).run {
                     for (mutableEntry in this) {

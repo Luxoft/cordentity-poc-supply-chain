@@ -2,13 +2,16 @@ package com.luxoft.supplychain.sovrinagentapp.application
 
 const val TAILS_PATH = "/sdcard/tails"
 const val FIELD_KEY = "key"
+const val FIELD_COLLECTED_AT = "collectedAt"
+const val FIELD_REQUESTED_AT = "requestedAt"
 const val AUTHORITIES = "authorities"
 const val TIME = "time"
-const val SERIAL = "serial"
-const val STATE = "state"
+const val EXTRA_SERIAL = "serial"
+const val EXTRA_STATE = "state"
+const val EXTRA_COLLECTED_AT = "collected_at"
 
 const val NOTIFICATION_CHANNEL_ID = "10001"
-const val NOTIFICATION_CHANNEL_NAME = "SOVRIN_NOTIFICATION_CHANNEL"
+const val NOTIFICATION_CHANNEL_NAME = "INDY_NOTIFICATION_CHANNEL"
 
 const val GENESIS_PATH = "/sdcard/docker.txn"
 const val GENESIS_CONTENT = """{"reqSignature":{},"txn":{"data":{"data":{"alias":"Node1","blskey":"4N8aUNHSgjQVgkpm8nhNEfDf6txHznoYREg9kirmJrkivgL4oSEimFF6nsQ6M41QvhM2Z33nves5vfSn9n1UwNFJBYtWVnHYMATn76vLuL3zU88KyeAYcHfsih3He6UHcXDxcaecHVz6jhCYz1P2UZn2bDVruL5wXpehgBfBaLKm3Ba","blskey_pop":"RahHYiCvoNCtPTrVtP7nMC5eTYrsUA8WjXbdhNc8debh1agE9bGiJxWBXYNFbnJXoXhWFMvyqhqhRoq737YQemH5ik9oL7R4NTTCz2LEZhkgLJzB3QRQqJyBNyv7acbdHrAT8nQ9UkLbaVL9NBpnWXBTw4LEMePaSHEw66RzPNdAX1","client_ip":"13.59.49.41","client_port":9702,"node_ip":"13.59.49.41","node_port":9701,"services":["VALIDATOR"]},"dest":"Gw6pDLhcBcoQesN72qfotTgFa7cbuqZpkX3Xo6pLhPhv"},"metadata":{"from":"Th7MpTaRZVRYnPiabds81Y"},"type":"0"},"txnMetadata":{"seqNo":1,"txnId":"fea82e10e894419fe2bea7d96296a6d46f50f93f9eeda954ec461b2ed2950b62"},"ver":"1"}
