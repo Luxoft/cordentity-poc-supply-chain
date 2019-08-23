@@ -1,0 +1,15 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "await-promise": true,
+        "no-return-await": true,
+        "no-eval": true,
+        "no-empty": true,
+        "quotemark": [true, "single"]
+    },
+    "rulesDirectory": []
+}

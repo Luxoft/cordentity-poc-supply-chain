@@ -1,0 +1,18 @@
+.architecture-page {
+  margin-left: 100px;
+  margin-top: 50px;
+  box-shadow: 0 2px 47px 0 rgba(47, 101, 150, 0.26);
+  border-radius: 4px;
+  width: 966px;
+  padding: 20px;
+  box-sizing: content-box;
+  position: relative;
+  background-color: white;
+  z-index: 2;
+
+  flex: 1;
+
+  img {
+    width: 100%;
+  }
+}

@@ -1,0 +1,37 @@
+@import "../../../styles/base";
+
+.demo-home-page {
+  padding-top: 50px;
+  padding-left: 100px;
+  display: flex;
+  flex-flow: row nowrap;
+
+  article {
+    width: 300px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    margin-right: 100px;
+
+    img {
+      width: 50px;
+    }
+
+    p {
+      font-weight: $font-weight-light;
+      color: white;
+      padding-left: 16px;
+      padding-top: 16px;
+      font-size: 16px;
+      line-height: 18px;
+
+      div {
+        margin-top: 8px;
+      }
+
+      b {
+        font-weight: $font-weight-bold;
+      }
+    }
+  }
+}

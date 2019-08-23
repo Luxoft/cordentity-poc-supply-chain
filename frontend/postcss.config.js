@@ -1,6 +1,9 @@
 module.exports = {
+    modules: true,
     plugins: {
-        'postcss-cssnext': {},
-        'cssnano': {}
+        'postcss-modules': {
+            camelCase: true,
+            globalModulePaths: ['/static/index.css']
+        }
     }
 };

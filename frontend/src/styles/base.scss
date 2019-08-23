@@ -1,0 +1,38 @@
+@import "reset";
+@import "vars";
+
+$font-regular: Roboto, Arial, sans-serif;
+$font-weight-regular: normal;
+$font-weight-bold: bold;
+$font-weight-light: 300;
+
+@function font-url($modifier) {
+  @return url("/static/fonts/Roboto/Roboto-" + $modifier + ".ttf");
+}
+
+@font-face {
+  font-family: Roboto;
+  src: font-url("Regular");
+  font-weight: $font-weight-regular
+}
+
+@font-face {
+  font-family: Roboto;
+  src: font-url("Bold");
+  font-weight: $font-weight-bold
+}
+
+@font-face {
+  font-family: Roboto;
+  src: font-url("Light");
+  font-weight: $font-weight-light
+}
+
+* {
+  font-family: $font-regular;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
