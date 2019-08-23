@@ -9,6 +9,7 @@ import DemoHomePage from './pages/DemoHomePage';
 import ArchitecturePage from './pages/ArchitecturePage';
 import AboutPage from './pages/AboutPage';
 import RequestPage from './pages/RequestPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default class App extends Component {
     public render() {
@@ -47,6 +48,7 @@ export default class App extends Component {
                     <ArchitecturePage path='/architecture'/>
                     <AboutPage path='/about'/>
                     <RequestPage path='/request'/>
+                    <ProfilePage path='/profile'/>
                 </Router>
                 <footer>
                     <img src={SovrinLogo} alt=""/>

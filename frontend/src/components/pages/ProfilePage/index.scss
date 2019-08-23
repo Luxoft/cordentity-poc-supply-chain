@@ -1,6 +1,6 @@
 @import "../../../styles/base";
 
-.request-page {
+.profile-page {
   padding-top: 50px;
   display: flex;
   flex-flow: row nowrap;
@@ -20,18 +20,44 @@
     }
   }
 
-  .qr-wrapper {
+  .data-wrapper {
     position: relative;
-    padding: 100px 100px 0 100px;
     background-color: white;
     border-radius: 6px;
     box-shadow: 0 2px 47px 0 rgba(47, 101, 150, 0.26);
     z-index: 2;
 
-    img {
-      width: 334px;
-      height: 334px
+    .header {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      width: 444px;
+      padding: 20px 30px;
+      border: solid 1px rgba(222, 222, 222, 0.36);
+
+      img {
+        width: 60px;
+      }
+
+      .avatar-description {
+        margin-left: 14px;
+
+        h3 {
+          font-size: 18px;
+          letter-spacing: -0.43px;
+          color: #5a564e;
+        }
+
+        p {
+          margin-top: 3px;
+          font-size: 10px;
+          letter-spacing: -0.24px;
+          color: #a3c787;
+        }
+      }
     }
+
   }
 
   .text-wrapper {
