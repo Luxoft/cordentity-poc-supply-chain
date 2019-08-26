@@ -1,18 +1,35 @@
 import {h, Component} from 'preact';
 import styles from './index.scss';
 import BackBtn from '/static/img/back-btn.svg'
-import QrCode from '/static/img/qr-code.png'
 import {route} from 'preact-router';
+// @ts-ignore
+import QRCode from 'qrcode.react';
 
-export default class RequestPage extends Component {
+interface IState {
+    qrContent: string;
+}
+
+export default class RequestPage extends Component<{}, IState> {
+    state = {
+        qrContent: 'error'
+    };
+
+    public componentDidMount(): void {
+        this.getInvite()
+            .then(value => this.setState({qrContent: value}))
+            .catch(reason => console.error(reason));
+    }
+
     render() {
+        const {qrContent} = this.state;
+
         return (
             <section className={styles.requestPage}>
                 <div className={styles.iconWrapper}>
                     <img onClick={this.handleOnBackBtnClick} src={BackBtn} alt=""/>
                 </div>
                 <div className={styles.qrWrapper}>
-                    <img src={QrCode} alt=""/>
+                    <QRCode value={qrContent} size={336} level='L'/>
                 </div>
                 <div className={styles.textWrapper}>
                     <p><b>New patient request</b></p>
@@ -30,6 +47,8 @@ export default class RequestPage extends Component {
             </section>
         )
     }
+
+    getInvite = () => Promise.resolve('erroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasda');
 
     handleOnBackBtnClick = () => {
         route('/');

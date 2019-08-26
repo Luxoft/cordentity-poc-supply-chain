@@ -8,8 +8,11 @@
     "build": "rm -rf dist && parcel build index.html --public-url './'"
   },
   "dependencies": {
+    "moment": "^2.24.0",
     "preact": "8.5.2",
-    "preact-router": "2.6.1"
+    "preact-compat": "^3.19.0",
+    "preact-router": "2.6.1",
+    "qrcode.react": "^0.9.3"
   },
   "devDependencies": {
     "autoprefixer": "9.6.1",
@@ -20,5 +23,9 @@
     "tslint": "5.18.0",
     "typescript": "3.5.3",
     "typescript-plugin-css-modules": "1.2.1"
+  },
+  "alias": {
+    "react": "preact-compat",
+    "react-dom": "preact-compat"
   }
 }

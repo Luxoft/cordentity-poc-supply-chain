@@ -9,7 +9,11 @@
         "no-return-await": true,
         "no-eval": true,
         "no-empty": true,
-        "quotemark": [true, "single"]
+        "quotemark": [true, "single"],
+        "no-console": false,
+        "semicolon": false,
+        "trailing-comma": false,
+        "object-literal-sort-keys": false
     },
     "rulesDirectory": []
 }
