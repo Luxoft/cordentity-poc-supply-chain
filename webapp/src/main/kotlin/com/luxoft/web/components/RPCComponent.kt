@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 
 
 @Component
-@Profile("manufacture", "treatmentcenter")
+@Profile("corda")
 class RPCComponent {
 
     @Value("\${node.address}")

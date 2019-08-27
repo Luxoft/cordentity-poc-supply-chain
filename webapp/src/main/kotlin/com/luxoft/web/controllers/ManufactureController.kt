@@ -42,7 +42,6 @@ class ManufactureController(val flowExecutor: MFFlows) {
     fun getPackageRequests(): Any {
 
         return try {
-            val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
             val a = flowExecutor.getPackageRequests()
 
             logger.info(a.size.toString())

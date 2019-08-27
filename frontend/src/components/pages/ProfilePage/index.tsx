@@ -1,10 +1,10 @@
-import BackBtn from '/static/img/back-btn.svg';
-import PatientAvatar from '/static/img/patient-avatar@3x.png';
 import {Component, h} from 'preact';
 import {route} from 'preact-router';
 import Claim from '../../common/Claim';
 import styles from './index.scss';
 import {claims, IClaim, IInfo, parseClaims} from './utils';
+import BackBtn from '/static/img/back-btn.svg';
+import PatientAvatar from '/static/img/patient-avatar@3x.png';
 
 interface IState {
     info: IInfo | null;

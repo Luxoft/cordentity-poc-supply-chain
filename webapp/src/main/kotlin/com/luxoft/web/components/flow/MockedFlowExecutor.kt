@@ -230,7 +230,7 @@ interface Issuer {
 }
 
 @Service
-@Profile("mock")
+@Profile("treatmentcenter & mock")
 class TCFlowsMock(val agentService: AgentService, val indyService: IndyService, val indyFlowExecutor: IndyFlows) : TCFlows {
     private val logger = KotlinLogging.logger {  }
 
@@ -241,7 +241,7 @@ class TCFlowsMock(val agentService: AgentService, val indyService: IndyService, 
     }
 
     override fun getPackageHistory(serial: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ""
     }
 
     override fun receiveShipment(result: AcceptanceResult) {
@@ -344,7 +344,7 @@ class TCFlowsMock(val agentService: AgentService, val indyService: IndyService, 
 }
 
 @Service
-@Profile("mock")
+@Profile("manufacture & mock")
 class MFFlowsMock : MFFlows {
     override fun getNodeName() = "Manufacturer"
 
@@ -353,7 +353,7 @@ class MFFlowsMock : MFFlows {
     }
 
     override fun getPackageHistory(serial: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ""
     }
 
     override fun deliverShipment(serial: String, name: CordaX500Name) {

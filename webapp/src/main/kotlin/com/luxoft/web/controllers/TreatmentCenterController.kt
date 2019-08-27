@@ -36,7 +36,7 @@ import java.util.*
 class TreatmentCenterController(val flowExecutor: TCFlows) {
     private final val logger = loggerFor<TreatmentCenterController>()
 
-    @Value("\${indy.trustedCredentialsIssuerDID}")
+    @Value("\${indy.trustedCredentialsIssuerDID:XmLm4WJnNx5poPMqrcgg3q}")
     lateinit var trustedCredentialsIssuerDID: String
 
     @PostMapping("package/receive")

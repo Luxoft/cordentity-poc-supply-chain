@@ -30,7 +30,7 @@ import javax.annotation.PostConstruct
 val timeout = Duration.ofSeconds(180L)
 
 @Component
-@Profile("treatmentcenter")
+@Profile("treatmentcenter & corda")
 class IndyInitializerTreatmentCenter {
     private final val logger = loggerFor<IndyInitializerTreatmentCenter>()
 
@@ -54,7 +54,7 @@ class IndyInitializerTreatmentCenter {
 }
 
 @Component
-@Profile("manufacture")
+@Profile("manufacture & corda")
 class IndyInitializerManufacture {
     private final val logger = loggerFor<IndyInitializerManufacture>()
 

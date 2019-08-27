@@ -1,4 +1,5 @@
 import {h, Component} from 'preact';
+import {getInvite} from '../../../api';
 import styles from './index.scss';
 import BackBtn from '/static/img/back-btn.svg'
 import {route} from 'preact-router';
@@ -10,17 +11,17 @@ interface IState {
 }
 
 export default class RequestPage extends Component<{}, IState> {
-    state = {
+    public state = {
         qrContent: 'error'
     };
 
     public componentDidMount(): void {
         this.getInvite()
-            .then(value => this.setState({qrContent: value}))
-            .catch(reason => console.error(reason));
+            .then((value: string) => this.setState({qrContent: value}))
+            .catch((reason) => console.error(reason));
     }
 
-    render() {
+    public render() {
         const {qrContent} = this.state;
 
         return (
@@ -48,9 +49,13 @@ export default class RequestPage extends Component<{}, IState> {
         )
     }
 
-    getInvite = () => Promise.resolve('erroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasdaerroraaaaaaaaadasdasdasdasdasda');
+    private getInvite = async (): Promise<string> => {
+        const invite = await getInvite();
+        console.log(invite);
+        return JSON.stringify(invite);
+    };
 
-    handleOnBackBtnClick = () => {
+    private handleOnBackBtnClick = () => {
         route('/');
     };
 }

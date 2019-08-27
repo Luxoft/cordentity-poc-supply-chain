@@ -14,11 +14,13 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.*
 
 @Service
+@Profile("manufacture & corda")
 class MFFlowsCorda(rpc: RPCComponent) : MFFlows {
     private final val services = rpc.services
 
@@ -40,6 +42,7 @@ class MFFlowsCorda(rpc: RPCComponent) : MFFlows {
 }
 
 @Service
+@Profile("treatmentcenter & corda")
 class TCFlowsCorda(rpc: RPCComponent) : TCFlows {
     private final val services = rpc.services
 
