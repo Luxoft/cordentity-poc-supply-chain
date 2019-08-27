@@ -39,13 +39,13 @@ object Storage {
 @Service
 @Profile("mock")
 class AgentService {
-    @Value("agent.endpoint:ws://localhost:8095/ws")
+    @Value("\${agent.endpoint:ws://localhost:8095/ws}")
     var agentWsEndpoint: String? = null
 
-    @Value("agent.login:treatmentCenter")
+    @Value("\${agent.login:treatmentCenter}")
     var agentLogin: String? = null
 
-    @Value("agent.password:secretPassword")
+    @Value("\${agent.password:secretPassword}")
     var agentPassword: String? = null
 
     val connection by lazy {
@@ -64,21 +64,21 @@ class AgentService {
 class IndyService {
     private val logger = KotlinLogging.logger {}
 
-    @Value("indy.wallet.name:TreatmentCenter")
+    @Value("\${indy.wallet.name:TreatmentCenter}")
     private var walletName: String? = ""
 
-    @Value("indy.wallet.password:secretPassword")
+    @Value("\${indy.wallet.password:secretPassword}")
     private var walletPassword: String? = ""
 
-    @Value("indy.genesis.filepath:genesis/docker.txn")
+    @Value("\${indy.genesis.filepath:/genesis/docker.txn}")
     private val genesisFilePath: String? = ""
 
     private val poolName = PoolHelper.DEFAULT_POOL_NAME
 
-    @Value("indy.did:XmLm4WJnNx5poPMqrcgg3q")
+    @Value("\${indy.did:XmLm4WJnNx5poPMqrcgg3q}")
     private val did = ConfigHelper.getDid()
 
-    @Value("indy.seed:0000000000000000TreatmentCenter1")
+    @Value("\${indy.seed:0000000000000000TreatmentCenter1}")
     private val seed = ConfigHelper.getSeed()
 
     val indyUser: SsiUser by lazy {
@@ -105,7 +105,7 @@ class IndyService {
         logger.debug { "IndyUser object created for $nodeName" }
 
         genesisFilePath ?: throw RuntimeException("Genesis file path should be specified in config")
-        val genesisFile = File(genesisFilePath)
+        val genesisFile = File(javaClass.getResource(genesisFilePath).file)
         if (!GenesisHelper.exists(genesisFile))
             throw RuntimeException("Genesis file doesn't exist")
 

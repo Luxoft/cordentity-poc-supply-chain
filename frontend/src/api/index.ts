@@ -1,4 +1,4 @@
-//const baseUrl = window.location.origin;
+// const baseUrl = window.location.origin;
 const baseUrl = 'http://localhost:8080';
 
 function makeUrl(path: string) {

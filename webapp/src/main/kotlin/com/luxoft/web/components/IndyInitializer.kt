@@ -17,7 +17,6 @@
 package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
-import com.luxoft.poc.supplychain.IdentityInitService
 import com.luxoft.poc.supplychain.data.schema.CertificateIndySchema
 import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
 import net.corda.core.utilities.loggerFor
@@ -31,8 +30,8 @@ val timeout = Duration.ofSeconds(180L)
 
 @Component
 @Profile("treatmentcenter & corda")
-class IndyInitializerTreatmentCenter {
-    private final val logger = loggerFor<IndyInitializerTreatmentCenter>()
+class CordaIndyInitializerTreatmentCenter(val init: IdentityInitService) {
+    private final val logger = loggerFor<CordaIndyInitializerTreatmentCenter>()
 
     @Autowired
     lateinit var rpc: RPCComponent
@@ -42,9 +41,8 @@ class IndyInitializerTreatmentCenter {
         val treatment = rpc.services
 
         if (treatment.vaultQuery(IndySchema::class.java).states.size < 2) {
-            val treatmentCenterIdentityService = IdentityInitService(treatment, timeout)
-            treatmentCenterIdentityService.issueIndyMeta(PackageIndySchema)
-            treatmentCenterIdentityService.issueIndyMeta(CertificateIndySchema)
+            init.issueIndyMeta(PackageIndySchema, timeout)
+            init.issueIndyMeta(CertificateIndySchema, timeout)
 
             logger.info("Treatment center indy stuff initialized")
         }
@@ -55,8 +53,8 @@ class IndyInitializerTreatmentCenter {
 
 @Component
 @Profile("manufacture & corda")
-class IndyInitializerManufacture {
-    private final val logger = loggerFor<IndyInitializerManufacture>()
+class CordaIndyInitializerManufacture(val init: IdentityInitService) {
+    private final val logger = loggerFor<CordaIndyInitializerManufacture>()
 
     @Autowired
     lateinit var rpc: RPCComponent
@@ -66,12 +64,40 @@ class IndyInitializerManufacture {
         val manufacture = rpc.services
 
         if (manufacture.vaultQuery(IndySchema::class.java).states.isEmpty()) {
-            val initService = IdentityInitService(manufacture, timeout)
-            initService.issueIndyMeta(CertificateIndySchema)
+            init.issueIndyMeta(CertificateIndySchema, timeout)
 
             logger.info("Manufacture indy stuff initialized")
         }
 
+        logger.info("Initialization passed")
+    }
+}
+
+@Component
+@Profile("treatmentcenter & mock")
+class MockIndyInitializerTreatmentCenter(val init: IdentityInitService) {
+    private final val logger = loggerFor<MockIndyInitializerTreatmentCenter>()
+
+    @PostConstruct
+    fun init() {
+        init.issueIndyMeta(PackageIndySchema, timeout)
+        init.issueIndyMeta(CertificateIndySchema, timeout)
+
+        logger.info("Treatment center indy stuff initialized")
+        logger.info("Initialization passed")
+    }
+}
+
+@Component
+@Profile("manufacture & mock")
+class IndyInitializerManufacture(val init: IdentityInitService) {
+    private final val logger = loggerFor<IndyInitializerManufacture>()
+
+    @PostConstruct
+    fun init() {
+        init.issueIndyMeta(CertificateIndySchema, timeout)
+
+        logger.info("Manufacture indy stuff initialized")
         logger.info("Initialization passed")
     }
 }
