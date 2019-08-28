@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -25,7 +24,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
@@ -40,7 +38,6 @@ import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.util.concurrent.atomic.AtomicInteger
 
 class OrdersFragment : Fragment() {
 
@@ -49,7 +46,6 @@ class OrdersFragment : Fragment() {
     private var recyclerAdapter: OrdersAdapter? = null
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private val loaded = AtomicInteger(0)
 
     private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
@@ -64,35 +60,12 @@ class OrdersFragment : Fragment() {
             adapter = recyclerAdapter
         }
         mSwipeRefreshLayout = swipe_container
-        mSwipeRefreshLayout.setOnRefreshListener {
-            loaded.compareAndSet(0, 1)
-            updateMyOrders()
-        }
-        loaded.set(1)
-        updateMyOrders()
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        updateMyOrders2()
+        mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
     }
 
     override fun onResume() {
         super.onResume()
-        loaded.compareAndSet(0, 1)
         updateMyOrders()
-    }
-
-    private fun updateMyOrders2() {
-        api.getPackages().subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                loaded()
-                saveOrders(it)
-            }, { error ->
-                Log.e("Get Packages Error: ", error.message, error)
-//                    showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
-            })
     }
 
     private fun updateMyOrders() {
@@ -109,9 +82,7 @@ class OrdersFragment : Fragment() {
     }
 
     private fun loaded() {
-        if (loaded.decrementAndGet() <= 0) {
-            mSwipeRefreshLayout.isRefreshing = false
-        }
+        mSwipeRefreshLayout.isRefreshing = false
     }
 
     private fun saveOrders(offers: List<Product>) {

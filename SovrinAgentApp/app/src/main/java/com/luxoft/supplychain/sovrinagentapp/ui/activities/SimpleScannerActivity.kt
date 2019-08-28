@@ -71,6 +71,7 @@ class SimpleScannerActivity : AppCompatActivity() {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        setContentView(R.layout.activity_scanner)
         mScannerView = ZBarScannerView(this)
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(true)
@@ -82,6 +83,8 @@ class SimpleScannerActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == requestCodeScan) {
+            mScannerView!!.stopCamera()
+
             if (resultCode == Activity.RESULT_OK) {
                 val result = data?.getStringExtra(QR_SCANNER_CODE_EXTRA)
 
@@ -89,10 +92,8 @@ class SimpleScannerActivity : AppCompatActivity() {
                 if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
                 val content by lazy { SerializationUtils.jSONToAny<Invite>(result) }
 
-                mScannerView!!.stopCamera()
-
                 val serial = intent?.getStringExtra(EXTRA_SERIAL)
-                collectedAt = intent?.getLongExtra("collected_at", 0)
+                collectedAt = intent?.getLongExtra(EXTRA_COLLECTED_AT, 0)
 
                 when (state) {
                     PackageState.GETPROOFS.name -> {

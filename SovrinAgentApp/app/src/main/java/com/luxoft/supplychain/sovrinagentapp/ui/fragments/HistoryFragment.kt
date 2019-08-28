@@ -16,8 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -83,18 +81,4 @@ class HistoryFragment : Fragment() {
             realm.commitTransaction()
         }
     }
-
-    fun showAlertDialogToProvide() = AlertDialog.Builder(context)
-        .setTitle("Claims request")
-        .setMessage("Treatment center \"TC SEEHOF\" requesting your Full Name, Date of Birth and Address to approve your request. Provide it?")
-        .setCancelable(false)
-        .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface, which: Int) {
-            }
-        })
-        .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface, which: Int) {
-            }
-        })
-        .show()
 }

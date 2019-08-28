@@ -39,7 +39,8 @@
             android:screenOrientation="userPortrait" />
         <activity
             android:name=".ui.activities.SimpleScannerActivity"
-            android:screenOrientation="userPortrait" />
+            android:screenOrientation="userPortrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".ui.activities.AskClaimsActivity"
             android:screenOrientation="userPortrait" />

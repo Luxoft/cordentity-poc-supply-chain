@@ -157,8 +157,8 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
                 address.gone()
                 marker.gone()
             } else {
-                qrButton.visible()
-                showReceiptButton.visible()
+                qrButton.gone()
+                showReceiptButton.gone()
                 address.visible()
                 addressHeader.visible()
                 marker.visible()
