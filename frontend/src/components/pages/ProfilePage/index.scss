@@ -3,9 +3,8 @@
 .profile-page {
   padding-top: 50px;
   display: flex;
-  flex-flow: row nowrap;
-  align-items: stretch;
-  flex: 1;
+  position: relative;
+  height: 100%;
 
   .icon-wrapper {
     width: 100px;
@@ -27,6 +26,9 @@
     box-shadow: 0 2px 47px 0 rgba(47, 101, 150, 0.26);
     z-index: 2;
     max-width: 516px;
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
 
     .header {
       display: flex;
@@ -61,8 +63,8 @@
 
     .content {
       width: 100%;
-      max-height: 450px;
-      overflow: auto;
+      overflow-y: auto;
+      flex: 1;
 
       .entry {
         width: 100%;
