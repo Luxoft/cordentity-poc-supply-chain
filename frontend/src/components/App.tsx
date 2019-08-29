@@ -23,8 +23,8 @@ export default class App extends Component {
                             <br/>
                             Personalized medicine
                         </h1>
-                        <Match path="/">
-                            {({matches} : {matches: boolean}) => (
+                        <Match path='/'>
+                            {({matches}: {matches: boolean}) => (
                                 matches && <Link className={styles.button} activeClassName='' href='/request'>
                                     New patient request
                                 </Link>
@@ -32,7 +32,7 @@ export default class App extends Component {
                         </Match>
                     </div>
                 </header>
-                <nav>
+{/*                <nav>
                     <Link className={styles.link} activeClassName={styles.active} href='/'>
                         Demo
                     </Link>
@@ -42,7 +42,7 @@ export default class App extends Component {
                     <Link className={styles.link} activeClassName={styles.active} href='/about'>
                         About
                     </Link>
-                </nav>
+                </nav>*/}
                 <Router>
                     <DemoHomePage path='/'/>
                     <ArchitecturePage path='/architecture'/>

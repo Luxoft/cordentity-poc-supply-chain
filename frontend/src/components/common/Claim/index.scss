@@ -38,10 +38,9 @@
       letter-spacing: 0;
       font-weight: normal;
       cursor: pointer;
+      outline: none;
 
       transition: all .2s ease;
-
-      outline: none;
 
       &:hover {
         color: white;
@@ -53,6 +52,6 @@
   .verified-by {
     font-size: 11px;
     letter-spacing: -0.26px;
-    color: #a3c787;
+    color: #b9aed8;
   }
 }
