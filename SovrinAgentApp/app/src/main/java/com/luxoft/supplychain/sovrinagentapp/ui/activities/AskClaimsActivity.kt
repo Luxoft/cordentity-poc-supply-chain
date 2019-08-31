@@ -25,6 +25,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.popupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import io.realm.Realm
@@ -64,8 +65,8 @@ class AskClaimsActivity : AppCompatActivity() {
 
     private fun provide() {
         Completable.complete().observeOn(Schedulers.io()).subscribe({
-            popupStatus = AtomicInteger(1)
-            finish() //TODO??????
+            popupStatus = AtomicInteger(PopupStatus.IN_PROGRESS.ordinal)
+            finish()
 
             val partyDid = intent?.getStringExtra("partyDID")!!
             val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
@@ -88,7 +89,7 @@ class AskClaimsActivity : AppCompatActivity() {
             val credential = connection.receiveCredential().toBlocking().value()
             indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
 
-            popupStatus = AtomicInteger(2)
+            popupStatus = AtomicInteger(PopupStatus.RECEIVED.ordinal)
 
         },
             { er ->

@@ -131,7 +131,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                 agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
                                     api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
                                     val proofRequest = receiveProofRequest().toBlocking().value()
-                                    var requestedDataBuilder = StringBuilder()
+                                    val requestedDataBuilder = StringBuilder()
                                     val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
                                     for (key in requestedData) {
                                         requestedDataBuilder.append(", $key")
@@ -170,9 +170,9 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({
                                         agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
-                                            val packageCredential = indyUser.walletUser.getCredentials().asSequence().find {
-                                                it.getSchemaIdObject().name.contains("package_receipt") &&
-                                                    it.attributes[EXTRA_SERIAL] == serial
+                                            val packageCredential = indyUser.walletUser.getCredentials().asSequence().find { ref ->
+                                                ref.getSchemaIdObject().name.contains("package_receipt") &&
+                                                    ref.attributes[EXTRA_SERIAL] == serial
                                             }!!
                                             val authorities =
                                                 SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes[AUTHORITIES].toString())
@@ -187,47 +187,41 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 .setTitle("Claims request")
                                                 .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
                                                 .setCancelable(false)
-                                                .setPositiveButton("PROVIDE", object : DialogInterface.OnClickListener {
-                                                    override fun onClick(dialog: DialogInterface, which: Int) {
-                                                        Completable.complete().observeOn(Schedulers.io()).subscribe {
-                                                            MainActivity.popupStatus = AtomicInteger(1)
-                                                            this@SimpleScannerActivity.finish()
-                                                            val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
-                                                            sendProof(proofInfo)
-                                                            val provedAuthorities = authorities.mapValues { (_, authority) ->
-                                                                val proofRequest = proofRequest("package_history_req", "1.0") {
-                                                                    reveal("status") {
-                                                                        EXTRA_SERIAL shouldBe serial
-                                                                        FilterProperty.IssuerDid shouldBe authority.did
-                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
-                                                                    }
-                                                                    reveal(TIME) {
-                                                                        EXTRA_SERIAL shouldBe serial
-                                                                        FilterProperty.IssuerDid shouldBe authority.did
-                                                                        FilterProperty.SchemaId shouldBe authority.schemaId
-                                                                    }
-                                                                }
-                                                                sendProofRequest(proofRequest)
-                                                                val proof = receiveProof().toBlocking().value()
-                                                                indyUser.verifyProofWithLedgerData(proofRequest, proof)
-                                                            }
-                                                            Realm.getDefaultInstance().executeTransaction { realm ->
-                                                                val productOperation = realm.createObject(ProductOperation::class.java, collectedAt)
-                                                                productOperation.by = "approved"
-                                                            }
-                                                            MainActivity.popupStatus = AtomicInteger(3)
-
-                                                            Log.e("Passed", "OK")
-                                                            //TODO: Add some logic for displaying verification
-                                                            saveHistory(Unit)
-                                                        }
-                                                    }
-                                                })
-                                                .setNegativeButton("CANCEL", object : DialogInterface.OnClickListener {
-                                                    override fun onClick(dialog: DialogInterface, which: Int) {
+                                                .setPositiveButton("PROVIDE") { _, _ ->
+                                                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                                                        MainActivity.popupStatus = AtomicInteger(PopupStatus.IN_PROGRESS.ordinal)
                                                         this@SimpleScannerActivity.finish()
+                                                        val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
+                                                        sendProof(proofInfo)
+                                                        val provedAuthorities = authorities.mapValues { (_, authority) ->
+                                                            val proofRequest = proofRequest("package_history_req", "1.0") {
+                                                                reveal("status") {
+                                                                    EXTRA_SERIAL shouldBe serial
+                                                                    FilterProperty.IssuerDid shouldBe authority.did
+                                                                    FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                }
+                                                                reveal(TIME) {
+                                                                    EXTRA_SERIAL shouldBe serial
+                                                                    FilterProperty.IssuerDid shouldBe authority.did
+                                                                    FilterProperty.SchemaId shouldBe authority.schemaId
+                                                                }
+                                                            }
+                                                            sendProofRequest(proofRequest)
+                                                            val proof = receiveProof().toBlocking().value()
+                                                            indyUser.verifyProofWithLedgerData(proofRequest, proof)
+                                                        }
+                                                        Realm.getDefaultInstance().executeTransaction { realm ->
+                                                            val productOperation = realm.createObject(ProductOperation::class.java, collectedAt)
+                                                            productOperation.by = "approved"
+                                                        }
+                                                        MainActivity.popupStatus = AtomicInteger(PopupStatus.HISTORY.ordinal)
+
+                                                        Log.e("Passed", "OK")
+                                                        //TODO: Add some logic for displaying verification
+                                                        saveHistory(Unit)
                                                     }
-                                                })
+                                                }
+                                                .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
                                                 .create()
                                                 .show()
                                         }

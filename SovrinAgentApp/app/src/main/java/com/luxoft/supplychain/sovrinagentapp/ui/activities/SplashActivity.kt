@@ -5,15 +5,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.PermissionChecker
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import com.blikoon.qrcodescanner.QrCodeActivity
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_CONTENT
 import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
 import com.luxoft.supplychain.sovrinagentapp.di.indyInitialize
+import org.koin.android.ext.android.inject
+import rx.Completable
+import rx.Single
+import rx.schedulers.Schedulers
 import java.io.File
 
 class SplashActivity : AppCompatActivity() {
 
     private val permissionRequestCode = 101
+
+    private val indyUser: IndyUser by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +42,14 @@ class SplashActivity : AppCompatActivity() {
                 else {
                     initGenesis()
                     indyInitialize
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    Completable.complete().observeOn(Schedulers.io()).subscribe {
+                        indyUser.walletUser.getCredentials().forEachRemaining {
+                            Log.d("User", "User $it")
+                        }
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    }
                 }
             }
         }

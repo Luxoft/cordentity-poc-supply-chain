@@ -29,4 +29,7 @@
     <string name="receipt_schema_id">Schema ID: %s</string>
 
     <string name="title_digital_receipt">Digital Receipt</string>
+
+    <string name="splash_greetings">Greetings!</string>
+    <string name="splash_waiting">wait a moment…</string>
 </resources>

@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
@@ -95,21 +96,20 @@ class MainActivity : AppCompatActivity() {
     lateinit var myTimer: Timer
     val timeoutRunnable = Runnable {
         when (popupStatus.get()) {
-            0 -> {}
-            1 -> {//in progress
+            PopupStatus.IN_PROGRESS.ordinal -> {
                 if (!inProgress) {
                     showNotification(this, "In progress", "")
                     inProgress = true
                 }
             }
-            2 -> {
+            PopupStatus.RECEIVED.ordinal -> {
                 if (inProgress) {
                     inProgress = false
                     showNotification(this, getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
                     ordersFragment.onResume()
                 }
             }
-            3 -> {
+            PopupStatus.HISTORY.ordinal -> {
                 if (inProgress) {
                     inProgress = false
                     showNotification(this, "Package history", "Your package history is available")

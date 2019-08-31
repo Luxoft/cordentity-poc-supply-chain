@@ -32,6 +32,13 @@ enum class PackageState {
     COLLECTED
 }
 
+enum class PopupStatus {
+    NEW,
+    IN_PROGRESS,
+    RECEIVED,
+    HISTORY
+}
+
 data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String?)
 
 data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID: String?)
