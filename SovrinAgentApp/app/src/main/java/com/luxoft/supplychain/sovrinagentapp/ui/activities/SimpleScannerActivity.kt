@@ -19,13 +19,13 @@ package com.luxoft.supplychain.sovrinagentapp.ui.activities
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import com.blikoon.qrcodescanner.QrCodeActivity
 import com.google.gson.Gson
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
@@ -39,9 +39,9 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.*
-import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
+import kotlinx.android.synthetic.main.activity_scanner.*
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
 import retrofit.GsonConverterFactory
@@ -119,8 +119,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     finish()
                                 }
                             } catch (er: Exception) {
-                                Log.e("Get Claims Error: ", er.message, er)
-                                showAlertDialog(baseContext, "Get Claims Error: ${er.message}") { finish() }
+                                onError("Get Claims Error: ${er.message}")
                             }
                         }
                     }
@@ -146,12 +145,10 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             .putExtra(EXTRA_SERIAL, intent?.getStringExtra(EXTRA_SERIAL)),
                                         null
                                     )
-
                                     finish()
                                 }
                             } catch (er: Exception) {
-                                Log.e("New Package Error: ", er.message, er)
-                                showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                                onError("New Package Error: ${er.message}")
                             }
                         }
                     }
@@ -225,17 +222,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 .create()
                                                 .show()
                                         }
-                                    }) { er ->
-                                        Log.e("Collect Package Error: ", er.message, er)
-//                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
-                                        this@SimpleScannerActivity.finish()
-                                    }
+                                    }) { er -> onError("Collect Package Error: ${er.message}") }
                             } catch (er: Exception) {
-                                Log.e("New Package Error: ", er.message, er)
-                                showAlertDialog(baseContext, "New Package Error: ${er.message}") { finish() }
+                                onError("New Package Error: ${er.message}")
                             }
                         }
-
                     }
 
                     PackageState.DELIVERED.name -> {
@@ -259,13 +250,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             Thread.sleep(3000)
                                             finish()
                                         }) { er ->
-                                            Log.e("Collect Package Error: ", er.message, er)
-                                            showAlertDialog(baseContext, "Collect Package Error: ${er.message}") { finish() }
+                                            onError("Collect Package Error: ${er.message}")
                                         }
                                 }
                             } catch (er: Exception) {
-                                Log.e("Collect Package Invite Error: ", er.message, er)
-                                showAlertDialog(baseContext, "Collect Package Invite GError: ${er.message}") { finish() }
+                                onError("Collect Package Invite Error: ${er.message}")
                             }
                         }
                     }
@@ -275,6 +264,15 @@ class SimpleScannerActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    private fun publishProgress(text: String) {
+        runOnUiThread { tvStatus.text = text }
+    }
+
+    private fun onError(text: String) {
+        runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_LONG).show() }
+        finish()
     }
 
     private fun saveHistory(it: Unit?) {

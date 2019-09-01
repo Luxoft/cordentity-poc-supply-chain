@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity() {
         var popupStatus: AtomicInteger = AtomicInteger(0)
         var inProgress: Boolean = false
 
+        //TODO to toast
         fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
             .setTitle("Error")
             .setMessage(cause)

@@ -3,6 +3,6 @@
     android:pivotX="50%"
     android:pivotY="50%" >
 
-    <bitmap android:src="@drawable/progress" />
+    <bitmap android:src="@drawable/progress_spinner" />
 
 </animated-rotate>

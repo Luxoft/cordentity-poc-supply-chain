@@ -29,12 +29,6 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:layout_width="114dp"
-        android:layout_height="90dp"
-        android:layout_gravity="center"
-        android:indeterminateDrawable="@drawable/progress_animation"
-        android:indeterminateOnly="true"
-        android:paddingTop="24dp" />
+    <include layout="@layout/block_progress" />
 
 </FrameLayout>
