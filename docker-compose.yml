@@ -101,29 +101,33 @@ services:
 
   # -------------------- Indy agents -----------------------
   agent94:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
+    image: teamblockchain/indy-agent-python:d8f5bf6
+    network_mode: host
     ports:
       - "8094:8094"
     environment:
       - "PORT=8094"
-# to make sure the address is reachable from the android device
-#     - "HOST=127.0.0.1"
+      - "HOST=localhost"
     container_name: agent94
 
   agent95:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
+    image: teamblockchain/indy-agent-python:d8f5bf6
+    network_mode: host
     ports:
       - "8095:8095"
     environment:
       - "PORT=8095"
+      - "HOST=localhost"
     container_name: agent95
 
   agent96:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
+    image: teamblockchain/indy-agent-python:d8f5bf6
+    network_mode: host
     ports:
       - "8096:8096"
     environment:
       - "PORT=8096"
+      - "HOST=localhost"
     container_name: agent96
 
   agentInitiator:

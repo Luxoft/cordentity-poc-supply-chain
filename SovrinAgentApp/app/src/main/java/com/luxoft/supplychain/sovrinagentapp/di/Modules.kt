@@ -56,8 +56,10 @@ val myModule: Module = module {
     single { connectedAgentConnection() }
 }
 
-val webServerEndpoint = "http://3.17.65.252:8082"
-val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
+//val webServerEndpoint = "http://3.17.65.252:8082"
+//val indyAgentWSEndpoint = "ws://3.17.65.252:8094/ws"
+val webServerEndpoint = "http://localhost:8082"
+val indyAgentWSEndpoint = "ws://localhost:8094/ws"
 val tailsPath = "/sdcard/tails"
 
 //Async agent initialization for smooth UX
