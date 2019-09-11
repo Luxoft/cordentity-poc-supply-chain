@@ -32,4 +32,20 @@
 
     <string name="splash_greetings">Greetings!</string>
     <string name="splash_waiting">wait a moment…</string>
+
+    <string name="state_get_proofs">Getting digital credentials</string>
+    <string name="state_new">Getting digital receipt for medicine</string>
+    <string name="state_collected">Performing verification of package</string>
+
+    <string name="progress_accept_invite">Connecting to counter-party</string>
+    <string name="progress_receiving_credential">Receiving digital credential</string>
+    <string name="progress_verifying_credential">Verifying digital credential</string>
+    <string name="progress_waiting_for_authentication">Waiting for authentication</string>
+    <string name="progress_providing_credential_proofs">Providing credential proofs</string>
+    <string name="progress_reading_package_history">Reading package history</string>
+    <string name="progress_providing_authentication_proofs">Providing authentication proofs</string>
+    <string name="progress_verifying_digital_license">Verifying digital license</string>
+    <string name="progress_requesting_digital_license">Requesting digital license for step of manufacturing</string>
+    <string name="progress_state_new_finished">Digital receipt has been accepted</string>
+    <string name="progress_state_get_proofs_finished">New digital credential has been received</string>
 </resources>

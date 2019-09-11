@@ -21,6 +21,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -97,9 +98,12 @@ class SimpleScannerActivity : AppCompatActivity() {
 
                 when (state) {
                     PackageState.GETPROOFS.name -> {
+                        setStatusName(R.string.state_get_proofs)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
                             try {
+                                publishProgress(R.string.progress_accept_invite)
                                 agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
+                                    publishProgress(R.string.progress_receiving_credential)
                                     do {
                                         val credOffer = try {
                                             receiveCredentialOffer().timeout(5, TimeUnit.SECONDS).toBlocking().value()
@@ -112,25 +116,30 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, this)
                                             sendCredentialRequest(credentialRequest)
                                             val credential = receiveCredential().toBlocking().value()
+                                            publishProgress(R.string.progress_verifying_credential)
                                             indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
                                         }
                                     } while (credOffer != null)
                                     indyUser.walletUser.updateCredentialsInRealm()
-                                    finish()
+                                    notifyAndFinish(R.string.progress_state_get_proofs_finished)
                                 }
                             } catch (er: Exception) {
-                                onError("Get Claims Error: ${er.message}")
+                                notifyAndFinish("Get Claims Error: ${er.message}")
                             }
                         }
                     }
 
                     PackageState.NEW.name -> {
+                        setStatusName(R.string.state_new)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
                             try {
+                                publishProgress(R.string.progress_accept_invite)
                                 agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
                                     api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
+                                    publishProgress(R.string.progress_waiting_for_authentication)
                                     val proofRequest = receiveProofRequest().toBlocking().value()
                                     val requestedDataBuilder = StringBuilder()
+                                    publishProgress(R.string.progress_providing_credential_proofs)
                                     val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
                                     for (key in requestedData) {
                                         requestedDataBuilder.append(", $key")
@@ -145,15 +154,16 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             .putExtra(EXTRA_SERIAL, intent?.getStringExtra(EXTRA_SERIAL)),
                                         null
                                     )
-                                    finish()
+                                    notifyAndFinish(R.string.progress_state_new_finished)
                                 }
                             } catch (er: Exception) {
-                                onError("New Package Error: ${er.message}")
+                                notifyAndFinish("New Package Error: ${er.message}")
                             }
                         }
                     }
 
                     PackageState.COLLECTED.name -> {
+                        setStatusName(R.string.state_collected)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
                             try {
                                 val retrofit: Retrofit = Retrofit.Builder()
@@ -166,7 +176,9 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({
+                                        publishProgress(R.string.progress_accept_invite)
                                         agentConnection.acceptInvite(it.invite).toBlocking().value().apply {
+                                            publishProgress(R.string.progress_reading_package_history)
                                             val packageCredential = indyUser.walletUser.getCredentials().asSequence().find { ref ->
                                                 ref.getSchemaIdObject().name.contains("package_receipt") &&
                                                     ref.attributes[EXTRA_SERIAL] == serial
@@ -174,13 +186,14 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             val authorities =
                                                 SerializationUtils.jSONToAny<AuthorityInfoMap>(packageCredential.attributes[AUTHORITIES].toString())
 
+                                            publishProgress(R.string.progress_waiting_for_authentication)
                                             val proofRequest = receiveProofRequest().toBlocking().value()
                                             val requestedDataBuilder = StringBuilder()
                                             val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
                                             for (key in requestedData) {
                                                 requestedDataBuilder.append(", $key")
                                             }
-                                            AlertDialog.Builder(this@SimpleScannerActivity)
+                                            val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
                                                 .setTitle("Claims request")
                                                 .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
                                                 .setCancelable(false)
@@ -188,6 +201,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                     Completable.complete().observeOn(Schedulers.io()).subscribe {
                                                         MainActivity.popupStatus = AtomicInteger(PopupStatus.IN_PROGRESS.ordinal)
                                                         this@SimpleScannerActivity.finish()
+                                                        publishProgress(R.string.progress_providing_authentication_proofs)
                                                         val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
                                                         sendProof(proofInfo)
                                                         val provedAuthorities = authorities.mapValues { (_, authority) ->
@@ -203,7 +217,9 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                                     FilterProperty.SchemaId shouldBe authority.schemaId
                                                                 }
                                                             }
+                                                            publishProgress(R.string.progress_requesting_digital_license)
                                                             sendProofRequest(proofRequest)
+                                                            publishProgress(R.string.progress_verifying_digital_license)
                                                             val proof = receiveProof().toBlocking().value()
                                                             indyUser.verifyProofWithLedgerData(proofRequest, proof)
                                                         }
@@ -220,11 +236,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 }
                                                 .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
                                                 .create()
-                                                .show()
+                                                showDialog(dialog)
                                         }
-                                    }) { er -> onError("Collect Package Error: ${er.message}") }
+                                    }) { er -> notifyAndFinish("Collect Package Error: ${er.message}") }
                             } catch (er: Exception) {
-                                onError("New Package Error: ${er.message}")
+                                notifyAndFinish("New Package Error: ${er.message}")
                             }
                         }
                     }
@@ -250,11 +266,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             Thread.sleep(3000)
                                             finish()
                                         }) { er ->
-                                            onError("Collect Package Error: ${er.message}")
+                                            notifyAndFinish("Collect Package Error: ${er.message}")
                                         }
                                 }
                             } catch (er: Exception) {
-                                onError("Collect Package Invite Error: ${er.message}")
+                                notifyAndFinish("Collect Package Invite Error: ${er.message}")
                             }
                         }
                     }
@@ -266,13 +282,24 @@ class SimpleScannerActivity : AppCompatActivity() {
         }
     }
 
-    private fun publishProgress(text: String) {
-        runOnUiThread { tvStatus.text = text }
+    private fun setStatusName(@StringRes textId: Int) {
+        tvTitle.text = getString(textId)
     }
 
-    private fun onError(text: String) {
+    private fun publishProgress(@StringRes textId: Int) {
+        runOnUiThread { tvStatus.text = getString(textId) }
+    }
+
+    private fun notifyAndFinish(@StringRes textId: Int) {
+        notifyAndFinish(getString(textId))
+    }
+
+    private fun notifyAndFinish(text: String) {
         runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_LONG).show() }
         finish()
+    }
+    private fun showDialog(dialog: AlertDialog) {
+        runOnUiThread { dialog.show() }
     }
 
     private fun saveHistory(it: Unit?) {
