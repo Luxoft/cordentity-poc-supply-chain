@@ -1,0 +1,1 @@
+инструкция по установке приложения: https://guides.codepath.com/android/Running-Apps-on-Your-Device
