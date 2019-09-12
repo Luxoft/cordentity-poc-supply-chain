@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
-
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.Product
@@ -26,7 +25,6 @@ import retrofit.http.GET
 import retrofit.http.POST
 import retrofit.http.Path
 import rx.Observable
-
 
 interface SovrinAgentService {
 

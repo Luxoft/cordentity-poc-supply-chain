@@ -7,12 +7,20 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="TransparentToolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:windowActionBarOverlay">true</item>
@@ -20,158 +28,35 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="TabLayoutTextStyle">
-        <item name="android:textSize">10.5sp</item>
-        <item name="android:textStyle">normal</item>
+    <style name="Text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextProfile" parent="Text">
+        <item name="android:textColor">@color/gray_light</item>
+    </style>
+
+    <style name="TextReceiptItem" parent="Text">
+        <item name="android:textSize">@dimen/text_big</item>
+        <item name="android:textColor">@color/gray_dark</item>
     </style>
 
     <style name="ToolbarText">
         <item name="android:textSize">19.5sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#ffffff</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="ProfileHeaderTextLeft">
-        <item name="android:textSize">17.5sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#8b8b8b</item>
-    </style>
-
-    <style name="ProfileHeaderTextRight">
-        <item name="android:textSize">17.5sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#454343</item>
-    </style>
-
-    <style name="ProfileItemSmallText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#818181</item>
-    </style>
-
-    <style name="ProfileItemLargeText">
-        <item name="android:textSize">15.5sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#5a564e</item>
-    </style>
-
-    <style name="MedicineHeaderText">
-        <item name="android:textSize">16.5sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#363636</item>
-    </style>
-
-    <style name="MedicineMessageText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#5a564e</item>
-    </style>
-
-    <style name="HistoryContentItemBottomText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#7ed321</item>
-    </style>
-
-    <style name="OrderItemDateText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#989b9f</item>
-    </style>
-
-    <style name="MedicineAddressHeaderText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#4e545a</item>
-    </style>
-
-    <style name="MedicineAddressText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#3a6ea2</item>
-    </style>
-
-    <style name="ScanButtonLeftText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">#212529</item>
-    </style>
-
-    <style name="LicenseListHeaderText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-bold</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">#212529</item>
-    </style>
-
-    <style name="ScanButtonRightText">
-        <item name="android:textSize">10sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#424242</item>
-    </style>
-
-    <style name="ReceiptHeaderText">
-        <item name="android:textSize">23sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#363636</item>
-    </style>
-
-    <style name="ReceiptBottomText">
-        <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">roboto-light</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#b5b5b5</item>
-    </style>
-
-    <style name="ReceiptItemHeaderText">
-        <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">roboto-medium</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#bbbbbb</item>
-    </style>
-
-    <style name="PopupHeaderText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-medium</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#000000</item>
-    </style>
-
-    <style name="PopupMessageText">
-        <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#000000</item>
-    </style>
-
-    <style name="PopupTimeText">
-        <item name="android:textSize">10sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#8a000000</item>
-    </style>
-
-    <style name="ReceiptItemNameText">
-        <item name="android:textSize">15.5sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textColor">#5a564e</item>
+    <style name="Card">
+        <item name="cardCornerRadius">@dimen/card_corners</item>
+        <item name="cardElevation">2dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
 </resources>

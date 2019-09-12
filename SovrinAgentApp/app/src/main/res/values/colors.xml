@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#8988f1</color>
-    <color name="colorPrimaryDark">#3231c1</color>
+    <color name="colorPrimaryDark">#2d2d2d</color>
     <color name="colorAccent">#FF4081</color>
     <color name="actionbar_opacity">#33000000</color>
-    <color name="activity_background">#f4f4f4</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#818181</color>
+    <color name="gray_dark">#5a564e</color>
+    <color name="gray_header">#363636</color>
+    <color name="almost_black">#212529</color>
+    <color name="separator_line">#dddddd</color>
+    <color name="bg_main">#f4f4f4</color>
+    <color name="splash_bg">#2c2a2a</color>
+
 </resources>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/screen_padding"
+    android:paddingTop="@dimen/screen_padding"
+    android:paddingRight="@dimen/screen_padding"
+    android:paddingBottom="20dp">
+
+    <TextView
+        android:id="@+id/tvName"
+        style="@style/Text"
+        android:layout_alignParentTop="true"
+        android:text="@string/santorium_plus"
+        android:textColor="@color/gray_header"
+        android:textSize="16.5sp" />
+
+    <ImageView
+        android:id="@+id/imageViewSomething"
+        android:layout_width="@dimen/card_item_image_width"
+        android:layout_height="@dimen/card_item_image_height"
+        android:layout_below="@id/tvName"
+        android:layout_marginTop="35dp"
+        android:src="@drawable/medicine" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvName"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="22dp"
+        android:layout_toEndOf="@+id/imageViewSomething"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDate"
+            style="@style/Text"
+            android:textColor="#989b9f"
+            tools:text="24 Apr 2018" />
+
+        <TextView
+            android:id="@+id/tvMessage"
+            style="@style/Text"
+            android:text="@string/insurer_approved_your_prescription"
+            android:textColor="@color/gray_dark" />
+
+        <TextView
+            android:id="@+id/tvAddressHeader"
+            style="@style/Text"
+            android:layout_marginTop="14dp"
+            android:text="@string/address_header"
+            android:textColor="#4e545a"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/marker"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="1dp"
+                android:src="@drawable/ic_marker"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvAddress"
+                style="@style/Text"
+                android:autoLink="map"
+                android:text="@string/address"
+                android:textColor="#3a6ea2"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
