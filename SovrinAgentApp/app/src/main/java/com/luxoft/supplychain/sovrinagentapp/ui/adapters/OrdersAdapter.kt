@@ -40,8 +40,6 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_order.view.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderViewHolder>() {
 
@@ -156,6 +154,12 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
                 addressHeader.gone()
                 address.gone()
                 marker.gone()
+            } else if (PackageState.NEW.name == state) {
+                qrButton.visible()
+                showReceiptButton.gone()
+                addressHeader.visible()
+                address.visible()
+                marker.visible()
             } else {
                 qrButton.gone()
                 showReceiptButton.gone()

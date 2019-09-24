@@ -169,10 +169,10 @@ class SimpleScannerActivity : AppCompatActivity() {
                                 val retrofit: Retrofit = Retrofit.Builder()
                                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                                     .addConverterFactory(GsonConverterFactory.create(Gson()))
-                                    .baseUrl(result)
+                                    .baseUrl(BASE_URL)
                                     .build()
                                 retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
-                                retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null), "")
+                                retrofit.create(SovrinAgentService::class.java).packageHistory(Serial(serial!!, null))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({
@@ -200,7 +200,6 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 .setPositiveButton("PROVIDE") { _, _ ->
                                                     Completable.complete().observeOn(Schedulers.io()).subscribe {
                                                         MainActivity.popupStatus = AtomicInteger(PopupStatus.IN_PROGRESS.ordinal)
-                                                        this@SimpleScannerActivity.finish()
                                                         publishProgress(R.string.progress_providing_authentication_proofs)
                                                         val proofInfo = indyUser.createProofFromLedgerData(proofRequest)
                                                         sendProof(proofInfo)
@@ -228,6 +227,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                             productOperation.by = "approved"
                                                         }
                                                         MainActivity.popupStatus = AtomicInteger(PopupStatus.HISTORY.ordinal)
+                                                        this@SimpleScannerActivity.finish()
 
                                                         Log.e("Passed", "OK")
                                                         //TODO: Add some logic for displaying verification
