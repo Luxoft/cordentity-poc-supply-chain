@@ -16,8 +16,8 @@
 
 package com.luxoft.supplychain.sovrinagentapp.communcations
 
-
 import com.luxoft.supplychain.sovrinagentapp.data.AskForPackageRequest
+import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.Serial
 import retrofit.http.Body
@@ -25,11 +25,13 @@ import retrofit.http.GET
 import retrofit.http.POST
 import rx.Observable
 
-
-interface SovrinAgentService  {
+interface SovrinAgentService {
 
     @GET("/api/tc/tails")
     fun getTails(): Observable<Map<String, String>>
+
+    @POST("/api/tc/package/history")
+    fun packageHistory(@Body serial: Serial): Observable<Invite>
 
     @GET("/api/tc/package/list")
     fun getPackages(): Observable<List<Product>>

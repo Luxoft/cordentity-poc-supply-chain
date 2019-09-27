@@ -1,60 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginLeft="10dp"
-              android:layout_marginRight="10dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:orientation="horizontal">
 
     <com.github.vipulasri.timelineview.TimelineView
-            android:id="@+id/time_marker"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:marker="@drawable/marker"
-            app:markerSize="12dp"
-            app:lineSize="1.5dp"
-            app:line="#ededed"/>
+        android:id="@+id/time_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:line="#ededed"
+        app:lineSize="1.5dp"
+        app:marker="@drawable/time_line_marker"
+        app:markerSize="12dp" />
 
     <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="10dp"
-            android:layout_gravity="center_vertical"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="4dp"
-            app:contentPadding="15dp">
+        style="@style/Card"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:contentPadding="15dp">
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="left"
-                android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="left"
+            android:orientation="vertical">
 
             <TextView
-                    android:id="@+id/text_timeline_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif"
-                    android:textStyle="normal"
-                    android:textColor="#818181"
-                    tools:text="May 12, 2018 10:22" />
+                android:id="@+id/text_timeline_date"
+                style="@style/Text"
+                android:textColor="@color/gray_light"
+                tools:text="May 12, 2018 10:22" />
 
             <TextView
-                    android:id="@+id/text_timeline_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="15.5sp"
-                    android:fontFamily="sans-serif"
-                    android:textStyle="normal"
-                    android:textColor="#5a564e"
-                    android:letterSpacing="-0.02"
-                    tools:text="You request registred at Locate Treatment Center (Zeehofstrasse 21, Zurich)" />
+                android:id="@+id/text_timeline_title"
+                style="@style/Text"
+                android:letterSpacing="-0.02"
+                android:textColor="@color/gray_dark"
+                android:textSize="@dimen/text_big"
+                tools:text="You request registred at Locate Treatment Center (Zeehofstrasse 21, Zurich)" />
 
         </LinearLayout>
 
