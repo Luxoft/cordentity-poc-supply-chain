@@ -2,7 +2,9 @@
 ansible_connection=ssh
 ansible_user=ubuntu
 ansible_user_id=ubuntu
-ansible_ssh_private_key_file=~/.ssh/id_rsa_bc
+ansible_ssh_private_key_file=~/.ssh/teamblockchain.pem
 
 [hosts]
-monolith          ansible_host=18.196.100.2
+monolith          ansible_host=localhost
+#indypool          ansible_host=localhost
+indyagents        ansible_host=localhost

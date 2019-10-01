@@ -1,0 +1,21 @@
+---
+- name: Clean docker containers
+  command: docker rm -f agent94 agent95 agent96 agentInitiator
+  ignore_errors: True
+
+- name: Download docker-compose
+  become: yes
+  command: curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+
+- name: Install docker-compose
+  become: yes
+  command: chmod +x /usr/local/bin/docker-compose
+
+- name: Copy docker-compose file
+  synchronize:
+    src: "../../../docker-compose-agents.yml"
+    dest: "{{ ansible_env.HOME}}/docker-compose.yml"
+    delete: yes
+
+- name: Start Indy Agents
+  command: docker-compose up -d agent94 agent95 agent96 agentInitiator
