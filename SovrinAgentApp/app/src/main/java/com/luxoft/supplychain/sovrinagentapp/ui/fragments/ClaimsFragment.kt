@@ -49,6 +49,7 @@ class ClaimsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        indyUser.walletUser.updateCredentialsInRealm()
         val claims = realm.where(ClaimAttribute::class.java)
             .sort(FIELD_KEY)
             .notEqualTo(FIELD_KEY, AUTHORITIES)

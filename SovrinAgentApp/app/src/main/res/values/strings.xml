@@ -36,9 +36,13 @@
     <string name="state_get_proofs">Getting digital credentials</string>
     <string name="state_new">Getting digital receipt for medicine</string>
     <string name="state_collected">Performing verification of package</string>
+    <string name="state_delivered">Picking up the medicine</string>
 
     <string name="progress_accept_invite">Connecting to counter-party</string>
     <string name="progress_receiving_credential">Receiving digital credential</string>
+    <string name="progress_receiving_credential_offer">Receiving digital credential offer</string>
+    <string name="progress_creating_credential_request">Creating digital credential request</string>
+    <string name="progress_collecting_package">Collecting package</string>
     <string name="progress_verifying_credential">Verifying digital credential</string>
     <string name="progress_waiting_for_authentication">Waiting for authentication</string>
     <string name="progress_providing_credential_proofs">Providing credential proofs</string>

@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
@@ -43,7 +42,6 @@ import com.luxoft.supplychain.sovrinagentapp.data.*
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
-import me.dm7.barcodescanner.zbar.ZBarScannerView
 import org.koin.android.ext.android.inject
 import retrofit.GsonConverterFactory
 import retrofit.Retrofit
@@ -57,7 +55,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class SimpleScannerActivity : AppCompatActivity() {
 
-    private var mScannerView: ZBarScannerView? = null
     private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
@@ -73,7 +70,6 @@ class SimpleScannerActivity : AppCompatActivity() {
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         setContentView(R.layout.activity_scanner)
-        mScannerView = ZBarScannerView(this)
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(true)
             it.setHomeAsUpIndicator(R.drawable.ic_back)
@@ -84,7 +80,6 @@ class SimpleScannerActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == requestCodeScan) {
-            mScannerView!!.stopCamera()
 
             if (resultCode == Activity.RESULT_OK) {
                 val result = data?.getStringExtra(QR_SCANNER_CODE_EXTRA)
@@ -145,16 +140,40 @@ class SimpleScannerActivity : AppCompatActivity() {
                                         requestedDataBuilder.append(", $key")
                                     }
                                     getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataBuilder.toString().substring(1)).apply()
-                                    ContextCompat.startActivity(
-                                        this@SimpleScannerActivity,
-                                        Intent().setClass(this@SimpleScannerActivity, AskClaimsActivity::class.java)
-                                            .putExtra("result", result)
-                                            .putExtra("proofRequest", SerializationUtils.anyToJSON(proofRequest))
-                                            .putExtra("partyDID", partyDID())
-                                            .putExtra(EXTRA_SERIAL, intent?.getStringExtra(EXTRA_SERIAL)),
-                                        null
-                                    )
-                                    notifyAndFinish(R.string.progress_state_new_finished)
+                                    Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+                                        val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
+                                            .setTitle("Claims request")
+                                            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
+                                            .setCancelable(false)
+                                            .setPositiveButton("PROVIDE") { _, _ -> Completable.complete().observeOn(Schedulers.io()).subscribe {
+
+                                                val partyDid = partyDID()
+                                                publishProgress(R.string.progress_providing_authentication_proofs)
+                                                val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
+                                                val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
+                                                        ?: throw RuntimeException("Agent connection with $partyDid not found")
+                                                connection.sendProof(proofFromLedgerData)
+
+                                                publishProgress(R.string.progress_receiving_credential_offer)
+                                                val credentialOffer = connection.receiveCredentialOffer().toBlocking().value()
+
+                                                publishProgress(R.string.progress_creating_credential_request)
+                                                val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, credentialOffer)
+                                                connection.sendCredentialRequest(credentialRequest)
+
+                                                publishProgress(R.string.progress_receiving_credential)
+                                                val credential = connection.receiveCredential().toBlocking().value()
+
+                                                publishProgress(R.string.progress_verifying_credential)
+                                                indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
+
+                                                MainActivity.popupStatus = AtomicInteger(PopupStatus.RECEIVED.ordinal)
+                                                this@SimpleScannerActivity.finish()
+                                            }}
+                                            .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
+                                            .create()
+                                        showDialog(dialog)
+                                    }
                                 }
                             } catch (er: Exception) {
                                 notifyAndFinish("New Package Error: ${er.message}")
@@ -246,28 +265,22 @@ class SimpleScannerActivity : AppCompatActivity() {
                     }
 
                     PackageState.DELIVERED.name -> {
+                        setStatusName(R.string.state_delivered)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
                             try {
+                                publishProgress(R.string.progress_accept_invite)
                                 agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                                    api.collectPackage(Serial(serial!!, content.clientUUID!!))
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe({
-                                            // TODO: this call should return immediately
-                                            // TODO: after this you should listen to new ingoing proof request
-                                            // TODO: when proof request is received you should show a popup with something like "Treatment Center wants you to prove token ownership, agree?"
-                                            // TODO: if agree you should generate proof out of the proof request and send it back
-                                            // TODO: only if the proof is valid Corda-side should commit transaction
+                                    publishProgress(R.string.progress_collecting_package)
+                                    api.collectPackage(Serial(serial!!, content.clientUUID!!)).toBlocking().first()
 
+                                    publishProgress(R.string.progress_waiting_for_authentication)
+                                    val proofRequest: ProofRequest = receiveProofRequest().toBlocking().value()
 
-                                            val proofRequest: ProofRequest = receiveProofRequest().toBlocking().value()
-                                            val proof = indyUser.createProofFromLedgerData(proofRequest)
-                                            sendProof(proof)
-                                            Thread.sleep(3000)
-                                            finish()
-                                        }) { er ->
-                                            notifyAndFinish("Collect Package Error: ${er.message}")
-                                        }
+                                    publishProgress(R.string.progress_providing_authentication_proofs)
+                                    val proof = indyUser.createProofFromLedgerData(proofRequest)
+                                    sendProof(proof)
+                                    Thread.sleep(3000)
+                                    this@SimpleScannerActivity.finish()
                                 }
                             } catch (er: Exception) {
                                 notifyAndFinish("Collect Package Invite Error: ${er.message}")

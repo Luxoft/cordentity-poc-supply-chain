@@ -24,6 +24,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
@@ -38,6 +39,7 @@ import rx.schedulers.Schedulers
 class HistoryFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
+    val indyUser: IndyUser by inject()
     private val realm: Realm = Realm.getDefaultInstance()
     private lateinit var recyclerAdapter: HistoryAdapter
 
@@ -50,7 +52,7 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(recycler) {
             layoutManager = LinearLayoutManager(activity)
-            recyclerAdapter = HistoryAdapter(Realm.getDefaultInstance())
+            recyclerAdapter = HistoryAdapter(Realm.getDefaultInstance(), this@HistoryFragment)
             adapter = recyclerAdapter
         }
 
