@@ -29,10 +29,10 @@ export default class Card extends React.Component {
                     </h4>
                     <div className='img-wrapper'>
                         <div className='img' style={{ backgroundImage: `url(${imgSrc})` }} />
-                        <p className='img-title'>{ imgTitle }</p>
                     </div>
+                    <p className='img-title'>{ imgTitle }</p>
                 </div>
-                {disabled && <p className='disabled-text'>coming soon!</p>}
+                <p style={{color: !disabled && 'transparent'}} className='disabled-text'>coming soon!</p>
             </div>
         )
     }

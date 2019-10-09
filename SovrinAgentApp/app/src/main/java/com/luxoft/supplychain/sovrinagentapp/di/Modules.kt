@@ -16,6 +16,7 @@
 
 package com.luxoft.supplychain.sovrinagentapp.di
 
+import android.app.AlertDialog
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -31,6 +32,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.splashScreen
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
@@ -39,7 +41,10 @@ import org.koin.dsl.module.module
 import retrofit.GsonConverterFactory
 import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
-import rx.Single
+import rx.Completable
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -65,23 +70,58 @@ fun connectedAgentConnection(): AgentConnection {
 lateinit var pool: Pool
 lateinit var wallet: Wallet
 
-val indyInit = Single.create<Unit> { observer ->
-    try {
-        pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
-        wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
-        observer.onSuccess(Unit)
+fun indyInitialize() : Boolean {
+    var t: Thread? = null
+    val observable = Observable.create<Unit> { observer ->
+        try {
+            t = Thread {
+                pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
+                wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
+            }
+            t?.apply { run(); join() }
+            observer.onNext(Unit)
+        } catch (e: Exception) {
+            observer.onError(RuntimeException("Error initializing indy", e))
+        }
+    }
+    return try {
+        observable
+            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.newThread())
+            .timeout(10, TimeUnit.SECONDS)
+            .toBlocking()
+            .first()
+        true
     } catch (e: Exception) {
-        observer.onError(RuntimeException("Error initializing indy", e))
+        t?.interrupt()
+        false
     }
 }
 
-val indyInitialize by lazy {
-    indyInit.toCompletable()
-}
-
 fun provideWalletAndPool(): Pair<Wallet, Pool> {
-    indyInitialize.await()
 
+    var retry = true
+    var dialog: AlertDialog? = null
+    while (retry) {
+        if (indyInitialize())
+            retry = false
+        else {
+            Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+                dialog = AlertDialog.Builder(splashScreen)
+                        .setTitle("Indy Pool")
+                        .setMessage("Please check Internet connection and tap RETRY")
+                        .setCancelable(false)
+                        .setPositiveButton("RETRY") { _, _ -> retry = true }
+                        .setNegativeButton("EXIT") { _, _ -> splashScreen.finish(); retry = false }
+                        .create()
+                splashScreen.runOnUiThread {
+                    dialog?.show()
+                }
+            }
+            Thread.sleep(1000)
+            while (dialog == null || dialog!!.isShowing) { Thread.yield() }
+        }
+    }
     return Pair(wallet, pool)
 }
 

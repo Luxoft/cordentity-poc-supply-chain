@@ -66,7 +66,7 @@ export default class CollectPackageModal extends React.Component {
                 </div>
             </div>
             <div className={step1Classes}>
-                {invite && <QRCode value={JSON.stringify(invite)} size={250} level='H'/>}
+                {invite && <QRCode value={JSON.stringify(invite)} size={300} level='H'/>}
                 <div className="instructions">
                     <p>Ask patient to scan this QR code in order to confirm the request.</p>
                     <p>After successful proof patient is able to collect package.</p>

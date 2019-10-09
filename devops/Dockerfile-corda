@@ -10,7 +10,7 @@ LABEL net.corda.version = ${CORDA_VERSION}
 # RUN apt-get update && \
 #    apt-get install -y openjdk-8-jdk
 
-RUN apt-get update && apt-get install -y libindy=1.8.1
+RUN apt-get update && apt-get install --allow-unauthenticated -y libindy=1.8.2
 
 # Add user
 RUN addgroup corda && \

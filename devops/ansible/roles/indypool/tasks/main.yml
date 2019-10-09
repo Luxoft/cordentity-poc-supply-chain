@@ -1,0 +1,7 @@
+---
+- name: Clean docker containers
+  command: docker rm -f indypool
+  ignore_errors: True
+
+- name: Start Indy Pool
+  command: docker run -d -p 9701-9708:9701-9708 --restart=always --name indypool teamblockchain/indy-pool:1.7.0

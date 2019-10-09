@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 docker-compose down --rmi local --volumes
-./gradlew clean assemble
+./gradlew killCordaProcesses clean assemble
+./gradlew deployNodes
 ./gradlew runNodes
 sleep 30
 docker-compose up -d agent94 agent95 agent96 agentInitiator

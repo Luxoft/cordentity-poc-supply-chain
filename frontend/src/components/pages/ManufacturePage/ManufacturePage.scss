@@ -37,22 +37,19 @@
       }
 
       .right {
+        box-sizing: border-box;
         color: white;
         font-size: $font-size-regular;
         font-weight: $font-weight-light;
 
         display: flex;
         flex-flow: column nowrap;
-        justify-content: space-around;
         align-items: center;
+
+        padding-top: 5em;
 
         .description {
           text-align: left;
-        }
-
-        img {
-          margin-bottom: 100px;
-          height: 70px;
         }
       }
     }

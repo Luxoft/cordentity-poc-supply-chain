@@ -29,15 +29,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_COLLECTED_AT
+import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.TrackPackageActivity
+import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.*
 import io.realm.Realm
 import io.realm.RealmChangeListener
@@ -46,15 +44,23 @@ import io.realm.Sort
 import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_history.view.*
 import kotlinx.android.synthetic.main.item_history_content.view.*
-import java.text.SimpleDateFormat
-import java.util.*
 
-class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
+class HistoryAdapter(private val realm: Realm, private val parent: HistoryFragment) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
 
-    private val orders: RealmResults<Product> = realm.where(Product::class.java)
-        .sort(FIELD_COLLECTED_AT, Sort.DESCENDING)
-        .isNotNull(FIELD_COLLECTED_AT)
-        .findAll()
+    private fun rescanOrders() : List<Product> {
+        val receiptSerials = parent.indyUser.walletUser.getCredentials()
+            .asSequence()
+            .filter { ref -> ref.getSchemaIdObject().name.contains("package_receipt") }
+            .map { ref -> ref.attributes[EXTRA_SERIAL] }
+            .toSet()
+        return realm.where(Product::class.java)
+            .sort(FIELD_COLLECTED_AT, Sort.DESCENDING)
+            .isNotNull(FIELD_COLLECTED_AT)
+            .findAll()
+            .filter { product -> product.serial in receiptSerials }
+    }
+    private var orders: List<Product> = rescanOrders()
+
     private val productOperations: RealmResults<ProductOperation> = realm.where(ProductOperation::class.java).findAll()
 
     private val itemsState = SparseBooleanArray()
@@ -79,6 +85,7 @@ class HistoryAdapter(realm: Realm) : RecyclerView.Adapter<HistoryAdapter.OrderVi
 
     private var realmChangeListener = RealmChangeListener<Realm> {
         Log.i("TAG", "Change occurred!")
+        orders = rescanOrders()
         this.notifyDataSetChanged()
     }
 
