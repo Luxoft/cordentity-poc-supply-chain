@@ -17,6 +17,7 @@ import Portal from '../../common/Portal/Portal';
 import Dimmer from '../../common/Dimmer/Dimmer';
 import AddRequestModal from '../../common/AddRequestModal/AddRequestModal';
 import CollectPackageModal from '../../common/CollectPackageModal/CollectPackageModal';
+import ProfilePage from '../ProfilePage/ProfilePage'
 import WaypointsModal from '../../common/WaypointsModal/WaypointsModal';
 import Footer from '../../common/Footer/Footer';
 
@@ -33,6 +34,7 @@ class TreatmentCenterPage extends React.Component {
         backPressed: false,
         addRequestModalVisible: false,
         collectPackageModalVisible: false,
+        patientProfileVisible: false,
         waypointsModalVisible: false,
         active: true,
         currentPackage: null
@@ -57,7 +59,7 @@ class TreatmentCenterPage extends React.Component {
 
     render() {
         const {error, loading, packages, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -95,6 +97,9 @@ class TreatmentCenterPage extends React.Component {
                         <button onClick={this.handleCollectPackageModalOpen} className='distribute-package-btn'>
                             <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Package collection
                         </button>
+                        <button onClick={this.handleDisplayProfileModalOpen} className='open-dummy-profile-btn'>
+                            <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Display patient profile
+                        </button>
 
                         {/*OMG THAT'S THE PORTAL*/}
                         {
@@ -110,6 +115,14 @@ class TreatmentCenterPage extends React.Component {
                             <Portal>
                                 <Dimmer>
                                     <CollectPackageModal invite={invite} onClose={this.handleCollectPackageModalClose}/>
+                                </Dimmer>
+                            </Portal>
+                        }
+                        {
+                            patientProfileVisible &&
+                            <Portal>
+                                <Dimmer>
+                                    <ProfilePage onClose={this.handleDisplayProfileModalClose}/>
                                 </Dimmer>
                             </Portal>
                         }
@@ -163,6 +176,14 @@ class TreatmentCenterPage extends React.Component {
 
     handleCollectPackageModalOpen = () => {
         this.setState({collectPackageModalVisible: true})
+    };
+
+    handleDisplayProfileModalOpen = () => {
+        this.setState({patientProfileVisible: true})
+    };
+
+    handleDisplayProfileModalClose = () => {
+        this.setState({patientProfileVisible: false})
     };
 
     handleCollectPackageModalClose = () => {
