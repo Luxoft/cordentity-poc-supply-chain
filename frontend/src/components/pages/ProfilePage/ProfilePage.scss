@@ -35,15 +35,30 @@
 
     .header {
       display: flex;
-      flex-flow: row nowrap;
+      flex-flow: column nowrap;
       justify-content: flex-start;
       align-items: center;
       width: 444px;
       padding: 20px 30px;
       border-bottom: solid 1px rgba(222, 222, 222, 0.36);
 
-      img {
-        width: 60px;
+      .avatar-and-close {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        img {
+          width: 60px;
+        }
+
+        .close-btn {
+          height: 22px;
+          width: 21px;
+          cursor: pointer;
+
+          @include hover-transition(opacity, .7, 1)
+        }
       }
 
       .avatar-description {

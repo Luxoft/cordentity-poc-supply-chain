@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import PropTypes from 'prop-types';
-import {fetchPackages, receiveShipment} from "../../../state/async";
+import {fetchPackages, receiveShipment, fetchProofs} from "../../../state/async";
 import './TreatmentCenterPage.scss';
 import {ENTITY_MODIFIERS, PackageStatus, users} from "../../../utils";
 import Spinner from 'react-spinkit';
@@ -25,6 +25,7 @@ import Footer from '../../common/Footer/Footer';
 class TreatmentCenterPage extends React.Component {
     static propTypes = {
         packages: PropTypes.arrayOf(PropTypes.object),
+        proofs: PropTypes.arrayOf(PropTypes.object),
         error: PropTypes.string,
         loading: PropTypes.bool,
         invite: PropTypes.string
@@ -58,7 +59,7 @@ class TreatmentCenterPage extends React.Component {
     }
 
     render() {
-        const {error, loading, packages, invite} = this.props;
+        const {error, loading, packages, proofs, invite} = this.props;
         const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
@@ -82,7 +83,7 @@ class TreatmentCenterPage extends React.Component {
                 if (PackageStatus[a.state] > PackageStatus[b.state]) return 1;
                 return 0;
             })
-            .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleWaypointsModalOpen(pack)} />);
+            .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
         const headers = ['Medicine', 'Manufacturer', 'Request ID', 'Patient', 'Status', 'Action'];
 
@@ -118,14 +119,6 @@ class TreatmentCenterPage extends React.Component {
                                 </Dimmer>
                             </Portal>
                         }
-                        {
-                            patientProfileVisible &&
-                            <Portal>
-                                <Dimmer>
-                                    <ProfilePage onClose={this.handleDisplayProfileModalClose}/>
-                                </Dimmer>
-                            </Portal>
-                        }
                     </div>
                     <div className='columns'>
                         <div className='left'>
@@ -147,6 +140,14 @@ class TreatmentCenterPage extends React.Component {
                                 <Portal>
                                     <Dimmer>
                                         <WaypointsModal onClose={this.handleWaypointsModalClose} {...currentPackage}/>
+                                    </Dimmer>
+                                </Portal>
+                            }
+                            {
+                                patientProfileVisible &&
+                                <Portal>
+                                    <Dimmer>
+                                        <ProfilePage onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
                                     </Dimmer>
                                 </Portal>
                             }
@@ -183,7 +184,10 @@ class TreatmentCenterPage extends React.Component {
     };
 
     handleDisplayProfileModalClose = () => {
-        this.setState({patientProfileVisible: false})
+        this.setState({
+            patientProfileVisible: false,
+            currentPackage: null
+        })
     };
 
     handleCollectPackageModalClose = () => {
@@ -208,6 +212,13 @@ class TreatmentCenterPage extends React.Component {
             currentPackage: null
         })
     };
+
+    handleDisplayPackProfileModalOpen = pack => () => {
+        this.setState({currentPackage: pack})
+        fetchProofs(pack.serial)
+            .then(() => setTimeout(() => this.setState({ patientProfileVisible: true }), 1000))
+    };
+
 
     handleReceiveShipmentClick = serial => () => {
         receiveShipment(serial)

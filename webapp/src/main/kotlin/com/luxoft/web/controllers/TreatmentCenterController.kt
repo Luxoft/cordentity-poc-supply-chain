@@ -16,6 +16,7 @@
 
 package com.luxoft.web.controllers
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.GetInviteFlow
@@ -106,4 +107,18 @@ class TreatmentCenterController(rpc: RPCComponent) {
         }
     }
 
+    @PostMapping("package/proofs")
+    fun getPackageProofs(@RequestBody request: Serial): Any {
+        return try {
+            val r = services.vaultQueryBy<IndyCredentialProof>().states
+                .map { it.state.data }
+                .filter { it.id == request.serial }
+                .map { it.proof.proofData }
+            println("Responding to /api/tc/package/proofs with ($r)")
+            r
+        } catch (e: Exception) {
+            logger.error("", e)
+            FAILURE.plus("error" to e.message)
+        }
+    }
 }

@@ -4,6 +4,7 @@ import Claim from '../../common/Claim/Claim';
 import styles from './ProfilePage.scss';
 import {claims, IClaim, IInfo, parseClaims} from './utils';
 import BackBtn from '../../../assets/img/back-btn.svg';
+import CloseBtnPNG from '../../../assets/img/close-btn.svg';
 import PatientAvatar from '../../../assets/img/patient-avatar@3x.png';
 import PropTypes from 'prop-types';
 
@@ -14,7 +15,20 @@ interface IState {
 export default class ProfilePage extends React.Component {
 
     static propTypes = {
-        onClose: PropTypes.func.isRequired
+        onClose: PropTypes.func.isRequired,
+        serial: PropTypes.string.isRequired,
+        state: PropTypes.string.isRequired,
+        medicineName: PropTypes.string.isRequired,
+        patientDid: PropTypes.string.isRequired,
+        requestedAt: PropTypes.number.isRequired,
+        requestedBy: PropTypes.object.isRequired,
+        issuedAt: PropTypes.number.isRequired,
+        issuedBy: PropTypes.object.isRequired,
+        processedAt: PropTypes.number,
+        processedBy: PropTypes.object,
+        deliveredAt: PropTypes.number,
+        deliveredTo: PropTypes.object,
+        collectedAt: PropTypes.number,
     };
 
     state = {
@@ -41,7 +55,10 @@ export default class ProfilePage extends React.Component {
                         info
                             ? [
                                 <div className='header'>
-                                    <img src={PatientAvatar} alt=''/>
+                                    <div className='avatar-and-close'>
+                                        <img src={PatientAvatar} alt=''/>
+                                        <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
+                                    </div>
                                     <div className='avatar-description'>
                                         <h3>{info.name.value}</h3>
                                         <p>verified by {info.name.verifiedBy}</p>
