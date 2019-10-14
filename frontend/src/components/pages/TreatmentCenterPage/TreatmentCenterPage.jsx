@@ -38,7 +38,8 @@ class TreatmentCenterPage extends React.Component {
         patientProfileVisible: false,
         waypointsModalVisible: false,
         active: true,
-        currentPackage: null
+        currentPackage: null,
+        profileInfo: null
     };
 
     componentDidMount() {
@@ -60,7 +61,7 @@ class TreatmentCenterPage extends React.Component {
 
     render() {
         const {error, loading, packages, proofs, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -147,7 +148,7 @@ class TreatmentCenterPage extends React.Component {
                                 patientProfileVisible &&
                                 <Portal>
                                     <Dimmer>
-                                        <ProfilePage onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
+                                        <ProfilePage profileInfo={profileInfo} onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
                                     </Dimmer>
                                 </Portal>
                             }
@@ -216,7 +217,15 @@ class TreatmentCenterPage extends React.Component {
     handleDisplayPackProfileModalOpen = pack => () => {
         this.setState({currentPackage: pack})
         fetchProofs(pack.serial)
-            .then(() => setTimeout(() => this.setState({ patientProfileVisible: true }), 1000))
+            .then(() => setTimeout(() => {
+                const {proofs} = this.props;
+                const profileInfo = proofs
+                    .filter(proof => "profile picture" in proof["requestedProof"]["revealedAttrs"])
+                    .map(proof => proof["requestedProof"]["revealedAttrs"])
+                    [0]
+                this.setState({ profileInfo: profileInfo })
+                this.setState({ patientProfileVisible: true })
+            }, 1000))
     };
 
 
@@ -227,7 +236,7 @@ class TreatmentCenterPage extends React.Component {
 }
 
 const mapStateToProps = state => {
-    return {...state.packages, ...state.invite}
+    return {...state.packages, ...state.invite, ...state.proofs}
 };
 
 export default connect(mapStateToProps)(TreatmentCenterPage);

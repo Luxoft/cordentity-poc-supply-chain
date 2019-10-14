@@ -29,6 +29,7 @@ export default class ProfilePage extends React.Component {
         deliveredAt: PropTypes.number,
         deliveredTo: PropTypes.object,
         collectedAt: PropTypes.number,
+        profileInfo: PropTypes.object.isRequired
     };
 
     state = {
@@ -44,19 +45,17 @@ export default class ProfilePage extends React.Component {
     render() {
         const {onClose} = this.props;
         const {info}: IState = this.state;
+        const {profileInfo} = this.props
 
         return (
             <section className='profile-page'>
-                <div className='icon-wrapper'>
-                    <img onClick={onClose} src={BackBtn} alt=""/>
-                </div>
                 <div className='data-wrapper'>
                     {
                         info
                             ? [
                                 <div className='header'>
                                     <div className='avatar-and-close'>
-                                        <img src={PatientAvatar} alt=''/>
+                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
                                         <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
                                     </div>
                                     <div className='avatar-description'>

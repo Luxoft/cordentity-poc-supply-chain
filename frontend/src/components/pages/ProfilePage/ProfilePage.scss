@@ -6,19 +6,6 @@
   position: relative;
   height: auto;
 
-  .icon-wrapper {
-    width: 100px;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: flex-start;
-
-    img {
-      cursor: pointer;
-      margin-top: 24px;
-    }
-  }
-
   .data-wrapper {
     position: relative;
     background-color: white;
@@ -48,7 +35,7 @@
         justify-content: space-between;
         align-items: flex-start;
 
-        img {
+        .avatar {
           width: 60px;
         }
 
