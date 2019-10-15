@@ -225,7 +225,7 @@ class TreatmentCenterPage extends React.Component {
                     [0]
                 this.setState({ profileInfo: profileInfo })
                 this.setState({ patientProfileVisible: true })
-            }, 1000))
+            }, 500))
     };
 
 
