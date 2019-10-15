@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            tools:listitem="@layout/item_claim" />
+            tools:listitem="@layout/item_claim_text" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
