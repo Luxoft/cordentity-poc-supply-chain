@@ -99,9 +99,6 @@ class TreatmentCenterPage extends React.Component {
                         <button onClick={this.handleCollectPackageModalOpen} className='distribute-package-btn'>
                             <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Package collection
                         </button>
-                        <button onClick={this.handleDisplayProfileModalOpen} className='open-dummy-profile-btn'>
-                            <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Display patient profile
-                        </button>
 
                         {/*OMG THAT'S THE PORTAL*/}
                         {
