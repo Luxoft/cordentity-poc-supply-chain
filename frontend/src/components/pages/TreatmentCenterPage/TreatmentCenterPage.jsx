@@ -86,7 +86,7 @@ class TreatmentCenterPage extends React.Component {
             })
             .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
-        const headers = ['Medicine', 'Manufacturer', 'Request ID', 'Patient', 'Status', 'Action'];
+        const headers = ['Manufacturer', 'Medicine', 'Request ID', 'Patient', 'Status', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
