@@ -31,7 +31,7 @@ task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     }
 
     node {
-        name "O=Manufacture,L=London,C=GB"
+        name "O=PharmaOne,L=London,C=GB"
         p2pPort 10001
         rpcSettings {
             address("localhost:10002")
@@ -42,7 +42,7 @@ task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
     }
 
     node {
-        name "O=TreatmentCenter,L=London,C=GB"
+        name "O=SEEHOF,L=Zurich,C=CH"
         p2pPort 10101
         rpcSettings {
             address("localhost:10102")
@@ -103,8 +103,8 @@ task deployGenesisToNodes(group: RUN_CORDA_GROUP) {
 
 task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
     def indyConfigMapping = [
-            "TreatmentCenter"   : "treatment",
-            "Manufacture"       : "issuer",
+            "SEEHOF"            : "treatment",
+            "PharmaOne"         : "issuer",
             "Notary"            : "notary"
     ]
 

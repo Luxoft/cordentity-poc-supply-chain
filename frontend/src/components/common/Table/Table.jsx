@@ -100,7 +100,7 @@ export class TableRowTC extends React.Component {
                     <TableImg {...{img}} />
                 </div>
                 <div className="td">
-                    <TableManufacturerPlate {...{manufacturer: 'PharmaOne'}} />
+                    <TableManufacturerPlate {...{manufacturer: processedBy.organisation}} />
                 </div>
                 <div className="td">
                     <TableMedicinePlate medicineName={medicineName} medicineDescription={medicineDescription}/>
@@ -195,7 +195,7 @@ export class TableRowMF extends React.Component {
                     <TableSerialPlate {...{serial}} />
                 </div>
                 <div className="td">
-                    <TableTreatmentCenterPlate treatmentCenterName='Marina Bay Hospital' treatmentCenterAddress='Marina Sands 117, Singapore'/>
+                    <TableTreatmentCenterPlate treatmentCenterName={requestedBy.organisation} treatmentCenterAddress={requestedBy.locality}/>
                 </div>
                 <div className="td">
                     <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientDiagnosis={patientDiagnosis}/>
@@ -245,7 +245,7 @@ function TableTreatmentCenterPlate(props) {
     return (
         <div className='treatment-center-plate'>
             <p className="name">{treatmentCenterName}</p>
-            <p className="address">{treatmentCenterAddress}</p>
+            { treatmentCenterAddress && <p className="address">{treatmentCenterAddress}</p> }
         </div>
     )
 }

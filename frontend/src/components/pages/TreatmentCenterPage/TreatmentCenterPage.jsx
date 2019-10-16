@@ -90,7 +90,7 @@ class TreatmentCenterPage extends React.Component {
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
-                <Header header='Demo' subheader='Treatment centre: Marina Bay Hospital' onBackClick={this.handleBackClick} user={user}/>
+                <Header header='Demo' subheader='Treatment centre: TC SEEHOF' onBackClick={this.handleBackClick} user={user}/>
                 <article>
                     <div className="controls">
                         <button onClick={this.handleAddRequestModalOpen} className='add-request-btn'>

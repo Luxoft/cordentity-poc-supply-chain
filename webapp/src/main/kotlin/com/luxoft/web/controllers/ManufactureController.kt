@@ -73,7 +73,7 @@ class ManufactureController(rpc: RPCComponent) {
 
         return try {
 
-            val flowHandle = services.startFlowDynamic(DeliverShipment.Sender::class.java, serial.serial, CordaX500Name("TreatmentCenter", "London", "GB"))
+            val flowHandle = services.startFlowDynamic(DeliverShipment.Sender::class.java, serial.serial, CordaX500Name("SEEHOF", "Zurich", "CH"))
             flowHandle.returnValue.get()
             null
 
