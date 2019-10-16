@@ -27,6 +27,7 @@ import android.view.ViewGroup
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.TIME
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
@@ -54,6 +55,7 @@ class ClaimsFragment : Fragment() {
             .sort(FIELD_KEY)
             .notEqualTo(FIELD_KEY, AUTHORITIES)
             .notEqualTo(FIELD_KEY, TIME)
+            .notEqualTo(FIELD_KEY, EXTRA_SERIAL)
             .findAll()
         tvClaims.text = getString(R.string.verified_claims, claims.size)
 
