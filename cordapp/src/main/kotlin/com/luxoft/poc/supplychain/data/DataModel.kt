@@ -25,11 +25,14 @@ data class PackageInfo (
         val serial: String,
         val state: PackageState,
 
+        val patientName: String,
         val patientDid: String,
         val patientDiagnosis: String?,
 
+        val insurerDid: String?,
         val medicineName: String?,
-        val medicineDescription: String?,
+        val estimatedCost: String?,
+        val isCoveredByInsurer: Boolean?,
 
         val requestedAt: Long? = null,
         val requestedBy: CordaX500Name,

@@ -229,7 +229,6 @@ open class E2ETest {
         assert(pack.patientDid.isNotEmpty())
         assert(pack.patientDiagnosis?.isNotEmpty() ?: false)
         assert(pack.medicineName?.isNotEmpty() ?: false)
-        assert(pack.medicineDescription?.isNotEmpty() ?: false)
 
         when (pack.state) {
             PackageState.NEW -> {
