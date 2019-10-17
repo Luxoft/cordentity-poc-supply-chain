@@ -52,7 +52,7 @@ class AskNewPackage {
             try {
                 val serial = UUID.randomUUID().toString()
 
-                checkPermissions()
+                checkPermissions(serial)
 
                 issueReceipt(serial)
                 requestNewPackage(serial, packageRequest)
@@ -64,10 +64,11 @@ class AskNewPackage {
         }
 
         @Suspendable
-        private fun checkPermissions() {
+        private fun checkPermissions(serial: String) {
             val proofRequest = proofRequest("user_proof_req", "1.0") {
                 reveal("name")
                 reveal("sex")
+                reveal("profile picture")
                 reveal("medical id") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
                 reveal("medical condition") {
                     //                    FilterProperty.Value shouldBe "Healthy"
@@ -77,7 +78,7 @@ class AskNewPackage {
             }
             //In case of ignoring verification
 //            connectionService().sendProofRequest(proofRequest, clientDid)
-            if (!subFlow(VerifyCredentialFlowB2C.Verifier(clientDid, clientDid, proofRequest)))
+            if (!subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
         }
 

@@ -131,7 +131,7 @@ open class E2ETest {
 
         //TODO: Take credentials required for initFlow
         val invite = treatmentCenterClient.getInvite()
-        treatmentCenterClient.initFlow("Treatment London GB", invite)
+        treatmentCenterClient.initFlow("TC SEEHOF Zurich CH", invite)
 
 
         waitThenAssert(syncUpRetry) {

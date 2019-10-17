@@ -40,8 +40,8 @@ import net.corda.core.node.services.vault.Builder.equal
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.builder
 
-fun FlowLogic<Any>.getTreatment() = whoIs(CordaX500Name("TreatmentCenter", "London", "GB"))
-fun FlowLogic<Any>.getManufacturer() = whoIs(CordaX500Name("Manufacture", "London", "GB"))
+fun FlowLogic<Any>.getTreatment() = whoIs(CordaX500Name("SEEHOF", "Zurich", "CH"))
+fun FlowLogic<Any>.getManufacturer() = whoIs(CordaX500Name("PharmaOne", "London", "GB"))
 
 fun FlowLogic<Any>.getPackageState(serial: String, owner: AbstractParty): StateAndRef<Package> {
     val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)

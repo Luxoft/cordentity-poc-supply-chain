@@ -7,6 +7,9 @@ import {
     PACKAGE_LOAD,
     PACKAGE_LOAD_FAIL,
     PACKAGE_LOAD_SUCCESS,
+    PACKAGE_PROOFS,
+    PACKAGE_PROOFS_FAIL,
+    PACKAGE_PROOFS_SUCCESS,
     PACKAGE_MANUFACTURE,
     PACKAGE_MANUFACTURE_FAIL,
     PACKAGE_MANUFACTURE_SUCCESS
@@ -45,6 +48,7 @@ const patientAgentUrls = {
 
 const treatmentCenterUrls = {
     LIST: `http://${host[CURRENT_ENV]}:8082/api/tc/package/list`,
+    PROOFS: `http://${host[CURRENT_ENV]}:8082/api/tc/package/proofs`,
     RECEIVE: `http://${host[CURRENT_ENV]}:8082/api/tc/package/receive`,
     GET_INVITE: `http://${host[CURRENT_ENV]}:8082/api/tc/invite`
 };
@@ -79,4 +83,12 @@ export function receiveShipment(serial) {
     return qwest.post(treatmentCenterUrls.RECEIVE, {serial}, {cache: false})
         .then(() => doAction(PACKAGE_DELIVERY_SUCCESS))
         .catch(() => doAction(PACKAGE_DELIVERY_FAIL))
+}
+
+export function fetchProofs(serial) {
+    doAction(PACKAGE_PROOFS, serial);
+
+    return qwest.post(treatmentCenterUrls.PROOFS, {serial}, {cache: false})
+        .then((xhr, response) => doAction(PACKAGE_PROOFS_SUCCESS, response))
+        .catch(() => doAction(PACKAGE_PROOFS_FAIL))
 }
