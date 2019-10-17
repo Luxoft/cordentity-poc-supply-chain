@@ -20,7 +20,7 @@ import CollectPackageModal from '../../common/CollectPackageModal/CollectPackage
 import ProfilePage from '../ProfilePage/ProfilePage'
 import WaypointsModal from '../../common/WaypointsModal/WaypointsModal';
 import Footer from '../../common/Footer/Footer';
-
+import {generateRandomImg} from '../../../utils';
 
 class TreatmentCenterPage extends React.Component {
     static propTypes = {
@@ -32,6 +32,7 @@ class TreatmentCenterPage extends React.Component {
     };
 
     state = {
+        img: null,
         backPressed: false,
         addRequestModalVisible: false,
         collectPackageModalVisible: false,
@@ -45,6 +46,7 @@ class TreatmentCenterPage extends React.Component {
     componentDidMount() {
         const {active, loading} = this.state;
 
+        this.setState({img: generateRandomImg()})
         this.setState({backPressed: false});
         if (active && !loading) setTimeout(() => this.setState({active: false}), 100);
 
@@ -61,7 +63,7 @@ class TreatmentCenterPage extends React.Component {
 
     render() {
         const {error, loading, packages, proofs, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo} = this.state;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo, img} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -86,7 +88,7 @@ class TreatmentCenterPage extends React.Component {
             })
             .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
-        const headers = ['Manufacturer', 'Medicine', 'Request ID', 'Patient', 'Status', 'Action'];
+        const headers = [ <div className="img"> <img src={img}/> </div>, 'Manufacturer', 'Medicine', 'Request ID', 'Patient', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>

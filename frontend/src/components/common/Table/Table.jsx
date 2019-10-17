@@ -23,7 +23,6 @@ export default class Table extends React.Component {
         return (
             <div className={`table ${className}`}>
                 <div className="thead">
-                    <div className="td"/>
                     {head}
                 </div>
                 <div className="tbody">
@@ -53,7 +52,7 @@ export class TableRowTC extends React.Component {
 
     render() {
         const {
-            serial, state, patientDid, patientDiagnosis, medicineName, medicineDescription, processedBy,
+            serial, state, patientDid, patientDiagnosis, medicineName, processedBy,
             requestedAt, issuedAt, processedAt, deliveredAt, collectedAt, onClick, button
         } = this.props;
 
@@ -97,22 +96,19 @@ export class TableRowTC extends React.Component {
         return (
             <div className={classes} onClick={onClick}>
                 <div className="td">
-                    <TableImg {...{img}} />
+                    <TableStatusPlate {...{date, filledPins}} />
                 </div>
                 <div className="td">
                     <TableManufacturerPlate {...{manufacturer: processedBy.organisation}} />
                 </div>
                 <div className="td">
-                    <TableMedicinePlate medicineName={medicineName} medicineDescription={medicineDescription}/>
+                    <TableMedicinePlate medicineName={medicineName} patientDiagnosis={patientDiagnosis}/>
                 </div>
                 <div className="td">
                     <TableSerialPlate {...{serial}} />
                 </div>
                 <div className="td">
                     <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientDiagnosis={patientDiagnosis}/>
-                </div>
-                <div className="td">
-                    <TableStatusPlate {...{date, filledPins}} />
                 </div>
                 <div className="td" onClick={this.handleClick}>
                     {button && <TableButton text='receive shipment'/>}
@@ -140,7 +136,7 @@ export class TableRowMF extends React.Component {
 
     render() {
         const {
-            serial, state, medicineName, medicineDescription, requestedBy, requestedAt, issuedAt,
+            serial, state, medicineName, requestedBy, requestedAt, issuedAt,
             processedAt, deliveredAt, collectedAt, button, onClick, patientDid, patientDiagnosis
         } = this.props;
 
@@ -189,7 +185,7 @@ export class TableRowMF extends React.Component {
                     <TableImg {...{img}} />
                 </div>
                 <div className="td">
-                    <TableMedicinePlate medicineName={medicineName} medicineDescription={medicineDescription}/>
+                    <TableMedicinePlate medicineName={medicineName} patientDiagnosis={patientDiagnosis}/>
                 </div>
                 <div className="td">
                     <TableSerialPlate {...{serial}} />
@@ -251,12 +247,12 @@ function TableTreatmentCenterPlate(props) {
 }
 
 function TableMedicinePlate(props) {
-    const {medicineName, medicineDescription} = props;
+    const {medicineName, patientDiagnosis} = props;
 
     return (
         <div className="medicine-type">
             <p className="name">{medicineName}</p>
-            <p className="description">{medicineDescription}</p>
+            <p className="description">{patientDiagnosis}</p>
         </div>
     )
 }
