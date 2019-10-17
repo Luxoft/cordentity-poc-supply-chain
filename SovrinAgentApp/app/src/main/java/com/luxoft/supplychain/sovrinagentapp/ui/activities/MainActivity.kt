@@ -21,21 +21,28 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
+import com.luxoft.supplychain.sovrinagentapp.application.NAME
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.OrdersFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
+import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.inject
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
+    private val indyUser: IndyUser by inject()
     private lateinit var ordersFragment: OrdersFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,10 +75,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
+        indyUser.walletUser.updateCredentialsInRealm()
+        val nameClaim = realm.where(ClaimAttribute::class.java)
+                .equalTo(FIELD_KEY, NAME)
+                .findFirst()
+
+        val userName = nameClaim?.value ?: ""
+
         setSupportActionBar(toolbar)
         supportActionBar?.let {
             it.setDisplayHomeAsUpEnabled(false)
-            it.title = "Mark Rubinshtein"
+            it.title = userName
         }
     }
 
