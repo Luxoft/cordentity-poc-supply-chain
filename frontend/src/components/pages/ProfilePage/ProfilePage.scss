@@ -6,26 +6,13 @@
   position: relative;
   height: auto;
 
-  .icon-wrapper {
-    width: 100px;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: flex-start;
-
-    img {
-      cursor: pointer;
-      margin-top: 24px;
-    }
-  }
-
   .data-wrapper {
     position: relative;
     background-color: white;
     border-radius: 6px;
     box-shadow: 0 2px 47px 0 rgba(47, 101, 150, 0.26);
     z-index: 2;
-    max-width: 516px;
+    max-width: 600px;
     height: auto;
     max-height: 800px;
     overflow-y: auto;
@@ -48,7 +35,7 @@
         justify-content: space-between;
         align-items: flex-start;
 
-        img {
+        .avatar {
           width: 60px;
         }
 
@@ -56,6 +43,9 @@
           height: 22px;
           width: 21px;
           cursor: pointer;
+          vertical-align: top;
+          float: right;
+          margin-right: 4px;
 
           @include hover-transition(opacity, .7, 1)
         }
@@ -84,12 +74,18 @@
       overflow-y: auto;
       flex: 1;
 
+      h5 {
+        font-size: 18px;
+        margin-left: 40px;
+        letter-spacing: -0.43px;
+        color: #5a564e;
+      }
       .entry {
         width: 100%;
         display: grid;
-        grid-template-columns: 74px auto;
-        grid-column-gap: 38px;
-        padding: 12px 50px 12px 34px;
+        grid-template-columns: 96px auto;
+        grid-column-gap: 16px;
+        padding: 8px 8px 0px 40px;
         box-sizing: border-box;
 
         &:nth-child(n+2) {
@@ -100,6 +96,7 @@
           font-size: 12px;
           color: #818181;
           letter-spacing: -0.28px;
+          align-self: center;
         }
 
         .two-claims {

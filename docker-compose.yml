@@ -15,7 +15,7 @@ services:
   tccorda:
     network_mode: host
     build:
-      context: ./build/nodes/TreatmentCenter
+      context: ./build/nodes/SEEHOF
       dockerfile: Dockerfile-corda
     ports:
       - "10101:10101"
@@ -33,7 +33,7 @@ services:
   mfcorda:
     network_mode: host
     build:
-      context: ./build/nodes/Manufacture
+      context: ./build/nodes/PharmaOne
       dockerfile: Dockerfile-corda
     ports:
       - "10001:10001"

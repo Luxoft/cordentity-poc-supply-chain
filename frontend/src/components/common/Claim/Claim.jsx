@@ -3,7 +3,7 @@ import s from './Claim.scss';
 
 interface IProps {
     value: string;
-    verifiedBy: string;
+    verifiedBy?: string;
     text?: string;
     annotation?: string;
     buttonText?: string;
@@ -22,7 +22,7 @@ export default class Claim extends React.Component {
                         {text && <p className={s.text}>{text}</p>}
                         {buttonText && <button className={s.btn}>{buttonText}</button>}
                     </div>
-                    <div className={s.verifiedBy}>verified by {verifiedBy}</div>
+                    { verifiedBy && <div className={s.verifiedBy}>verified by {verifiedBy}</div> }
             </div>
         )
     }

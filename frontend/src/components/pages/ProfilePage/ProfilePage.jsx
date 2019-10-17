@@ -3,6 +3,7 @@ import React from 'react';
 import Claim from '../../common/Claim/Claim';
 import styles from './ProfilePage.scss';
 import {claims, IClaim, IInfo, parseClaims} from './utils';
+import {formatDateTime, PackageStatus} from '../../../utils';
 import BackBtn from '../../../assets/img/back-btn.svg';
 import CloseBtnPNG from '../../../assets/img/close-btn.svg';
 import PatientAvatar from '../../../assets/img/patient-avatar@3x.png';
@@ -29,6 +30,7 @@ export default class ProfilePage extends React.Component {
         deliveredAt: PropTypes.number,
         deliveredTo: PropTypes.object,
         collectedAt: PropTypes.number,
+        profileInfo: PropTypes.object.isRequired
     };
 
     state = {
@@ -42,93 +44,76 @@ export default class ProfilePage extends React.Component {
     }
 
     render() {
-        const {onClose} = this.props;
         const {info}: IState = this.state;
+
+        const {
+            onClose, medicineName, serial, state, requestedAt, requestedBy, issuedAt, issuedBy, processedAt, processedBy,
+            deliveredAt, deliveredTo, collectedAt, patientDid, profileInfo
+        } = this.props;
 
         return (
             <section className='profile-page'>
-                <div className='icon-wrapper'>
-                    <img onClick={onClose} src={BackBtn} alt=""/>
-                </div>
                 <div className='data-wrapper'>
                     {
                         info
                             ? [
                                 <div className='header'>
                                     <div className='avatar-and-close'>
-                                        <img src={PatientAvatar} alt=''/>
+                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
                                         <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
                                     </div>
                                     <div className='avatar-description'>
-                                        <h3>{info.name.value}</h3>
+                                        <h3>{profileInfo["name"]['raw']}</h3>
                                         <p>verified by {info.name.verifiedBy}</p>
                                     </div>
                                 </div>,
                                 <div className='content'>
                                     <div className='entry'>
-                                        <p className='name'>Date of birth</p>
+                                        <p className='name'>Client name</p>
                                         <Claim
-                                            value={info.dateOfBirth.value}
-                                            verifiedBy={info.dateOfBirth.verifiedBy}
-                                            text={`${info.dateOfBirth.years} years`}
+                                            value={profileInfo["name"]['raw']}
                                         />
                                     </div>
                                     <div className='entry'>
-                                        <p className='name'>Nationality</p>
+                                        <p className='name'>Medical ID</p>
                                         <Claim
-                                            value={info.nationality.value}
-                                            verifiedBy={info.nationality.verifiedBy}
+                                            value={profileInfo["medical id"]['raw']}
                                         />
                                     </div>
                                     <div className='entry'>
-                                        <p className='name'>Diagnosis</p>
-                                        <div className='two-claims'>
-                                            <Claim
-                                                className='claim'
-                                                value={info.diagnosis1.name}
-                                                verifiedBy={info.diagnosis1.verifiedBy}
-                                                text={info.diagnosis1.date}
-                                            />
-                                            <Claim
-                                                className='claim'
-                                                value={info.diagnosis2.name}
-                                                verifiedBy={info.diagnosis2.verifiedBy}
-                                                text={info.diagnosis2.date}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='entry'>
-                                        <p className='name'>Insurer</p>
+                                        <p className='name'>Medical Condition</p>
                                         <Claim
-                                            value={info.insurer.name}
-                                            verifiedBy={info.insurer.verifiedBy}
-                                            text={`${info.insurer.period.from} - ${info.insurer.period.to}`}
+                                            value={profileInfo["medical condition"]['raw']}
                                         />
                                     </div>
                                     <div className='entry'>
-                                        <p className='name'>Coverage Plan</p>
+                                        <p className='name'>Gender</p>
                                         <Claim
-                                            value={`up to $${info.coveragePlan.amount.toString()}`}
-                                            verifiedBy={info.coveragePlan.verifiedBy}
-                                            text={`${info.coveragePlan.period.from} - ${info.coveragePlan.period.to}`}
-                                            annotation={`${info.coveragePlan.type} is covered`}
+                                            value={profileInfo["sex"]['raw']}
                                         />
                                     </div>
-                                    <div className='entry'>
+                                    <h5>Order details</h5>
+                                    { medicineName && <div className='entry'>
                                         <p className='name'>Prescription</p>
                                         <Claim
-                                            value={info.prescription.name}
-                                            verifiedBy={info.prescription.verifiedBy}
-                                            buttonText='Produce'
+                                            value={medicineName}
                                         />
-                                    </div>
-                                    <div className='entry'>
-                                        <p className='name'>Physician qualification</p>
+                                        </div>
+                                    }
+                                    { serial && <div className='entry'>
+                                        <p className='name'>Order Serial No.</p>
                                         <Claim
-                                            value={info.qualification.name}
-                                            verifiedBy={info.qualification.verifiedBy}
+                                            value={serial}
                                         />
-                                    </div>
+                                        </div>
+                                    }
+                                    { state && <div className='entry'>
+                                        <p className='name'>Package State</p>
+                                        <Claim
+                                            value={state}
+                                        />
+                                        </div>
+                                    }
                                 </div>
                             ]
                             : <div/>

@@ -68,6 +68,7 @@ class AskNewPackage {
             val proofRequest = proofRequest("user_proof_req", "1.0") {
                 reveal("name")
                 reveal("sex")
+                reveal("profile picture")
                 reveal("medical id") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
                 reveal("medical condition") {
                     //                    FilterProperty.Value shouldBe "Healthy"

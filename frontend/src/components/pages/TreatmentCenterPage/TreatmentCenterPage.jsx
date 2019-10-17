@@ -38,7 +38,8 @@ class TreatmentCenterPage extends React.Component {
         patientProfileVisible: false,
         waypointsModalVisible: false,
         active: true,
-        currentPackage: null
+        currentPackage: null,
+        profileInfo: null
     };
 
     componentDidMount() {
@@ -60,7 +61,7 @@ class TreatmentCenterPage extends React.Component {
 
     render() {
         const {error, loading, packages, proofs, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -85,11 +86,11 @@ class TreatmentCenterPage extends React.Component {
             })
             .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
-        const headers = ['Medicine', 'Manufacturer', 'Request ID', 'Patient', 'Status', 'Action'];
+        const headers = ['Manufacturer', 'Medicine', 'Request ID', 'Patient', 'Status', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
-                <Header header='Demo' subheader='Treatment centre: Marina Bay Hospital' onBackClick={this.handleBackClick} user={user}/>
+                <Header header='Demo' subheader='Treatment centre: TC SEEHOF' onBackClick={this.handleBackClick} user={user}/>
                 <article>
                     <div className="controls">
                         <button onClick={this.handleAddRequestModalOpen} className='add-request-btn'>
@@ -97,9 +98,6 @@ class TreatmentCenterPage extends React.Component {
                         </button>
                         <button onClick={this.handleCollectPackageModalOpen} className='distribute-package-btn'>
                             <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Package collection
-                        </button>
-                        <button onClick={this.handleDisplayProfileModalOpen} className='open-dummy-profile-btn'>
-                            <span className="img" style={{backgroundImage: `url(${LetterBtnPNG})`}}/> Display patient profile
                         </button>
 
                         {/*OMG THAT'S THE PORTAL*/}
@@ -147,7 +145,7 @@ class TreatmentCenterPage extends React.Component {
                                 patientProfileVisible &&
                                 <Portal>
                                     <Dimmer>
-                                        <ProfilePage onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
+                                        <ProfilePage profileInfo={profileInfo} onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
                                     </Dimmer>
                                 </Portal>
                             }
@@ -216,7 +214,15 @@ class TreatmentCenterPage extends React.Component {
     handleDisplayPackProfileModalOpen = pack => () => {
         this.setState({currentPackage: pack})
         fetchProofs(pack.serial)
-            .then(() => setTimeout(() => this.setState({ patientProfileVisible: true }), 1000))
+            .then(() => setTimeout(() => {
+                const {proofs} = this.props;
+                const profileInfo = proofs
+                    .filter(proof => "profile picture" in proof["requestedProof"]["revealedAttrs"])
+                    .map(proof => proof["requestedProof"]["revealedAttrs"])
+                    [0]
+                this.setState({ profileInfo: profileInfo })
+                this.setState({ patientProfileVisible: true })
+            }, 500))
     };
 
 
@@ -227,7 +233,7 @@ class TreatmentCenterPage extends React.Component {
 }
 
 const mapStateToProps = state => {
-    return {...state.packages, ...state.invite}
+    return {...state.packages, ...state.invite, ...state.proofs}
 };
 
 export default connect(mapStateToProps)(TreatmentCenterPage);

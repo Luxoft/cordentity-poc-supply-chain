@@ -13,7 +13,7 @@
       display: flex;
       flex-flow: row nowrap;
 
-      .add-request-btn, .distribute-package-btn, .open-dummy-profile-btn {
+      .add-request-btn, .distribute-package-btn {
         @include btn(white);
         margin-bottom: 20px;
         margin-right: 20px;
@@ -36,6 +36,7 @@
       }
 
       .left {
+        min-width: 960px;
         position: relative;
         width: 100%;
       }
