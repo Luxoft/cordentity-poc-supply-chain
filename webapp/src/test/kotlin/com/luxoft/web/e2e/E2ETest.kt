@@ -50,15 +50,20 @@ import java.util.concurrent.TimeUnit
 @RunWith(SpringRunner::class)
 @ActiveProfiles(profiles = ["treatmentcenter"])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@Ignore
+@Ignore(
+"""Use only for development/debugging
+Preconditions: 
+ - Set profile to one of {treatmentcenter, manufacture}
+ - Run start.sh
+ - Stop the service corresponding to the profile""")
 class TreatmentCenterE2E : E2ETest()
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Ignore
+@Ignore("Precondition: Run start.sh")
 class RemoteE2E : E2ETest()
 
-@Ignore("Needs external services")
+@Ignore("Do not use directly; Needs external setup")
 @TestPropertySource(
     properties = [
         "manufactureEndpoint=http://localhost:8081",
@@ -66,7 +71,7 @@ class RemoteE2E : E2ETest()
     ]
 )
 @ImportAutoConfiguration
-open class E2ETest {
+abstract class E2ETest {
 
     @TestConfiguration
     class TestConfig {
