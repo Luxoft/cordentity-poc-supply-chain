@@ -16,22 +16,29 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
+import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
-import kotlinx.android.synthetic.main.item_claim.view.*
+import kotlinx.android.synthetic.main.item_claim_pic.view.*
+import kotlinx.android.synthetic.main.item_claim_text.view.*
+import kotlinx.android.synthetic.main.item_claim_text.view.tv_name
+import kotlinx.android.synthetic.main.item_claim_text.view.tv_schema_id
+import java.util.*
 
 class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
+    private val TAG = this::class.simpleName
 
     var realmChangeListener = RealmChangeListener<RealmResults<ClaimAttribute>> {
-        Log.i("TAG", "Change occurred!")
+        Log.i(TAG, "Change occurred!")
         this.notifyDataSetChanged()
     }
 
@@ -41,8 +48,16 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
     //region ******************** OVERRIDE *************************************************************
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ClaimViewHolder {
-        return ClaimViewHolder(viewGroup.context.inflate(R.layout.item_claim, viewGroup))
+    override fun onCreateViewHolder(viewGroup: ViewGroup, itemTypeOrdinal: Int): ClaimViewHolder {
+        val itemType = ItemType.values().getOrElse(itemTypeOrdinal) { ordinal ->
+            Log.e(TAG, "Unknown itemTypeOrdinal $ordinal")
+            ItemType.TEXT_ITEM_VIEW
+        }
+
+        return when(itemType) {
+            ItemType.TEXT_ITEM_VIEW -> TextClaimViewHolder(viewGroup.context.inflate(R.layout.item_claim_text, viewGroup))
+            ItemType.PIC_ITEM_VIEW  -> PicClaimViewHolder(viewGroup.context.inflate(R.layout.item_claim_pic, viewGroup))
+        }
     }
 
     override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
@@ -53,22 +68,56 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
         return claims.size
     }
 
-    //endregion OVERRIDE
+    override fun getItemViewType(position: Int): Int {
+        val claim = claims[position]
+        val valueSize = claim?.value?.length
+
+        val itemType = if (valueSize == null || valueSize < MIN_PIC_VALUE_LEN)
+            ItemType.TEXT_ITEM_VIEW
+        else
+            ItemType.PIC_ITEM_VIEW
+
+        return itemType.ordinal
+    }
+//endregion OVERRIDE
 
     //region ******************** HOLDER ***********************************************************
+    enum class ItemType { TEXT_ITEM_VIEW, PIC_ITEM_VIEW }
 
-    inner class ClaimViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val MIN_PIC_VALUE_LEN = 512;
 
+    abstract class ClaimViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun bind(item: ClaimAttribute?)
+    }
+
+    private inner class TextClaimViewHolder(itemView: View) : ClaimViewHolder(itemView) {
         var name: TextView = itemView.tv_name
         var value: TextView = itemView.tv_value
         var schemaId: TextView = itemView.tv_schema_id
 
-        fun bind(item: ClaimAttribute?) {
-            item?.let {
-                name.text = it.key
-                value.text = it.value
-                schemaId.text = it.schemaId
-            }
+        override fun bind(item: ClaimAttribute?) {
+            item ?: return
+            name.text = item.key
+            value.text = item.value
+            schemaId.text = item.schemaId
+        }
+    }
+
+    private inner class PicClaimViewHolder(itemView: View) : ClaimViewHolder(itemView) {
+        var name: TextView = itemView.tv_name
+        var value: ImageView = itemView.tv_pic
+        var schemaId: TextView = itemView.tv_schema_id
+
+        override fun bind(item: ClaimAttribute?) {
+            item ?: return
+            name.text = item.key
+            schemaId.text = item.schemaId
+
+            item.value ?: return
+            val imageBytes = Base64.getDecoder().decode(item.value)
+
+            val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            value.setImageBitmap(bitmap)
         }
     }
 
