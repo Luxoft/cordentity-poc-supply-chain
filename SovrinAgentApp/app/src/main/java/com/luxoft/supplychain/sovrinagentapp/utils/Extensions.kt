@@ -42,7 +42,7 @@ fun View.gone() {
 }
 
 fun WalletUser.updateCredentialsInRealm() {
-    Realm.getDefaultInstance().executeTransaction {
+    Realm.getDefaultInstance().executeTransaction { realm ->
         val claims = this.getCredentials().asSequence().map { credRef ->
             credRef.attributes.entries.map {
                 ClaimAttribute().apply {
@@ -52,7 +52,9 @@ fun WalletUser.updateCredentialsInRealm() {
                 }
             }
         }.flatten().toList()
-        it.delete(ClaimAttribute::class.java)
-        it.copyToRealmOrUpdate(claims)
+
+        // todo: Update only updated claims instead of full realm.delete
+        realm.delete(ClaimAttribute::class.java)
+        realm.copyToRealmOrUpdate(claims)
     }
 }

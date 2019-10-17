@@ -76,16 +76,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         indyUser.walletUser.updateCredentialsInRealm()
-        val nameClaim = realm.where(ClaimAttribute::class.java)
+        val nameClaims = realm.where(ClaimAttribute::class.java)
                 .equalTo(FIELD_KEY, NAME)
-                .findFirst()
-
-        val userName = nameClaim?.value ?: ""
+                .findAllAsync()  // todo: replace with `findFirstAsync` after you fix realm.delete on each update
 
         setSupportActionBar(toolbar)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(false)
-            it.title = userName
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        nameClaims.addChangeListener { claims ->
+            val userName = claims.first()?.value ?: ""
+            supportActionBar?.title = userName
         }
     }
 
