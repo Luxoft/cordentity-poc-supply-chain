@@ -1,6 +1,6 @@
 @import "../../../base";
 
-$column-template-tc: 23% 12% 13% 12% 16% 15%;
+$column-template-tc: 8% 12% 13% 16% 16% auto;
 $column-template-mf: $column-template-tc;
 
 @keyframes blink {
@@ -171,7 +171,23 @@ $column-template-mf: $column-template-tc;
           margin: 0;
         }
 
-        .diagnosis {
+        .did {
+          font-size: $font-size-micro;
+          color: $color-gray;
+        }
+      }
+
+      .insurer-plate {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: flex-start;
+
+        p {
+          margin: 0;
+        }
+
+        .did {
           font-size: $font-size-micro;
           color: $color-gray;
         }

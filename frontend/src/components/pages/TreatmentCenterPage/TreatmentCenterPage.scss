@@ -12,10 +12,11 @@
     .controls {
       display: flex;
       flex-flow: row nowrap;
+      margin-block-start: 20px;
 
       .add-request-btn, .distribute-package-btn {
         @include btn(white);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         margin-right: 20px;
 
         span {
@@ -36,7 +37,7 @@
       }
 
       .left {
-        min-width: 860px;
+        min-width: 800px;
         position: relative;
         width: 100%;
       }

@@ -29,6 +29,7 @@ data class PackageInfo (
         val patientDid: String,
         val patientDiagnosis: String?,
 
+        val insurerName: String?,
         val insurerDid: String?,
         val medicineName: String?,
         val estimatedCost: String?,

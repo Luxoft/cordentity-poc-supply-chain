@@ -30,7 +30,8 @@ export default class ProfilePage extends React.Component {
         deliveredAt: PropTypes.number,
         deliveredTo: PropTypes.object,
         collectedAt: PropTypes.number,
-        profileInfo: PropTypes.object.isRequired
+        profileInfo: PropTypes.object.isRequired,
+        identifiers: PropTypes.object.isRequired
     };
 
     state = {
@@ -41,6 +42,11 @@ export default class ProfilePage extends React.Component {
         this.getClaims()
             .then((value: IClaim[]) => this.setState({info: parseClaims(value)}))
             .catch((reason) => console.error(reason));
+    }
+
+    didBySchemaName = role => () => {
+        const {identifiers} = this.props;
+        identifiers.filter(id => id["schema_id"].includes({`:${role}:`}))
     }
 
     render() {
@@ -58,13 +64,20 @@ export default class ProfilePage extends React.Component {
                         info
                             ? [
                                 <div className='header'>
-                                    <div className='avatar-and-close'>
-                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
-                                        <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
+                                    <div className="social-id" style={{display: 'flex'}}>
+                                        <Claim
+                                            value={profileInfo["medical id"]['raw']}
+                                        />
+                                        <div>
+                                            <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
+                                        </div>
                                     </div>
-                                    <div className='avatar-description'>
-                                        <h3>{profileInfo["name"]['raw']}</h3>
-                                        <p>verified by {info.name.verifiedBy}</p>
+                                    <div className='avatar-and-close' style={{display: 'flex'}}>
+                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
+                                        <div className='avatar-description'>
+                                            <h3>{profileInfo["name"]['raw']}</h3>
+                                            <p>verified by {info.name.verifiedBy}</p>
+                                        </div>
                                     </div>
                                 </div>,
                                 <div className='content'>

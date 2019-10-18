@@ -140,6 +140,7 @@ class AskNewPackage {
 //                    patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
 //                    patientDid = packageRequest.patientDid,
 //                    patientDiagnosis = proof.requestedProof.revealedAttrs["diagnosis"]?.raw,
+//                    insurerName = proof.requestedProof.revealedAttrs["insurer"]?.raw,
 //                    insurerDid = proof.identifiers
 //                        .find { it.getSchemaIdObject().name == ":Insurer:" }?.getCredentialDefinitionIdObject()?.did,
 //                    medicineName = proof.requestedProof.revealedAttrs["prescription"]?.raw,
@@ -155,6 +156,7 @@ class AskNewPackage {
                     patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
                     patientDid = packageRequest.patientDid,
                     patientDiagnosis = "Leukemia",
+                    insurerName = "Teckniker Krankenkasse TK",
                     insurerDid = proof.requestedProof.revealedAttrs["medical id"]?.raw,
                     medicineName = "Santorium Plus",
                     estimatedCost = "$100.00",

@@ -40,7 +40,8 @@ class TreatmentCenterPage extends React.Component {
         waypointsModalVisible: false,
         active: true,
         currentPackage: null,
-        profileInfo: null
+        profileInfo: null,
+        identifiers: null
     };
 
     componentDidMount() {
@@ -63,7 +64,7 @@ class TreatmentCenterPage extends React.Component {
 
     render() {
         const {error, loading, packages, proofs, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo, img} = this.state;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo, img, identifiers} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -88,7 +89,7 @@ class TreatmentCenterPage extends React.Component {
             })
             .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
-        const headers = [ <div className="img"> <img src={img}/> </div>, 'Manufacturer', 'Medicine', 'Request ID', 'Patient', 'Action'];
+        const headers = [ <div className="img"> <img src={img}/> </div>, 'Manufacturer', 'Prescription', 'Patient', 'Insurer', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
@@ -147,7 +148,7 @@ class TreatmentCenterPage extends React.Component {
                                 patientProfileVisible &&
                                 <Portal>
                                     <Dimmer>
-                                        <ProfilePage profileInfo={profileInfo} onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
+                                        <ProfilePage profileInfo={profileInfo} identifiers={identifiers} onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
                                     </Dimmer>
                                 </Portal>
                             }
@@ -218,11 +219,9 @@ class TreatmentCenterPage extends React.Component {
         fetchProofs(pack.serial)
             .then(() => setTimeout(() => {
                 const {proofs} = this.props;
-                const profileInfo = proofs
-                    .filter(proof => "profile picture" in proof["requestedProof"]["revealedAttrs"])
-                    .map(proof => proof["requestedProof"]["revealedAttrs"])
-                    [0]
-                this.setState({ profileInfo: profileInfo })
+                const proofInfo = proofs.filter(proof => "profile picture" in proof["requestedProof"]["revealedAttrs"])[0]
+                this.setState({ profileInfo: proofInfo["requestedProof"]["revealedAttrs"] })
+                this.setState({ identifiers: proofInfo["identifiers"] })
                 this.setState({ patientProfileVisible: true })
             }, 500))
     };
