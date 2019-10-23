@@ -32,6 +32,7 @@ import kotlinx.android.synthetic.main.item_claim_pic.view.*
 import kotlinx.android.synthetic.main.item_claim_text.view.*
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_name
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_schema_id
+import org.apache.commons.lang3.StringUtils
 import java.util.*
 
 class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
@@ -97,9 +98,9 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
         override fun bind(item: ClaimAttribute?) {
             item ?: return
-            name.text = item.key
-            value.text = item.value
-            schemaId.text = item.schemaId
+            name.text = item.prettyKey()
+            value.text = item.prettyValue()
+            schemaId.text = item.prettySchema()
         }
     }
 
@@ -110,8 +111,8 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
 
         override fun bind(item: ClaimAttribute?) {
             item ?: return
-            name.text = item.key
-            schemaId.text = item.schemaId
+            name.text = item.prettyKey()
+            schemaId.text = item.prettySchema()
 
             item.value ?: return
             val imageBytes = Base64.getDecoder().decode(item.value)
@@ -120,6 +121,10 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
             value.setImageBitmap(bitmap)
         }
     }
+
+    private fun ClaimAttribute.prettyKey(): String = StringUtils.abbreviate(key ?: "---", 30)
+    private fun ClaimAttribute.prettyValue(): String = StringUtils.abbreviate(value ?: "null", 512)
+    private fun ClaimAttribute.prettySchema(): String = "$schemaName:$schemaVersion"
 
     //endregion HOLDER
 }

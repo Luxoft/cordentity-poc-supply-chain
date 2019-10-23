@@ -25,7 +25,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import io.realm.Realm
 
-fun Context.inflate(@LayoutRes res: Int, parent: ViewGroup? = null) : View {
+fun Context.inflate(@LayoutRes res: Int, parent: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(res, parent, false)
 }
 
@@ -42,17 +42,23 @@ fun View.gone() {
 }
 
 fun WalletUser.updateCredentialsInRealm() {
-    Realm.getDefaultInstance().executeTransaction { realm ->
-        val claims = this.getCredentials().asSequence().map { credRef ->
-            credRef.attributes.entries.map {
-                ClaimAttribute().apply {
-                    key = it.key
-                    value = it.value?.toString()
-                    schemaId = credRef.schemaIdRaw
+    val claims = this.getCredentials().asSequence().asIterable()
+            .flatMap { credRef ->
+                val schema = credRef.getSchemaIdObject()
+                val credDefId = credRef.getCredentialDefinitionIdObject()
+
+                credRef.attributes.map { attribute ->
+                    ClaimAttribute().apply {
+                        key = attribute.key
+                        value = attribute.value?.toString()
+                        schemaName = schema.name
+                        schemaVersion = schema.version
+                        issuerDid = credDefId.did
+                    }
                 }
             }
-        }.flatten().toList()
 
+    Realm.getDefaultInstance().executeTransaction { realm ->
         // todo: Update only updated claims instead of full realm.delete
         realm.delete(ClaimAttribute::class.java)
         realm.copyToRealmOrUpdate(claims)

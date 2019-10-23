@@ -18,10 +18,8 @@ package com.luxoft.supplychain.sovrinagentapp.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.realm.RealmObject
-import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
-import kotlin.collections.HashMap
 
 enum class PackageState {
     GETPROOFS,
@@ -57,7 +55,9 @@ open class ClaimAttribute : RealmObject() {
     @PrimaryKey
     open var key: String? = null
     open var value: String? = null
-    open var schemaId: String? = null
+    open var schemaName: String? = null
+    open var schemaVersion: String? = null
+    open var issuerDid: String? = null
 }
 
 @RealmClass
