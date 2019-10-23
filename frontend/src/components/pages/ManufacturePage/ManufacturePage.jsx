@@ -77,7 +77,7 @@ class ManufacturePage extends React.Component {
             })
             .map((pack, index) => <TableRowMF key={index} {...pack} onClick={this.handleWaypointsModalOpen(pack)} />);
 
-        const headers = ['Medicine', 'Request ID', 'Treatment center', 'Patient', 'Status', 'Action'];
+        const headers = ['', 'Medicine', 'Request ID', 'Treatment center', 'Patient', 'Status', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
