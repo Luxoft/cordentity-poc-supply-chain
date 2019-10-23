@@ -22,7 +22,7 @@
         style="@style/TextProfile"
         android:layout_below="@id/tv_name"
         android:layout_alignStart="@id/tv_name"
-        android:layout_toStartOf="@id/tv_schema_id"
+        android:layout_toStartOf="@id/tv_verified_by"
         android:textColor="@color/gray_dark"
         android:textSize="@dimen/text_big"
         tools:text="Claim Attribute Value " />
@@ -31,15 +31,31 @@
         android:id="@+id/tv_verified_by"
         style="@style/TextProfile"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_toStartOf="@id/tv_verifier"
+        android:layout_marginEnd="5dp"
         android:text="@string/verified_by" />
+
+    <TextView
+        android:id="@+id/tv_verifier"
+        style="@style/TextProfile"
+        android:layout_alignBaseline="@id/tv_verified_by"
+        android:layout_alignParentEnd="true"
+        tools:text="Official Authorities" />
+
+    <TextView
+        android:id="@+id/tv_schema"
+        style="@style/TextProfile"
+        android:layout_below="@id/tv_verified_by"
+        android:layout_toStartOf="@id/tv_schema_id"
+        android:layout_marginEnd="5dp"
+        android:text="@string/schema" />
 
     <TextView
         android:id="@+id/tv_schema_id"
         style="@style/TextProfile"
-        android:layout_below="@id/tv_verified_by"
+        android:layout_alignBaseline="@id/tv_schema"
         android:layout_alignParentEnd="true"
-        android:text="@string/official_authorities" />
+        tools:text="SCHEMA:0" />
 
 </RelativeLayout>
 

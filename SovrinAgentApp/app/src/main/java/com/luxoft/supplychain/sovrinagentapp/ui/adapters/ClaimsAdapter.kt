@@ -28,8 +28,9 @@ import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
-import kotlinx.android.synthetic.main.item_claim_pic.view.*
-import kotlinx.android.synthetic.main.item_claim_text.view.*
+import kotlinx.android.synthetic.main.item_claim_pic.view.iv_pic
+import kotlinx.android.synthetic.main.item_claim_text.view.tv_value
+import kotlinx.android.synthetic.main.item_claim_text.view.tv_verifier
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_name
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_schema_id
 import org.apache.commons.lang3.StringUtils
@@ -95,24 +96,28 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
         var name: TextView = itemView.tv_name
         var value: TextView = itemView.tv_value
         var schemaId: TextView = itemView.tv_schema_id
+        var issuerId: TextView = itemView.tv_verifier
 
         override fun bind(item: ClaimAttribute?) {
             item ?: return
             name.text = item.prettyKey()
             value.text = item.prettyValue()
             schemaId.text = item.prettySchema()
+            issuerId.text = item.issuerDid
         }
     }
 
     private inner class PicClaimViewHolder(itemView: View) : ClaimViewHolder(itemView) {
         var name: TextView = itemView.tv_name
-        var value: ImageView = itemView.tv_pic
+        var value: ImageView = itemView.iv_pic
         var schemaId: TextView = itemView.tv_schema_id
+        var issuerId: TextView = itemView.tv_verifier
 
         override fun bind(item: ClaimAttribute?) {
             item ?: return
             name.text = item.prettyKey()
             schemaId.text = item.prettySchema()
+            issuerId.text = item.issuerDid
 
             item.value ?: return
             val imageBytes = Base64.getDecoder().decode(item.value)
