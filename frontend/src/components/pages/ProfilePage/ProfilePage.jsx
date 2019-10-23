@@ -30,6 +30,7 @@ export default class ProfilePage extends React.Component {
         deliveredAt: PropTypes.number,
         deliveredTo: PropTypes.object,
         collectedAt: PropTypes.number,
+        patientDiagnosis: PropTypes.string.isRequired,
         profileInfo: PropTypes.object.isRequired,
         identifiers: PropTypes.object.isRequired
     };
@@ -44,9 +45,9 @@ export default class ProfilePage extends React.Component {
             .catch((reason) => console.error(reason));
     }
 
-    didBySchemaName = role => () => {
+    didBySchemaName(role) {
         const {identifiers} = this.props;
-        identifiers.filter(id => id["schema_id"].includes({`:${role}:`}))
+        return identifiers.filter(id => id.schemaIdObject.name == role);
     }
 
     render() {
@@ -54,8 +55,16 @@ export default class ProfilePage extends React.Component {
 
         const {
             onClose, medicineName, serial, state, requestedAt, requestedBy, issuedAt, issuedBy, processedAt, processedBy,
-            deliveredAt, deliveredTo, collectedAt, patientDid, profileInfo
+            deliveredAt, deliveredTo, collectedAt, patientDid, profileInfo, patientDiagnosis
         } = this.props;
+
+        const ids = this.didBySchemaName('Human');
+        const humanVerifierDid = ids[0].credentialDefinitionIdObject.did;
+        const humanSchemaId = ids[0].schema_id;
+
+        const patientIds = this.didBySchemaName('Patient')
+        const patientVerifierDid = patientIds[0].credentialDefinitionIdObject.did;
+        const patientSchemaId = patientIds[0].schema_id;
 
         return (
             <section className='profile-page'>
@@ -64,69 +73,131 @@ export default class ProfilePage extends React.Component {
                         info
                             ? [
                                 <div className='header'>
+                                    <div>
+                                        <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
+                                    </div>
                                     <div className="social-id" style={{display: 'flex'}}>
                                         <Claim
                                             value={profileInfo["medical id"]['raw']}
                                         />
-                                        <div>
-                                            <img src={CloseBtnPNG} className='close-btn' onClick={onClose} alt="Close"/>
-                                        </div>
+                                        <p>verified by: &lt;{humanVerifierDid}&gt;</p>
                                     </div>
                                     <div className='avatar-and-close' style={{display: 'flex'}}>
                                         <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
                                         <div className='avatar-description'>
                                             <h3>{profileInfo["name"]['raw']}</h3>
-                                            <p>verified by {info.name.verifiedBy}</p>
+                                            <p>Age: 45</p>
+                                            <p>Gender: {profileInfo["sex"]['raw']}</p>
                                         </div>
                                     </div>
                                 </div>,
                                 <div className='content'>
-                                    <div className='entry'>
-                                        <p className='name'>Client name</p>
-                                        <Claim
-                                            value={profileInfo["name"]['raw']}
-                                        />
+                                    <div className="cred-header" style={{display: 'flex'}}>
+                                        <h5>Person</h5>
+                                        <p>verified by: &lt;{humanVerifierDid}&gt;</p>
                                     </div>
-                                    <div className='entry'>
-                                        <p className='name'>Medical ID</p>
-                                        <Claim
-                                            value={profileInfo["medical id"]['raw']}
-                                        />
+                                    <div className='schema-id'>
+                                        <p className='name'>Schema ID</p>
+                                        <p className='value'>{humanSchemaId}</p>
                                     </div>
-                                    <div className='entry'>
-                                        <p className='name'>Medical Condition</p>
-                                        <Claim
-                                            value={profileInfo["medical condition"]['raw']}
-                                        />
+                                    <ul className="list">
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Name</p>
+                                                <p className='value'>{profileInfo["name"]['raw']}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Age</p>
+                                                <p className='value'>45</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Gender</p>
+                                                <p className='value'>{profileInfo["sex"]['raw']}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Social ID</p>
+                                                <p className='value'>{profileInfo["medical id"]['raw']}</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div className="cred-header" style={{display: 'flex'}}>
+                                        <h5>Insurer</h5>
+                                        <p>verified by: &lt;{patientVerifierDid}&gt;</p>
                                     </div>
-                                    <div className='entry'>
-                                        <p className='name'>Gender</p>
-                                        <Claim
-                                            value={profileInfo["sex"]['raw']}
-                                        />
+                                    <div className='schema-id'>
+                                        <p className='name'>Schema ID</p>
+                                        <p className='value'>{patientSchemaId}</p>
                                     </div>
-                                    <h5>Order details</h5>
-                                    { medicineName && <div className='entry'>
-                                        <p className='name'>Prescription</p>
-                                        <Claim
-                                            value={medicineName}
-                                        />
-                                        </div>
-                                    }
-                                    { serial && <div className='entry'>
-                                        <p className='name'>Order Serial No.</p>
-                                        <Claim
-                                            value={serial}
-                                        />
-                                        </div>
-                                    }
-                                    { state && <div className='entry'>
-                                        <p className='name'>Package State</p>
-                                        <Claim
-                                            value={state}
-                                        />
-                                        </div>
-                                    }
+                                    <ul className="list">
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Medical ID</p>
+                                                <p className='value'>{profileInfo["medical id"]['raw']}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Insurer</p>
+                                                <p className='value'>TK Krankenkasse</p>
+                                            </div>
+                                        </li>
+                                        {/*
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Coverage</p>
+                                                <p className='value'>up to &lt;50000; $&gt; fully covered</p>
+                                            </div>
+                                        </li>
+                                        */}
+                                    </ul>
+                                    <div className="cred-header" style={{display: 'flex'}}>
+                                        <h5>Prescription</h5>
+                                        <p>verified by: &lt;{patientVerifierDid}&gt;</p>
+                                    </div>
+                                    <div className='schema-id'>
+                                        <p className='name'>Schema ID</p>
+                                        <p className='value'>{patientSchemaId}</p>
+                                    </div>
+                                    <ul className="list">
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Diagnosis</p>
+                                                <p className='value'>{patientDiagnosis}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>Prescription</p>
+                                                <p className='value'>{medicineName}</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div className="cred-header" style={{display: 'flex'}}>
+                                        <h5>Order details</h5>
+                                        <p></p>
+                                    </div>
+                                    <ul className="list">
+                                        <li className="list-item">
+                                            { serial && <div className='entry'>
+                                                <p className='name'>Order Serial No.</p>
+                                                <p className='value'>{serial}</p>
+                                                </div>
+                                            }
+                                        </li>
+                                        <li className="list-item">
+                                            { state && <div className='entry'>
+                                                <p className='name'>Package State</p>
+                                                <p className='value'>{state}</p>
+                                                </div>
+                                            }
+                                        </li>
+                                    </ul>
                                 </div>
                             ]
                             : <div/>

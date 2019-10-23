@@ -1,7 +1,7 @@
 @import "../../../base";
 
-$column-template-tc: 8% 12% 13% 16% 16% auto;
-$column-template-mf: $column-template-tc;
+$column-template-tc: 12% 12% 13% 16% 16% auto;
+$column-template-mf: 6% 12% 13% 12% 16% auto 15%;
 
 @keyframes blink {
   from {
