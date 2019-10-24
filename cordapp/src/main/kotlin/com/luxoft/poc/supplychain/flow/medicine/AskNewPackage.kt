@@ -57,12 +57,9 @@ class AskNewPackage {
             try {
                 val serial = UUID.randomUUID().toString()
 
-                logger.error("!!! 1 !!!")
                 checkPermissions(serial)
-                logger.error("!!! 2 !!!")
 
                 issueReceipt(serial)
-                logger.error("!!! 3 !!!")
                 requestNewPackage(serial, packageRequest, getProofs(serial)[0])
 
             } catch (e: Throwable) {
@@ -105,7 +102,6 @@ class AskNewPackage {
                 }
                 proveGreaterThan("age", 18)
             }
-            logger.error("!!! 4 !!!")
             if (!subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
         }
