@@ -58,6 +58,7 @@ open class ClaimAttribute : RealmObject() {
     open var schemaName: String? = null
     open var schemaVersion: String? = null
     open var issuerDid: String? = null
+    open var credRefSeqNo: Int = -1
 }
 
 @RealmClass

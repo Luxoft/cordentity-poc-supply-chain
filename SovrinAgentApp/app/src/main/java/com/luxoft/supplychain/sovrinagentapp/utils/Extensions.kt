@@ -54,6 +54,7 @@ fun WalletUser.updateCredentialsInRealm() {
                         schemaName = schema.name
                         schemaVersion = schema.version
                         issuerDid = credDefId.did
+                        credRefSeqNo = credDefId.schemaSeqNo
                     }
                 }
             }

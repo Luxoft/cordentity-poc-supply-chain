@@ -50,23 +50,24 @@ class ClaimsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        indyUser.walletUser.updateCredentialsInRealm()
         val claims = realm.where(ClaimAttribute::class.java)
             .sort(FIELD_KEY)
             .notEqualTo(FIELD_KEY, AUTHORITIES)
             .notEqualTo(FIELD_KEY, TIME)
             .notEqualTo(FIELD_KEY, EXTRA_SERIAL)
             .findAll()
-        tvClaims.text = getString(R.string.verified_claims, claims.size)
 
-        with(recycler) {
-            val linearLayoutManager = LinearLayoutManager(activity)
-            layoutManager = linearLayoutManager
-            addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
-
-            adapterRecycler = ClaimsAdapter(claims)
-            adapter = adapterRecycler
+        claims.addChangeListener { result ->
+            val numCredRefs = result.distinctBy { it.credRefSeqNo }.size
+            tvClaims.text = getString(R.string.verified_credentials, numCredRefs)
         }
+
+        val linearLayoutManager = LinearLayoutManager(activity)
+        recycler.layoutManager = linearLayoutManager
+        recycler.addItemDecoration(DividerItemDecoration(recycler.context, linearLayoutManager.orientation))
+
+        adapterRecycler = ClaimsAdapter(claims)
+        recycler.adapter = adapterRecycler
 
         swipeRefreshLayout = swipe_container
         swipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
