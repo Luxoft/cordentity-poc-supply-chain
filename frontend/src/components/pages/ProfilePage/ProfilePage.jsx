@@ -19,6 +19,10 @@ export default class ProfilePage extends React.Component {
         onClose: PropTypes.func.isRequired,
         serial: PropTypes.string.isRequired,
         state: PropTypes.string.isRequired,
+        insurerName: PropTypes.string.isRequired,
+        insurerDid: PropTypes.string.isRequired,
+        coveredByInsurer: PropTypes.bool.isRequired,
+        estimatedCost: PropTypes.string.isRequired,
         medicineName: PropTypes.string.isRequired,
         patientDid: PropTypes.string.isRequired,
         requestedAt: PropTypes.number.isRequired,
@@ -55,7 +59,8 @@ export default class ProfilePage extends React.Component {
 
         const {
             onClose, medicineName, serial, state, requestedAt, requestedBy, issuedAt, issuedBy, processedAt, processedBy,
-            deliveredAt, deliveredTo, collectedAt, patientDid, profileInfo, patientDiagnosis
+            deliveredAt, deliveredTo, collectedAt, patientDid, profileInfo, patientDiagnosis, insurerName, insurerDid,
+            coveredByInsurer, estimatedCost
         } = this.props;
 
         const ids = this.didBySchemaName('Human');
@@ -137,24 +142,30 @@ export default class ProfilePage extends React.Component {
                                     <ul className="list">
                                         <li className="list-item">
                                             <div className='entry'>
+                                                <p className='name'>Insurer</p>
+                                                <p className='value'>{insurerName}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
+                                                <p className='name'>DID</p>
+                                                <p className='value'>{insurerdid}</p>
+                                            </div>
+                                        </li>
+                                        <li className="list-item">
+                                            <div className='entry'>
                                                 <p className='name'>Medical ID</p>
                                                 <p className='value'>{profileInfo["medical id"]['raw']}</p>
                                             </div>
                                         </li>
-                                        <li className="list-item">
-                                            <div className='entry'>
-                                                <p className='name'>Insurer</p>
-                                                <p className='value'>TK Krankenkasse</p>
-                                            </div>
-                                        </li>
-                                        {/*
+                                        { coveredByInsurer &&
                                         <li className="list-item">
                                             <div className='entry'>
                                                 <p className='name'>Coverage</p>
-                                                <p className='value'>up to &lt;50000; $&gt; fully covered</p>
+                                                <p className='value'>up to &lt;{estimatedCost}&gt; fully covered</p>
                                             </div>
                                         </li>
-                                        */}
+                                        }
                                     </ul>
                                     <div className="cred-header" style={{display: 'flex'}}>
                                         <h5>Prescription</h5>
