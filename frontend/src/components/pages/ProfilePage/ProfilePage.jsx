@@ -149,7 +149,7 @@ export default class ProfilePage extends React.Component {
                                         <li className="list-item">
                                             <div className='entry'>
                                                 <p className='name'>DID</p>
-                                                <p className='value'>{insurerdid}</p>
+                                                <p className='value'>{insurerDid}</p>
                                             </div>
                                         </li>
                                         <li className="list-item">
