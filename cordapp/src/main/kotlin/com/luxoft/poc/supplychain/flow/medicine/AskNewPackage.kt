@@ -79,28 +79,17 @@ class AskNewPackage {
 
         @Suspendable
         private fun checkPermissions(serial: String) {
-//            val proofRequest = proofRequest("user_proof_req", "1.0") {
-//                reveal("socialid")
-//                reveal("name")
-//                reveal("birthday")
-//                reveal("gender")
-//                reveal("picture")
-//                reveal("medicalid") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
-//                reveal("insurer") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
-//                reveal("limit") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
-//                reveal("diagnosis")
-//                reveal("prescription")
-//            }
             val proofRequest = proofRequest("user_proof_req", "1.0") {
+                reveal("socialid")
                 reveal("name")
-                reveal("sex")
-                reveal("profile picture")
-                reveal("medical id") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
-                reveal("medical condition") {
-                    //                    FilterProperty.Value shouldBe "Healthy"
-                    FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID
-                }
-                proveGreaterThan("age", 18)
+                reveal("birthday")
+                reveal("gender")
+                reveal("picture")
+                reveal("medicalid") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("insurer") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("limit") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("diagnosis")
+                reveal("prescription")
             }
             if (!subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
@@ -130,38 +119,22 @@ class AskNewPackage {
         @Suspendable
         private fun requestNewPackage(serial: String, packageRequest: PackageRequest, proof: ParsedProof) {
             // create new package request
-//            val packageInfo = PackageInfo(
-//                    serial = serial,
-//                    state = PackageState.NEW,
-//                    patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
-//                    patientDid = packageRequest.patientDid,
-//                    patientDiagnosis = proof.requestedProof.revealedAttrs["diagnosis"]?.raw,
-//                    insurerName = proof.requestedProof.revealedAttrs["insurer"]?.raw,
-//                    insurerDid = proof.identifiers
-//                        .find { it.getSchemaIdObject().name == ":Insurer:" }?.getCredentialDefinitionIdObject()?.did,
-//                    medicineName = proof.requestedProof.revealedAttrs["prescription"]?.raw,
-//                    estimatedCost = "$100.00",
-//                    isCoveredByInsurer = true,
-//                    requestedAt = System.currentTimeMillis(),
-//                    requestedBy = ourIdentity.name,
-//                    processedBy = getManufacturer().name
-//            )
             val packageInfo = PackageInfo(
-                    serial = serial,
-                    state = PackageState.NEW,
-                    patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
-                    patientDid = packageRequest.patientDid,
-                    patientDiagnosis = "Leukemia",
-                    insurerName = "Teckniker Krankenkasse TK",
-                    insurerDid = proof.requestedProof.revealedAttrs["medical id"]?.raw,
-                    medicineName = "Santorium Plus",
-                    estimatedCost = "$100.00",
-                    isCoveredByInsurer = true,
-                    requestedAt = System.currentTimeMillis(),
-                    requestedBy = ourIdentity.name,
-                    processedBy = getManufacturer().name
+                serial = serial,
+                state = PackageState.NEW,
+                patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
+                patientDid = packageRequest.patientDid,
+                patientDiagnosis = proof.requestedProof.revealedAttrs["diagnosis"]?.raw,
+                insurerName = proof.requestedProof.revealedAttrs["insurer"]?.raw,
+                insurerDid = proof.identifiers
+                    .find { it.getSchemaIdObject().name == "Insurance" }?.getCredentialDefinitionIdObject()?.did,
+                medicineName = proof.requestedProof.revealedAttrs["prescription"]?.raw,
+                estimatedCost = "$100.00",
+                isCoveredByInsurer = true,
+                requestedAt = System.currentTimeMillis(),
+                requestedBy = ourIdentity.name,
+                processedBy = getManufacturer().name
             )
-
             subFlow(RequestForPackage.Initiator(packageInfo))
         }
     }

@@ -63,13 +63,17 @@ export default class ProfilePage extends React.Component {
             coveredByInsurer, estimatedCost
         } = this.props;
 
-        const ids = this.didBySchemaName('Human');
+        const ids = this.didBySchemaName('Person');
         const humanVerifierDid = ids[0].credentialDefinitionIdObject.did;
         const humanSchemaId = ids[0].schema_id;
 
-        const patientIds = this.didBySchemaName('Patient')
-        const patientVerifierDid = patientIds[0].credentialDefinitionIdObject.did;
-        const patientSchemaId = patientIds[0].schema_id;
+        const insuranceIds = this.didBySchemaName('Insurance')
+        const insuranceVerifierDid = insuranceIds[0].credentialDefinitionIdObject.did;
+        const insuranceSchemaId = insuranceIds[0].schema_id;
+
+        const prescriptionIds = this.didBySchemaName('Prescription')
+        const prescriptionVerifierDid = prescriptionIds[0].credentialDefinitionIdObject.did;
+        const prescriptionSchemaId = prescriptionIds[0].schema_id;
 
         return (
             <section className='profile-page'>
@@ -83,16 +87,16 @@ export default class ProfilePage extends React.Component {
                                     </div>
                                     <div className="social-id" style={{display: 'flex'}}>
                                         <Claim
-                                            value={profileInfo["medical id"]['raw']}
+                                            value={profileInfo["socialid"]['raw']}
                                         />
                                         <p>verified by: &lt;{humanVerifierDid}&gt;</p>
                                     </div>
                                     <div className='avatar-and-close' style={{display: 'flex'}}>
-                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["profile picture"]['raw']}`} alt=''/>
+                                        <img className='avatar' src={`data:image/png;base64,${profileInfo["picture"]['raw']}`} alt=''/>
                                         <div className='avatar-description'>
                                             <h3>{profileInfo["name"]['raw']}</h3>
                                             <p>Age: 45</p>
-                                            <p>Gender: {profileInfo["sex"]['raw']}</p>
+                                            <p>Gender: {profileInfo["gender"]['raw']}</p>
                                         </div>
                                     </div>
                                 </div>,
@@ -121,23 +125,23 @@ export default class ProfilePage extends React.Component {
                                         <li className="list-item">
                                             <div className='entry'>
                                                 <p className='name'>Gender</p>
-                                                <p className='value'>{profileInfo["sex"]['raw']}</p>
+                                                <p className='value'>{profileInfo["gender"]['raw']}</p>
                                             </div>
                                         </li>
                                         <li className="list-item">
                                             <div className='entry'>
                                                 <p className='name'>Social ID</p>
-                                                <p className='value'>{profileInfo["medical id"]['raw']}</p>
+                                                <p className='value'>{profileInfo["socialid"]['raw']}</p>
                                             </div>
                                         </li>
                                     </ul>
                                     <div className="cred-header" style={{display: 'flex'}}>
                                         <h5>Insurer</h5>
-                                        <p>verified by: &lt;{patientVerifierDid}&gt;</p>
+                                        <p>verified by: &lt;{insuranceVerifierDid}&gt;</p>
                                     </div>
                                     <div className='schema-id'>
                                         <p className='name'>Schema ID</p>
-                                        <p className='value'>{patientSchemaId}</p>
+                                        <p className='value'>{insuranceSchemaId}</p>
                                     </div>
                                     <ul className="list">
                                         <li className="list-item">
@@ -155,7 +159,7 @@ export default class ProfilePage extends React.Component {
                                         <li className="list-item">
                                             <div className='entry'>
                                                 <p className='name'>Medical ID</p>
-                                                <p className='value'>{profileInfo["medical id"]['raw']}</p>
+                                                <p className='value'>{profileInfo["medicalid"]['raw']}</p>
                                             </div>
                                         </li>
                                         { coveredByInsurer &&
@@ -169,11 +173,11 @@ export default class ProfilePage extends React.Component {
                                     </ul>
                                     <div className="cred-header" style={{display: 'flex'}}>
                                         <h5>Prescription</h5>
-                                        <p>verified by: &lt;{patientVerifierDid}&gt;</p>
+                                        <p>verified by: &lt;{prescriptionVerifierDid}&gt;</p>
                                     </div>
                                     <div className='schema-id'>
                                         <p className='name'>Schema ID</p>
-                                        <p className='value'>{patientSchemaId}</p>
+                                        <p className='value'>{prescriptionSchemaId}</p>
                                     </div>
                                     <ul className="list">
                                         <li className="list-item">

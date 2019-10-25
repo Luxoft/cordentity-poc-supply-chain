@@ -219,7 +219,7 @@ class TreatmentCenterPage extends React.Component {
         fetchProofs(pack.serial)
             .then(() => setTimeout(() => {
                 const {proofs} = this.props;
-                const proofInfo = proofs.filter(proof => "profile picture" in proof["requestedProof"]["revealedAttrs"])[0]
+                const proofInfo = proofs.filter(proof => "picture" in proof["requestedProof"]["revealedAttrs"])[0]
                 this.setState({ profileInfo: proofInfo["requestedProof"]["revealedAttrs"] })
                 this.setState({ identifiers: proofInfo["identifiers"] })
                 this.setState({ patientProfileVisible: true })
