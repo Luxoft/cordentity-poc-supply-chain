@@ -90,7 +90,7 @@ abstract class E2ETest {
             val poolName: String = "test-pool-${Math.abs(Random().nextInt())}"
             val tmpTestWalletId = "tmpTestWallet${Math.abs(Random().nextInt())}"
 
-            val genesisFile = File("../cordapp/src/main/resources/genesis/docker.txn")
+            val genesisFile = File("../cordapp/src/main/resources/genesis/docker_prod.txn")
             if (!GenesisHelper.exists(genesisFile))
                 throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
 
@@ -234,7 +234,6 @@ abstract class E2ETest {
         assert(pack.patientDid.isNotEmpty())
         assert(pack.patientDiagnosis?.isNotEmpty() ?: false)
         assert(pack.medicineName?.isNotEmpty() ?: false)
-        assert(pack.medicineDescription?.isNotEmpty() ?: false)
 
         when (pack.state) {
             PackageState.NEW -> {

@@ -1,7 +1,7 @@
 @import "../../../base";
 
-$column-template-tc: 6% 12% 13% 12% 16% auto 15%;
-$column-template-mf: $column-template-tc;
+$column-template-tc: 12% 12% 13% 16% 16% auto;
+$column-template-mf: 6% 12% 13% 12% 16% auto 15%;
 
 @keyframes blink {
   from {
@@ -34,7 +34,7 @@ $column-template-mf: $column-template-tc;
 
   .thead {
     border-bottom: 1px solid $color-light-gray;
-    padding: 30px 15px;
+    padding: 10px 15px;
     display: grid;
 
     font-size: $font-size-tiny;
@@ -44,6 +44,11 @@ $column-template-mf: $column-template-tc;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      .img {
+        img {
+          height: 50px;
+        }
+      }
     }
   }
 
@@ -166,7 +171,23 @@ $column-template-mf: $column-template-tc;
           margin: 0;
         }
 
-        .diagnosis {
+        .did {
+          font-size: $font-size-micro;
+          color: $color-gray;
+        }
+      }
+
+      .insurer-plate {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: flex-start;
+
+        p {
+          margin: 0;
+        }
+
+        .did {
           font-size: $font-size-micro;
           color: $color-gray;
         }

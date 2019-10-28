@@ -6,6 +6,7 @@
   background-color: white;
   border-radius: $border-radius;
   position: relative;
+  align-self: flex-start;
 
   > .header {
     height: 60px;
