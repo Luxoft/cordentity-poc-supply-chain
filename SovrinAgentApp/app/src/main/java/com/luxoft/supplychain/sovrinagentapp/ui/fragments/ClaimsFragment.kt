@@ -58,8 +58,8 @@ class ClaimsFragment : Fragment() {
             .findAll()
 
         claims.addChangeListener { result ->
-            val numCredRefs = result.distinctBy { it.credRefSeqNo }.size
-            tvClaims.text = getString(R.string.verified_credentials, numCredRefs)
+            val numCredDefs = result.distinctBy { it.credDefId }.size
+            tvClaims.text = getString(R.string.verified_credentials, numCredDefs)
         }
 
         val linearLayoutManager = LinearLayoutManager(activity)

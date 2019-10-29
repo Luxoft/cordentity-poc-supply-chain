@@ -45,7 +45,7 @@ fun WalletUser.updateCredentialsInRealm() {
     val claims = this.getCredentials().asSequence().asIterable()
             .flatMap { credRef ->
                 val schema = credRef.getSchemaIdObject()
-                val credDefId = credRef.getCredentialDefinitionIdObject()
+                val credDefIdObject = credRef.getCredentialDefinitionIdObject()
 
                 credRef.attributes.map { attribute ->
                     ClaimAttribute().apply {
@@ -53,8 +53,8 @@ fun WalletUser.updateCredentialsInRealm() {
                         value = attribute.value?.toString()
                         schemaName = schema.name
                         schemaVersion = schema.version
-                        issuerDid = credDefId.did
-                        credRefSeqNo = credDefId.schemaSeqNo
+                        issuerDid = credDefIdObject.did
+                        credDefId = credRef.credentialDefinitionIdRaw
                     }
                 }
             }
