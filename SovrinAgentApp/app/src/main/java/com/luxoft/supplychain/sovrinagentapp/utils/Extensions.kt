@@ -22,7 +22,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
+import com.luxoft.supplychain.sovrinagentapp.application.DIAGNOSIS
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_CRED_DEF_ID
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.Product
 import io.realm.Realm
 
 fun Context.inflate(@LayoutRes res: Int, parent: ViewGroup? = null): View {
@@ -63,5 +68,29 @@ fun WalletUser.updateCredentialsInRealm() {
         // todo: Update only updated claims instead of full realm.delete
         realm.delete(ClaimAttribute::class.java)
         realm.copyToRealmOrUpdate(claims)
+    }
+}
+
+fun updateProductsInRealm(prescriptions: List<ClaimAttribute>) {
+    val realm = Realm.getDefaultInstance()
+
+    val prescribedProducts = prescriptions.map { prescriptionAttr ->
+        val diagnosisAttr = realm.where(ClaimAttribute::class.java)
+                .equalTo(FIELD_CRED_DEF_ID, prescriptionAttr.credDefId)
+                .equalTo(FIELD_KEY, DIAGNOSIS)
+                .findFirst()
+
+        Product().apply {
+            state = PackageState.NEW.name
+            medicineName = prescriptionAttr.value
+            requestedAt = Long.MAX_VALUE
+            patientDiagnosis = diagnosisAttr?.value
+        }
+    }
+
+    realm.executeTransaction { realm ->
+        // todo: Update only updated products instead of full realm.delete
+        realm.delete(Product::class.java)
+        realm.copyToRealmOrUpdate(prescribedProducts)
     }
 }

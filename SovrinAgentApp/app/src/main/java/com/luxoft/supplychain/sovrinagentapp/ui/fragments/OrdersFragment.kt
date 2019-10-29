@@ -25,13 +25,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
+import com.luxoft.supplychain.sovrinagentapp.application.PRESCRIPTION
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.OrdersAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
+import com.luxoft.supplychain.sovrinagentapp.utils.updateProductsInRealm
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_recycler.*
@@ -59,8 +63,15 @@ class OrdersFragment : Fragment() {
             recyclerAdapter = OrdersAdapter(Realm.getDefaultInstance())
             adapter = recyclerAdapter
         }
+
         mSwipeRefreshLayout = swipe_container
         mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
+
+        val prescriptions = realm.where(ClaimAttribute::class.java)
+                .equalTo(FIELD_KEY, PRESCRIPTION)
+                .findAllAsync()
+
+        prescriptions.addChangeListener { attributes -> updateProductsInRealm(attributes) }
     }
 
     override fun onResume() {

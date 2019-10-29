@@ -18,7 +18,8 @@ package com.luxoft.supplychain.sovrinagentapp.application
 
 import android.app.Application
 import android.os.Environment
-import com.luxoft.supplychain.sovrinagentapp.data.*
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.di.myModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -29,20 +30,18 @@ class Application : Application() {
         super.onCreate()
 
         System.setProperty("INDY_HOME", Environment.getExternalStorageDirectory().absolutePath)
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
+        System.setProperty("jna.debug_load", "true")
 
         startKoin(this, listOf(myModule))
 
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder().build())
 
-        Realm.getDefaultInstance().executeTransaction {
-            it.where(ClaimAttribute::class.java).findAll().deleteAllFromRealm()
-            it.where(Product::class.java).findAll().deleteAllFromRealm()
-
-            val product2 = it.createObject(Product::class.java, "N/A")
-            product2.state = PackageState.NEW.name
-            product2.medicineName = "Santorium Plus"
-            product2.requestedAt = Long.MAX_VALUE
+        // Clean up just in case
+        Realm.getDefaultInstance().executeTransaction { realm ->
+            realm.delete(ClaimAttribute::class.java)
+            realm.delete(Product::class.java)
         }
     }
 }

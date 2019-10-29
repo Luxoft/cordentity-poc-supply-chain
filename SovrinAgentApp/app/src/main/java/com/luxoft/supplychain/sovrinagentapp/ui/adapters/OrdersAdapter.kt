@@ -27,7 +27,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.*
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_COLLECTED_AT
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_REQUESTED_AT
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.DigitalReceiptActivity
@@ -36,7 +39,6 @@ import com.luxoft.supplychain.sovrinagentapp.ui.activities.TrackPackageActivity
 import com.luxoft.supplychain.sovrinagentapp.utils.*
 import io.realm.Realm
 import io.realm.RealmChangeListener
-import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_order.view.*
@@ -80,28 +82,10 @@ class OrdersAdapter(realm: Realm) : RecyclerView.Adapter<OrdersAdapter.OrderView
         realm.addChangeListener(realmChangeListener)
     }
 
-    //Dirty hack to hide first hardcoded value if there are pending orders
-    private val orders = object {
-        private val orders: RealmResults<Product> = realm.where(Product::class.java)
+    private val orders = realm.where(Product::class.java)
             .sort(FIELD_REQUESTED_AT, Sort.DESCENDING)
             .isNull(FIELD_COLLECTED_AT)
             .findAll()
-        val size: Int
-            get() {
-                var size = orders.size
-                if (size > 1)
-                    size -= 1
-                return size
-            }
-
-        operator fun get(index: Int): Product? {
-            var position: Int = index
-            if (orders.size > 1) {
-                position += 1
-            }
-            return orders[position]
-        }
-    }
 
     //region ******************** OVERRIDE *********************************************************
 

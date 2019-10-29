@@ -24,7 +24,7 @@
             <TextView
                 android:id="@+id/tvReceiptName"
                 style="@style/Text"
-                android:text="@string/santorium_plus"
+                android:text="Prescription"
                 android:textColor="@color/gray_header"
                 android:textSize="23sp" />
 
