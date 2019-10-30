@@ -43,7 +43,7 @@ data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID
 
 data class PushToken(val did: String, val token: String)
 
-data class AskForPackageRequest(val tcName: String, val clientUUID: String)
+data class AskForPackageRequest(val tcName: String, val clientUUID: String, val serial: String)
 
 open class Error {
     open var code: Int = 0

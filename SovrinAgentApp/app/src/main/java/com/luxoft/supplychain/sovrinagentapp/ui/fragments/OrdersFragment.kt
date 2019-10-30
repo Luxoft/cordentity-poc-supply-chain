@@ -25,17 +25,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
-import com.luxoft.supplychain.sovrinagentapp.application.PRESCRIPTION
 import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.OrdersAdapter
+import com.luxoft.supplychain.sovrinagentapp.utils.replenishNewProductsInRealm
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
-import com.luxoft.supplychain.sovrinagentapp.utils.updateProductsInRealm
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_recycler.*
@@ -66,12 +63,6 @@ class OrdersFragment : Fragment() {
 
         mSwipeRefreshLayout = swipe_container
         mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
-
-        val prescriptions = realm.where(ClaimAttribute::class.java)
-                .equalTo(FIELD_KEY, PRESCRIPTION)
-                .findAllAsync()
-
-        prescriptions.addChangeListener { attributes -> updateProductsInRealm(attributes) }
     }
 
     override fun onResume() {
@@ -83,20 +74,20 @@ class OrdersFragment : Fragment() {
         mSwipeRefreshLayout.isRefreshing = true
         api.getPackages().subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                loaded()
-                saveOrders(it)
+            .subscribe({ packages ->
+                mSwipeRefreshLayout.isRefreshing = false
+                updateOrdersInRealm(packages)
             }, { error ->
                 Log.e("Get Packages Error: ", error.message, error)
-                showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
+                showAlertDialog(context!!, "Get Packages Error: ${error.message}") {
+                    mSwipeRefreshLayout.isRefreshing = false
+                }
             })
+
+        replenishNewProductsInRealm()
     }
 
-    private fun loaded() {
-        mSwipeRefreshLayout.isRefreshing = false
-    }
-
-    private fun saveOrders(offers: List<Product>) {
+    private fun updateOrdersInRealm(offers: List<Product>) {
         if (offers.isNotEmpty()) {
             realm.beginTransaction()
             realm.copyToRealmOrUpdate(offers)

@@ -94,7 +94,8 @@ class TreatmentCenterClient {
     fun initFlow(tcName: String, invite: Invite) {
         val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
 
-        val initRequest = AskForPackageRequest(tcName, invite.clientUUID!!)
+        val randomSerial = UUID.randomUUID().toString()
+        val initRequest = AskForPackageRequest(tcName, invite.clientUUID!!, randomSerial)
 
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)

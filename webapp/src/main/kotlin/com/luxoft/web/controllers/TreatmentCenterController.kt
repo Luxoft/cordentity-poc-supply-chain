@@ -82,7 +82,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
+        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID, tc.serial)
     }
 
     @PostMapping("package/withdraw")

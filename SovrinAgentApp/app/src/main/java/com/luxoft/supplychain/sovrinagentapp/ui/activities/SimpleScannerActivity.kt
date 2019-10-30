@@ -130,7 +130,13 @@ class SimpleScannerActivity : AppCompatActivity() {
                             try {
                                 publishProgress(R.string.progress_accept_invite)
                                 agentConnection.acceptInvite(content.invite).toBlocking().value().apply {
-                                    api.createRequest(AskForPackageRequest(indyUser.walletUser.getIdentityDetails().did, content.clientUUID!!)).toBlocking().first()
+                                    api.createRequest(
+                                            AskForPackageRequest(
+                                                    indyUser.walletUser.getIdentityDetails().did,
+                                                    content.clientUUID!!,
+                                                    serial!!)
+                                    ).toBlocking().first()
+
                                     publishProgress(R.string.progress_waiting_for_authentication)
                                     val proofRequest = receiveProofRequest().toBlocking().value()
                                     val requestedDataBuilder = StringBuilder()

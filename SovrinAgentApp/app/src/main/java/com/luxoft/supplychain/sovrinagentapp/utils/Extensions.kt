@@ -22,13 +22,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
-import com.luxoft.supplychain.sovrinagentapp.application.DIAGNOSIS
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_CRED_DEF_ID
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
+import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import io.realm.Realm
+import java.util.*
 
 fun Context.inflate(@LayoutRes res: Int, parent: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(res, parent, false)
@@ -71,26 +70,40 @@ fun WalletUser.updateCredentialsInRealm() {
     }
 }
 
-fun updateProductsInRealm(prescriptions: List<ClaimAttribute>) {
+fun addNewProductPrescriptionToRealm(prescriptionAttr: ClaimAttribute) {
     val realm = Realm.getDefaultInstance()
 
-    val prescribedProducts = prescriptions.map { prescriptionAttr ->
-        val diagnosisAttr = realm.where(ClaimAttribute::class.java)
-                .equalTo(FIELD_CRED_DEF_ID, prescriptionAttr.credDefId)
-                .equalTo(FIELD_KEY, DIAGNOSIS)
-                .findFirst()
+    val diagnosisAttr = realm.where(ClaimAttribute::class.java)
+            .equalTo(FIELD_CRED_DEF_ID, prescriptionAttr.credDefId)
+            .equalTo(FIELD_KEY, DIAGNOSIS)
+            .findFirst()
 
-        Product().apply {
-            state = PackageState.NEW.name
-            medicineName = prescriptionAttr.value
-            requestedAt = Long.MAX_VALUE
-            patientDiagnosis = diagnosisAttr?.value
-        }
+    val prescribedProduct = Product().apply {
+        serial = "package-serial-" + UUID.randomUUID().toString()
+        state = PackageState.NEW.name
+        medicineName = prescriptionAttr.value
+        requestedAt = Long.MAX_VALUE
+        patientDiagnosis = diagnosisAttr?.value
     }
 
     realm.executeTransaction { realm ->
-        // todo: Update only updated products instead of full realm.delete
-        realm.delete(Product::class.java)
-        realm.copyToRealmOrUpdate(prescribedProducts)
+        realm.copyToRealmOrUpdate(prescribedProduct)
     }
+}
+
+fun replenishNewProductsInRealm() {
+    val realm = Realm.getDefaultInstance()
+
+    val newAndProcessingOrders = realm.where(Product::class.java)
+            .isNull(FIELD_COLLECTED_AT)
+            .findAll()
+            .map { it.medicineName }
+
+    val prescriptions = realm.where(ClaimAttribute::class.java)
+            .equalTo(FIELD_KEY, PRESCRIPTION)
+            .findAll()
+
+    val spentPrescriptions = prescriptions.filterNot { it.value in newAndProcessingOrders }
+
+    spentPrescriptions.forEach { addNewProductPrescriptionToRealm(it) }
 }

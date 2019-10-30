@@ -22,7 +22,10 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialF
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
 import com.luxoft.blockchainlab.hyperledger.indy.models.ParsedProof
-import com.luxoft.blockchainlab.hyperledger.indy.utils.*
+import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
+import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
@@ -47,7 +50,10 @@ class AskNewPackage {
 
     @InitiatingFlow
     @StartableByRPC
-    open class Treatment(clientId: UUID, private val trustedCredentialsIssuerDID: String) : FlowLogic<Unit>() {
+    open class Treatment(private val clientId: UUID,
+                         private val trustedCredentialsIssuerDID: String,
+                         private val serial: String) : FlowLogic<Unit>()
+    {
         val clientDid by lazy { clientResolverService().userUuid2Did[clientId]!!.get(inviteWaitTimeout) }
 
         @Suspendable
@@ -55,8 +61,6 @@ class AskNewPackage {
             val packageRequest = PackageRequest(clientDid)
 
             try {
-                val serial = UUID.randomUUID().toString()
-
                 checkPermissions(serial)
 
                 issueReceipt(serial)

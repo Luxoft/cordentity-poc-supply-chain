@@ -32,7 +32,7 @@ data class TreatmentCenterDetails(val name: String)
 
 data class PushToken(val did: String, val token: String)
 
-data class AskForPackageRequest(val tcName: String, val clientUUID: String)
+data class AskForPackageRequest(val tcName: String, val clientUUID: String, val serial: String)
 
 data class ProcessPackageRequest(val serial: String)
 
