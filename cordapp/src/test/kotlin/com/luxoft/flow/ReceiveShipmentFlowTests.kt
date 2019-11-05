@@ -34,8 +34,8 @@ class ReceiveShipmentFlowTests : ShipmentBase(NetworkConfiguration()) {
     fun `short chain receiver-issuer-receiver `() {
         newPackageRequest(config.treatment, config.issuer, packageInfo)
 
-        runShipment(packageInfo.serial, config.issuer, config.treatment)
-        endShipment(packageInfo.serial, config.treatment)
+        runShipment(packageInfo.packageId, config.issuer, config.treatment)
+        endShipment(packageInfo.packageId, config.treatment)
 
         val criteria = QueryCriteria.VaultQueryCriteria(status = ALL)
 
@@ -170,14 +170,14 @@ class ReceiveShipmentFlowTests : ShipmentBase(NetworkConfiguration()) {
 
         newPackageRequest(config.treatment, config.issuer, packageInfo)
 
-        runShipment(packageInfo.serial, config.issuer, config.carrier)
-        endShipment(packageInfo.serial, config.carrier)
+        runShipment(packageInfo.packageId, config.issuer, config.carrier)
+        endShipment(packageInfo.packageId, config.carrier)
 
-        runShipment(packageInfo.serial, config.carrier, config.goverment)
-        endShipment(packageInfo.serial, config.goverment)
+        runShipment(packageInfo.packageId, config.carrier, config.goverment)
+        endShipment(packageInfo.packageId, config.goverment)
 
-        runShipment(packageInfo.serial, config.goverment, config.treatment)
-        endShipment(packageInfo.serial, config.treatment)
+        runShipment(packageInfo.packageId, config.goverment, config.treatment)
+        endShipment(packageInfo.packageId, config.treatment)
 
         val criteria = QueryCriteria.VaultQueryCriteria(status = ALL)
 

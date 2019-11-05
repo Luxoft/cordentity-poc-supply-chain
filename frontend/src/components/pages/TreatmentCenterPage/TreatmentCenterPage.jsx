@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import PropTypes from 'prop-types';
-import {fetchPackages, receiveShipment} from "../../../state/async";
+import {fetchPackages, receiveShipment, fetchProofs} from "../../../state/async";
 import './TreatmentCenterPage.scss';
 import {ENTITY_MODIFIERS, PackageStatus, users} from "../../../utils";
 import Spinner from 'react-spinkit';
@@ -17,30 +17,37 @@ import Portal from '../../common/Portal/Portal';
 import Dimmer from '../../common/Dimmer/Dimmer';
 import AddRequestModal from '../../common/AddRequestModal/AddRequestModal';
 import CollectPackageModal from '../../common/CollectPackageModal/CollectPackageModal';
+import ProfilePage from '../ProfilePage/ProfilePage'
 import WaypointsModal from '../../common/WaypointsModal/WaypointsModal';
 import Footer from '../../common/Footer/Footer';
-
+import {generateRandomImg} from '../../../utils';
 
 class TreatmentCenterPage extends React.Component {
     static propTypes = {
         packages: PropTypes.arrayOf(PropTypes.object),
+        proofs: PropTypes.arrayOf(PropTypes.object),
         error: PropTypes.string,
         loading: PropTypes.bool,
         invite: PropTypes.string
     };
 
     state = {
+        img: null,
         backPressed: false,
         addRequestModalVisible: false,
         collectPackageModalVisible: false,
+        patientProfileVisible: false,
         waypointsModalVisible: false,
         active: true,
-        currentPackage: null
+        currentPackage: null,
+        profileInfo: null,
+        identifiers: null
     };
 
     componentDidMount() {
         const {active, loading} = this.state;
 
+        this.setState({img: generateRandomImg()})
         this.setState({backPressed: false});
         if (active && !loading) setTimeout(() => this.setState({active: false}), 100);
 
@@ -56,8 +63,8 @@ class TreatmentCenterPage extends React.Component {
     }
 
     render() {
-        const {error, loading, packages, invite} = this.props;
-        const {addRequestModalVisible, collectPackageModalVisible, waypointsModalVisible, backPressed, active, currentPackage} = this.state;
+        const {error, loading, packages, proofs, invite} = this.props;
+        const {addRequestModalVisible, collectPackageModalVisible, patientProfileVisible, waypointsModalVisible, backPressed, active, currentPackage, profileInfo, img, identifiers} = this.state;
 
         const user = users[ENTITY_MODIFIERS.TREATMENT_CENTER];
 
@@ -80,13 +87,13 @@ class TreatmentCenterPage extends React.Component {
                 if (PackageStatus[a.state] > PackageStatus[b.state]) return 1;
                 return 0;
             })
-            .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleWaypointsModalOpen(pack)} />);
+            .map((pack, index) => <TableRowTC key={index} {...pack} onClick={this.handleDisplayPackProfileModalOpen(pack)} />);
 
-        const headers = ['Medicine', 'Manufacturer', 'Request ID', 'Patient', 'Status', 'Action'];
+        const headers = [ <div className="img"> <img src={img}/> </div>, 'Manufacturer', 'Prescription', 'Patient', 'Insurer', 'Action'];
 
         return (
             <main className={classes} style={{backgroundImage: `url(${BgPNG})`}}>
-                <Header header='Demo' subheader='Treatment centre: Marina Bay Hospital' onBackClick={this.handleBackClick} user={user}/>
+                <Header header='Demo' subheader='Treatment centre: TC SEEHOF' onBackClick={this.handleBackClick} user={user}/>
                 <article>
                     <div className="controls">
                         <button onClick={this.handleAddRequestModalOpen} className='add-request-btn'>
@@ -137,6 +144,14 @@ class TreatmentCenterPage extends React.Component {
                                     </Dimmer>
                                 </Portal>
                             }
+                            {
+                                patientProfileVisible &&
+                                <Portal>
+                                    <Dimmer>
+                                        <ProfilePage profileInfo={profileInfo} identifiers={identifiers} onClose={this.handleDisplayProfileModalClose} {...currentPackage}/>
+                                    </Dimmer>
+                                </Portal>
+                            }
                         </div>
                         <div className="right">
                             <div className='description'>
@@ -145,7 +160,6 @@ class TreatmentCenterPage extends React.Component {
                                 <p>After request is made, it is possible to <b>track the manufacturing</b> and <b>delivery
                                     process</b>.</p>
                             </div>
-                            <img src={LuxoftLogoPNG} data-rjs="3" alt="Luxoft"/>
                         </div>
                     </div>
                 </article>
@@ -164,6 +178,17 @@ class TreatmentCenterPage extends React.Component {
 
     handleCollectPackageModalOpen = () => {
         this.setState({collectPackageModalVisible: true})
+    };
+
+    handleDisplayProfileModalOpen = () => {
+        this.setState({patientProfileVisible: true})
+    };
+
+    handleDisplayProfileModalClose = () => {
+        this.setState({
+            patientProfileVisible: false,
+            currentPackage: null
+        })
     };
 
     handleCollectPackageModalClose = () => {
@@ -189,6 +214,19 @@ class TreatmentCenterPage extends React.Component {
         })
     };
 
+    handleDisplayPackProfileModalOpen = pack => () => {
+        this.setState({currentPackage: pack})
+        fetchProofs(pack.serial)
+            .then(() => setTimeout(() => {
+                const {proofs} = this.props;
+                const proofInfo = proofs.filter(proof => "picture" in proof["requestedProof"]["revealedAttrs"])[0]
+                this.setState({ profileInfo: proofInfo["requestedProof"]["revealedAttrs"] })
+                this.setState({ identifiers: proofInfo["identifiers"] })
+                this.setState({ patientProfileVisible: true })
+            }, 500))
+    };
+
+
     handleReceiveShipmentClick = serial => () => {
         receiveShipment(serial)
             .then(() => setTimeout(() => fetchPackages(ENTITY_MODIFIERS.TREATMENT_CENTER), 1000))
@@ -196,7 +234,7 @@ class TreatmentCenterPage extends React.Component {
 }
 
 const mapStateToProps = state => {
-    return {...state.packages, ...state.invite}
+    return {...state.packages, ...state.invite, ...state.proofs}
 };
 
 export default connect(mapStateToProps)(TreatmentCenterPage);

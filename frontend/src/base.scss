@@ -27,10 +27,10 @@ $color-gray: #8d8d8d;
 $color-light-gray: #ececec;
 $color-black: #111111;
 $color-white: white;
-$color-light-blue: #5aade9;
-$color-lightest-blue: #DBECF8;
+$color-light-blue: #55487f;
+$color-lightest-blue: #eaeaea;
 
-$box-shadow: 0 2px 47px 0 rgba(47, 101, 150, 0.26);
+$box-shadow: 0 2px 32px 0 rgba(100, 67, 145, 0.38);
 
 $border-radius: 8px;
 $interval-small: 5px;
@@ -120,7 +120,7 @@ html, body, #root, #page-wrapper {
   color: $color;
   background-color: transparent;
   padding-right: 1em;
-  padding-left: .7em;
+  padding-left: 1em;
   height: 33px;
 
   display: flex;
@@ -132,7 +132,7 @@ html, body, #root, #page-wrapper {
     position: relative;
     width: 16px;
     height: 16px;
-    margin: 0 5px 0 0;
+    margin: 0 0 0 0;
     background-size: contain;
     background: no-repeat center;
   }

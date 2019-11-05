@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classSet from 'react-classset';
 import {formatDateTime, generateRandomImg} from '../../../utils';
+import ReactTooltip from 'react-tooltip';
 import './Table.scss';
 
 
@@ -23,7 +24,6 @@ export default class Table extends React.Component {
         return (
             <div className={`table ${className}`}>
                 <div className="thead">
-                    <div className="td"/>
                     {head}
                 </div>
                 <div className="tbody">
@@ -53,7 +53,7 @@ export class TableRowTC extends React.Component {
 
     render() {
         const {
-            serial, state, patientDid, patientDiagnosis, medicineName, medicineDescription, processedBy,
+            serial, state, patientName, patientDid, patientDiagnosis, insurerDid, medicineName, processedBy,
             requestedAt, issuedAt, processedAt, deliveredAt, collectedAt, onClick, button
         } = this.props;
 
@@ -96,23 +96,23 @@ export class TableRowTC extends React.Component {
 
         return (
             <div className={classes} onClick={onClick}>
+                <div className="td" data-tip="tooltip" data-for={`tip-${serial}`}>
+                    <TableStatusPlate {...{state, date, filledPins}} />
+                </div>
+                <ReactTooltip id={`tip-${serial}`} place="left" type="dark" effect="float" >
+                    <span>{packageStatuses[filledPins - 1]}</span>
+                </ReactTooltip>
                 <div className="td">
-                    <TableImg {...{img}} />
+                    <TableManufacturerPlate {...{manufacturer: processedBy.organisation}} />
                 </div>
                 <div className="td">
-                    <TableManufacturerPlate {...{manufacturer: 'PharmaOne'}} />
+                    <TableMedicinePlate medicineName={medicineName} patientDiagnosis={patientDiagnosis}/>
                 </div>
                 <div className="td">
-                    <TableMedicinePlate medicineName={medicineName} medicineDescription={medicineDescription}/>
+                    <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientName={patientName}/>
                 </div>
                 <div className="td">
-                    <TableSerialPlate {...{serial}} />
-                </div>
-                <div className="td">
-                    <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientDiagnosis={patientDiagnosis}/>
-                </div>
-                <div className="td">
-                    <TableStatusPlate {...{date, filledPins}} />
+                    <TableInsurerPlate insurerDid={`did:sov:${insurerDid}`} insurerName={insurerDid}/>
                 </div>
                 <div className="td" onClick={this.handleClick}>
                     {button && <TableButton text='receive shipment'/>}
@@ -140,7 +140,7 @@ export class TableRowMF extends React.Component {
 
     render() {
         const {
-            serial, state, medicineName, medicineDescription, requestedBy, requestedAt, issuedAt,
+            serial, state, medicineName, requestedBy, requestedAt, issuedAt, patientName,
             processedAt, deliveredAt, collectedAt, button, onClick, patientDid, patientDiagnosis
         } = this.props;
 
@@ -189,19 +189,19 @@ export class TableRowMF extends React.Component {
                     <TableImg {...{img}} />
                 </div>
                 <div className="td">
-                    <TableMedicinePlate medicineName={medicineName} medicineDescription={medicineDescription}/>
+                    <TableMedicinePlate medicineName={medicineName} patientDiagnosis={patientDiagnosis}/>
                 </div>
                 <div className="td">
                     <TableSerialPlate {...{serial}} />
                 </div>
                 <div className="td">
-                    <TableTreatmentCenterPlate treatmentCenterName='Marina Bay Hospital' treatmentCenterAddress='Marina Sands 117, Singapore'/>
+                    <TableTreatmentCenterPlate treatmentCenterName={requestedBy.organisation} treatmentCenterAddress={requestedBy.locality}/>
                 </div>
                 <div className="td">
-                    <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientDiagnosis={patientDiagnosis}/>
+                    <TablePatientPlate patientDid={`did:sov:${patientDid}`} patientName={patientName}/>
                 </div>
                 <div className="td">
-                    <TableStatusPlate {...{date, filledPins}} />
+                    <TableStatusPlate {...{state, date, filledPins}} />
                 </div>
                 <div className="td" onClick={this.handleClick}>
                     {button && <TableButton text='manufacture & ship'/>}
@@ -229,12 +229,23 @@ function TableImg(props) {
 }
 
 function TablePatientPlate(props) {
-    const {patientDid, patientDiagnosis} = props;
+    const {patientName, patientDid} = props;
 
     return (
         <div className='patient-plate'>
-            <p className="did">{patientDid.substring(0, 16)}...</p>
-            <p className="diagnosis">{patientDiagnosis}</p>
+            <p className="name">{patientName}</p>
+            <p className="did">{patientDid.substring(0, 16)}</p>
+        </div>
+    )
+}
+
+function TableInsurerPlate(props) {
+    const {insurerName, insurerDid} = props;
+
+    return (
+        <div className='insurer-plate'>
+            <p className="name">{insurerName}</p>
+            <p className="did">{insurerDid.substring(0, 16)}</p>
         </div>
     )
 }
@@ -245,18 +256,18 @@ function TableTreatmentCenterPlate(props) {
     return (
         <div className='treatment-center-plate'>
             <p className="name">{treatmentCenterName}</p>
-            <p className="address">{treatmentCenterAddress}</p>
+            { treatmentCenterAddress && <p className="address">{treatmentCenterAddress}</p> }
         </div>
     )
 }
 
 function TableMedicinePlate(props) {
-    const {medicineName, medicineDescription} = props;
+    const {medicineName, patientDiagnosis} = props;
 
     return (
         <div className="medicine-type">
             <p className="name">{medicineName}</p>
-            <p className="description">{medicineDescription}</p>
+            <p className="description">{patientDiagnosis}</p>
         </div>
     )
 }
@@ -292,12 +303,12 @@ export const packageStatuses = [
 ];
 
 function TableStatusPlate(props) {
-    const {date, filledPins} = props;
+    const {state, date, filledPins} = props;
 
     return (
         <div className="status-plane">
             <ProgressBar filledPins={filledPins} date={formatDateTime(date)} maxPins={packageStatuses.length}/>
-            <p className="info">{packageStatuses[filledPins - 1]}</p>
+            <p className="info">{state}</p>
         </div>
     )
 }
@@ -323,7 +334,7 @@ function ProgressBar(props) {
             <div className="pins">
                 {pins}
             </div>
-            <div className="date">{date}</div>
+            {/*<div className="date">{date}</div>*/}
         </div>
     )
 }

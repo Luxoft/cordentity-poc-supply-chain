@@ -16,6 +16,7 @@
 
 package com.luxoft.web.controllers
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.GetInviteFlow
@@ -23,6 +24,7 @@ import com.luxoft.poc.supplychain.flow.GetTailsFlow
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
+import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
@@ -88,6 +90,12 @@ class TreatmentCenterController(rpc: RPCComponent) {
         services.startFlow(PackageWithdrawal::Owner, request.serial, UUID.fromString(request.clientUUID!!))
     }
 
+    @PostMapping("package/history")
+    fun packageHistory(@RequestBody request: Serial): Invite {
+        val invite = services.startFlow(GetPackageHistory::Requester, request.serial).returnValue.get()
+        return Invite(invite)
+    }
+
     @GetMapping("package/list")
     fun getPackageRequests(): Any {
         return try {
@@ -99,4 +107,18 @@ class TreatmentCenterController(rpc: RPCComponent) {
         }
     }
 
+    @PostMapping("package/proofs")
+    fun getPackageProofs(@RequestBody request: Serial): Any {
+        return try {
+            val r = services.vaultQueryBy<IndyCredentialProof>().states
+                .map { it.state.data }
+                .filter { it.id == request.serial }
+                .map { it.proof.proofData }
+            println("Responding to /api/tc/package/proofs with ($r)")
+            r
+        } catch (e: Exception) {
+            logger.error("", e)
+            FAILURE.plus("error" to e.message)
+        }
+    }
 }

@@ -17,25 +17,25 @@
 package com.luxoft.poc.supplychain.flow.medicine
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialDefinition
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.IssueCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
-import com.luxoft.blockchainlab.hyperledger.indy.models.FilterProperty
-import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
-import com.luxoft.blockchainlab.hyperledger.indy.utils.proveGreaterThan
-import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
+import com.luxoft.blockchainlab.hyperledger.indy.models.ParsedProof
+import com.luxoft.blockchainlab.hyperledger.indy.utils.*
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
+import com.luxoft.poc.supplychain.flow.*
 import com.luxoft.poc.supplychain.flow.GetInviteFlow.Companion.inviteWaitTimeout
-import com.luxoft.poc.supplychain.flow.RequestForPackage
-import com.luxoft.poc.supplychain.flow.get
-import com.luxoft.poc.supplychain.flow.getManufacturer
 import com.luxoft.poc.supplychain.service.clientResolverService
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
+import net.corda.core.node.services.Vault
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.serialization.CordaSerializable
 import java.util.*
 
@@ -57,10 +57,10 @@ class AskNewPackage {
             try {
                 val serial = UUID.randomUUID().toString()
 
-                checkPermissions()
+                checkPermissions(serial)
 
                 issueReceipt(serial)
-                requestNewPackage(serial, packageRequest)
+                requestNewPackage(serial, packageRequest, getProofs(serial)[0])
 
             } catch (e: Throwable) {
                 logger.error("Patient cant be authenticated", e)
@@ -69,47 +69,72 @@ class AskNewPackage {
         }
 
         @Suspendable
-        private fun checkPermissions() {
+        private fun getProofs(serial: String): List<ParsedProof> {
+            val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
+            return serviceHub.vaultService.queryBy<IndyCredentialProof>(criteria).states
+                .map { it.state.data }
+                .filter { it.id == serial }
+                .map { it.proof.proofData }.toList()
+        }
+
+        @Suspendable
+        private fun checkPermissions(serial: String) {
             val proofRequest = proofRequest("user_proof_req", "1.0") {
+                reveal("socialid")
                 reveal("name")
-                reveal("sex")
-                reveal("medical id") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
-                reveal("medical condition") {
-                    //                    FilterProperty.Value shouldBe "Healthy"
-                    FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID
-                }
-                proveGreaterThan("age", 18)
+                reveal("birthday")
+                reveal("gender")
+                reveal("picture")
+                reveal("medicalid") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("insurer") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("limit") { FilterProperty.IssuerDid shouldBe trustedCredentialsIssuerDID }
+                reveal("diagnosis")
+                reveal("prescription")
             }
-            //In case of ignoring verification
-//            connectionService().sendProofRequest(proofRequest, clientDid)
-            if (!subFlow(VerifyCredentialFlowB2C.Verifier(clientDid, clientDid, proofRequest)))
+            if (!subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
         }
 
         @Suspendable
         private fun issueReceipt(serial: String) {
-            val credDef = serviceHub.vaultService.queryBy(IndyCredentialDefinition::class.java).states.first().state.data
 
-            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDef.id, null, clientDid) {
+            val authorities = subFlow(
+                IndyResolver.Requester(
+                    mapOf(
+                        "Manufacture" to getManufacturer().name,
+                        "TRC" to ourIdentity.name
+                    )
+                )
+            )
+
+            val credDefId = getCredDefLike(PackageIndySchema.schemaName)!!.state.data.id
+
+            subFlow(IssueCredentialFlowB2C.Issuer(serial, credDefId, null, clientDid) {
                 attributes["serial"] = CredentialValue(serial)
+                attributes["authorities"] = CredentialValue(SerializationUtils.anyToJSON(authorities))
+                attributes["time"] = CredentialValue(System.currentTimeMillis().toString())
             })
         }
 
         @Suspendable
-        private fun requestNewPackage(serial: String, packageRequest: PackageRequest) {
+        private fun requestNewPackage(serial: String, packageRequest: PackageRequest, proof: ParsedProof) {
             // create new package request
             val packageInfo = PackageInfo(
-                    serial = serial,
-                    state = PackageState.NEW,
-                    patientDid = packageRequest.patientDid,
-                    patientDiagnosis = "leukemia",
-                    medicineName = "Santorium",
-                    medicineDescription = "package-required",
-                    requestedAt = System.currentTimeMillis(),
-                    requestedBy = ourIdentity.name,
-                    processedBy = getManufacturer().name
+                serial = serial,
+                state = PackageState.NEW,
+                patientName = proof.requestedProof.revealedAttrs["name"]?.raw!!,
+                patientDid = packageRequest.patientDid,
+                patientDiagnosis = proof.requestedProof.revealedAttrs["diagnosis"]?.raw,
+                insurerName = proof.requestedProof.revealedAttrs["insurer"]?.raw,
+                insurerDid = proof.identifiers
+                    .find { it.getSchemaIdObject().name == "Insurance" }?.getCredentialDefinitionIdObject()?.did,
+                medicineName = proof.requestedProof.revealedAttrs["prescription"]?.raw,
+                estimatedCost = "$100.00",
+                isCoveredByInsurer = true,
+                requestedAt = System.currentTimeMillis(),
+                requestedBy = ourIdentity.name,
+                processedBy = getManufacturer().name
             )
-
             subFlow(RequestForPackage.Initiator(packageInfo))
         }
     }

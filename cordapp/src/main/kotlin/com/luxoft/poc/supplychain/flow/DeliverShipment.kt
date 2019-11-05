@@ -17,16 +17,21 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.contract.ShipmentContract
+import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.poc.supplychain.data.schema.CertificateIndySchema
 import com.luxoft.poc.supplychain.data.state.Shipment
 import com.luxoft.poc.supplychain.data.state.getInfo
 import com.luxoft.poc.supplychain.mapToKeys
 import net.corda.confidential.IdentitySyncFlow
-import net.corda.core.contracts.*
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
@@ -72,10 +77,27 @@ object DeliverShipment {
             // Sync up confidential identities in the transaction with our counterparty
             subFlow(IdentitySyncFlow.Send(flowSession, trxBuilder.toWireTransaction(serviceHub)))
 
+            issueDeliveryCertificate(info)
+
             val signedTrx = subFlow(CollectSignaturesFlow(selfSignedTx, listOf(flowSession)))
             val finalTrx = subFlow(FinalityFlow(signedTrx))
 
             waitForLedgerCommit(finalTrx.id)
+        }
+
+        @Suspendable
+        fun issueDeliveryCertificate(info: PackageInfo) {
+            val credentialDefinition = getCredDefLike(CertificateIndySchema.schemaName)!!.state.data
+            val credentialOffer = indyUser().createCredentialOffer(credentialDefinition.id)
+            val credentialRequest =
+                indyUser().createCredentialRequest(indyUser().walletUser.getIdentityDetails().did, credentialOffer)
+            val credentialInfo =
+                indyUser().issueCredentialAndUpdateLedger(credentialRequest, credentialOffer, null) {
+                    attributes["serial"] = CredentialValue(serial)
+                    attributes["status"] = CredentialValue(info.state.name)
+                    attributes["time"] = CredentialValue(info.processedAt!!.toString())
+                }
+            indyUser().checkLedgerAndReceiveCredential(credentialInfo, credentialRequest, credentialOffer)
         }
     }
 

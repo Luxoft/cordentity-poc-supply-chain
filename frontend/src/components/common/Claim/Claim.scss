@@ -1,0 +1,59 @@
+.claim-wrapper {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  .description {
+    .value {
+      margin-top: 6px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      letter-spacing: -0.28px;
+      color: #5a564e;
+    }
+
+    .text {
+      font-size: 11px;
+      letter-spacing: -0.26px;
+      color: #b2b2b2;
+      margin-top: 3px;
+    }
+
+    .annotation {
+      font-size: 11px;
+      letter-spacing: -0.26px;
+      color: #717171;
+      margin-top: 3px;
+    }
+
+    .btn {
+      position: relative;
+      left: -3px;
+      background-color: white;
+      border-radius: 6px;
+      border: 1px solid #b9aed8;
+      color: #b9aed8;
+      padding: 5px 10px;
+      margin-top: 3px;
+      letter-spacing: 0;
+      font-weight: normal;
+      cursor: pointer;
+      outline: none;
+
+      transition: all .2s ease;
+
+      &:hover {
+        color: white;
+        background-color: #b9aed8;
+      }
+    }
+  }
+
+  .verified-by {
+    font-size: 11px;
+    letter-spacing: -0.26px;
+    color: #b9aed8;
+  }
+}

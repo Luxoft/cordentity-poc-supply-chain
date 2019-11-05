@@ -11,9 +11,9 @@ Start local Indy pool
 
 Start Corda nodes
 
-`docker-compose up -d notary mfcorda tccorda sacorda`
+`docker-compose up -d notary mfcorda tccorda`
 
 Start web servers (after Corda nodes are properly up)
 Make sure that ports 10001+ are free.
 
-`docker-compose up -d tcweb mfweb saweb`
+`docker-compose up -d tcweb mfweb`

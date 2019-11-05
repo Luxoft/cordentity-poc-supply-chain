@@ -97,22 +97,22 @@ class GradleDriven: e2eBase {
         println("Indy step finished")
 
         val askNewPackageRes = agent.startFlowDynamic(AskNewPackage.Patient::class.java, chainOfAuthority)
-        val serial = askNewPackageRes.returnValue.getOrThrow(Duration.ofSeconds(30))
+        val packageId = askNewPackageRes.returnValue.getOrThrow(Duration.ofSeconds(30))
 
         println("Step 1 finished")
 
-        val deliverShipmentRes = issuer.startFlowDynamic(DeliverShipment.Sender::class.java, serial, treatmentCert)
+        val deliverShipmentRes = issuer.startFlowDynamic(DeliverShipment.Sender::class.java, packageId, treatmentCert)
         deliverShipmentRes.returnValue.getOrThrow(Duration.ofSeconds(30))
 
         println("Step 2 finished")
 
-        val acceptanceRes = AcceptanceResult(serial)
+        val acceptanceRes = AcceptanceResult(packageId)
         val receiveShipmentRes = treatment.startFlowDynamic(ReceiveShipment.Receiver::class.java, acceptanceRes)
         receiveShipmentRes.returnValue.getOrThrow(Duration.ofSeconds(30))
 
         println("Step 3 finished")
 
-        val packageWithdrawalRes = agent.startFlowDynamic(PackageWithdrawal.Owner::class.java, serial)
+        val packageWithdrawalRes = agent.startFlowDynamic(PackageWithdrawal.Owner::class.java, packageId)
         packageWithdrawalRes.returnValue.getOrThrow(Duration.ofSeconds(30))
 
         println("Step 4 finished")

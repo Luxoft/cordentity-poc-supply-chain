@@ -7,6 +7,14 @@
     - ubuntu-add-luxoft-ca
     - ubuntu-docker-engine
 
-- hosts: hosts
+- hosts: indypool
+  roles:
+    - indypool
+
+- hosts: indyagents
+  roles:
+    - indyagents
+
+- hosts: monolith
   roles:
     - monolith

@@ -24,7 +24,7 @@ val FAILURE = mapOf("success" to false)
 
 data class Serial(val serial: String, val clientUUID: String? = null)
 
-data class Invite(val invite: String, val clientUUID: String)
+data class Invite(val invite: String, val clientUUID: String? = null)
 
 data class QPReleaseResult(val serial: String, val status: String) // 'success' | 'fail';
 
@@ -44,10 +44,13 @@ data class Package(
         val serial: String = "",
         val status: Int = 0,
         val manufacturer: String = "",
+        val patientName: String = "",
         val patientDid: String = "",
         val patientDiagnosis: String = "",
+        val insurerDid: String = "",
         val medicineName: String = "",
-        val medicineDescription: String = "",
+        val estimatedCost: String = "",
+        val isCoveredByInsurer: Boolean = false,
         val treatmentCenterName: String = "",
         val treatmentCenterAddress: String = "",
         val issuedAt: Long = 0L,

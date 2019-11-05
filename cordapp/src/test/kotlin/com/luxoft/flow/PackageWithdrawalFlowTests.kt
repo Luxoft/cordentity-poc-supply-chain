@@ -22,7 +22,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyClaimProof
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.poc.supplychain.data.schema.DiagnosisDetails
 import com.luxoft.poc.supplychain.data.schema.IndySchemaBuilder
-import com.luxoft.poc.supplychain.data.schema.PackageReceipt
+import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
 import com.luxoft.poc.supplychain.data.schema.PersonalInformation
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.data.state.Shipment
@@ -46,8 +46,8 @@ class PackageWithdrawalFlowTests: ShipmentBase(NetworkConfiguration()) {
         val meta = listOf<CredentialDesc>(
                 CredentialDesc(
                         IndySchemaBuilder()
-                                .addAttr(PackageReceipt.Attributes.Serial, packageInfo.serial)
-                                .build(), getCredDefId(config.treatment, PackageReceipt), config.treatment),
+                                .addAttr(PackageIndySchema.Attributes.Serial, packageInfo.serial)
+                                .build(), getCredDefId(config.treatment, PackageIndySchema), config.treatment),
 
                 CredentialDesc(
                         IndySchemaBuilder()

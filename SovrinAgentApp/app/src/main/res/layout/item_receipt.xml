@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="36dp">
+
+    <TextView
+        android:id="@+id/tvReceiptItemHeader"
+        style="@style/Text"
+        android:textSize="14sp"
+        android:textColor="#bbbbbb"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/manufacture" />
+
+    <TextView
+        android:id="@+id/tvReceiptItemName"
+        style="@style/TextReceiptItem"
+        android:layout_marginTop="16dp"
+        android:text="@string/manufacturing_astura_673434" />
+
+    <TextView
+        android:id="@+id/tvReceiptItemDID"
+        style="@style/TextReceiptItem"
+        android:layout_marginTop="12dp"
+        tools:text="@string/receipt_did" />
+
+    <TextView
+        android:id="@+id/tvReceiptItemSchemaId"
+        style="@style/TextReceiptItem"
+        android:layout_marginTop="12dp"
+        tools:text="@string/receipt_schema_id" />
+
+</LinearLayout>

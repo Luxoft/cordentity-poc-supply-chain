@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.data
 
-
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -31,14 +30,20 @@ enum class PackageState {
     COLLECTED
 }
 
-data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String)
+enum class PopupStatus {
+    NEW,
+    IN_PROGRESS,
+    RECEIVED,
+    HISTORY
+}
+
+data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String?)
 
 data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID: String?)
 
 data class PushToken(val did: String, val token: String)
 
 data class AskForPackageRequest(val tcName: String, val clientUUID: String)
-
 
 open class Error {
     open var code: Int = 0
@@ -50,7 +55,10 @@ open class ClaimAttribute : RealmObject() {
     @PrimaryKey
     open var key: String? = null
     open var value: String? = null
-    open var schemaId: String? = null
+    open var schemaName: String? = null
+    open var schemaVersion: String? = null
+    open var issuerDid: String? = null
+    open var credRefSeqNo: Int = -1
 }
 
 @RealmClass
@@ -103,7 +111,6 @@ open class Product : RealmObject() {
     open var collectedAt: Long? = null
 }
 
-
 @RealmClass
 open class Waybill : RealmObject() {
     open var id: String? = null
@@ -112,5 +119,13 @@ open class Waybill : RealmObject() {
 @RealmClass
 open class ProductOperation : RealmObject() {
     open var by: String? = null
+    @PrimaryKey
     open var at: Long? = null
 }
+
+data class AuthorityInfo(
+        val did: String,
+        val schemaId: String
+)
+
+class AuthorityInfoMap : HashMap<String, AuthorityInfo>()

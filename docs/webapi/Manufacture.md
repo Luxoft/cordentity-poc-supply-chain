@@ -6,7 +6,7 @@ After package gets prepared by TC it goes to the MF
  [PACKAGE_DATA_OBJECT](DataObjects.md)
 
 ### Method and url
-`GET` */api/mf/request/list*
+`GET` */api/mf/package/list*
 
 ### Request
 

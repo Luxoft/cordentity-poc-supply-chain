@@ -2,6 +2,10 @@ export const PACKAGE_LOAD = '[General][Package] Load';
 export const PACKAGE_LOAD_SUCCESS = '[General][Package] Load success';
 export const PACKAGE_LOAD_FAIL = '[General][Package] Load fail';
 
+export const PACKAGE_PROOFS = '[General][Package] Load proofs';
+export const PACKAGE_PROOFS_SUCCESS = '[General][Package] Load proofs success';
+export const PACKAGE_PROOFS_FAIL = '[General][Package] Load proofs fail';
+
 export const PACKAGE_MANUFACTURE = '[General][Package] Manufacture and shipment';
 export const PACKAGE_MANUFACTURE_SUCCESS = '[General][Package] Manufacture and shipment success';
 export const PACKAGE_MANUFACTURE_FAIL = '[General][Package] Manufacture and shipment fail';

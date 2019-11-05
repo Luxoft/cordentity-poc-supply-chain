@@ -25,11 +25,15 @@ data class PackageInfo (
         val serial: String,
         val state: PackageState,
 
+        val patientName: String,
         val patientDid: String,
         val patientDiagnosis: String?,
 
+        val insurerName: String?,
+        val insurerDid: String?,
         val medicineName: String?,
-        val medicineDescription: String?,
+        val estimatedCost: String?,
+        val isCoveredByInsurer: Boolean?,
 
         val requestedAt: Long? = null,
         val requestedBy: CordaX500Name,
@@ -54,6 +58,15 @@ data class AcceptanceResult (
         val isAccepted: Boolean = true,
         val comments: String? = null
 )
+
+@CordaSerializable
+data class AuthorityInfo(
+    val did: String,
+    val schemaId: String
+)
+
+@CordaSerializable
+class AuthorityInfoMap : HashMap<String, AuthorityInfo>()
 
 @CordaSerializable
 enum class PackageState {

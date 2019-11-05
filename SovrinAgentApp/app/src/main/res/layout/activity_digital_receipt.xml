@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="24dp"
+    android:scrollbars="none">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardlist_item"
+        style="@style/Card">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingStart="45dp"
+            android:paddingTop="45dp"
+            android:paddingEnd="45dp"
+            android:paddingBottom="35dp">
+
+            <TextView
+                android:id="@+id/tvReceiptName"
+                style="@style/Text"
+                android:text="@string/santorium_plus"
+                android:textColor="@color/gray_header"
+                android:textSize="23sp" />
+
+            <LinearLayout
+                android:id="@+id/receiptContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="51dp"
+                android:src="@drawable/barcode" />
+
+            <TextView
+                android:id="@+id/tvReceiptCode"
+                style="@style/Text"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-light"
+                android:layout_gravity="center_horizontal"
+                android:text="926738276YUT86"
+                android:textColor="#b5b5b5"
+                android:textSize="@dimen/text_title" />
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</ScrollView>

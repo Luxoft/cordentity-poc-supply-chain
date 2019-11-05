@@ -16,49 +16,107 @@
 
 package com.luxoft.web.e2e
 
+import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.GenesisHelper
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
+import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.poc.supplychain.data.PackageInfo
 import com.luxoft.poc.supplychain.data.PackageState
 import com.luxoft.web.clients.ManufactureClient
 import com.luxoft.web.clients.TreatmentCenterClient
 import net.corda.core.identity.CordaX500Name
+import org.apache.commons.io.FileUtils
+import org.hyperledger.indy.sdk.pool.Pool
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
-import java.lang.Thread.sleep
-import javax.annotation.PostConstruct
+import java.io.File
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles(profiles = ["treatmentcenter"])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@Ignore
+@Ignore(
+"""Use only for development/debugging
+Preconditions: 
+ - Set profile to one of {treatmentcenter, manufacture}
+ - Run start.sh
+ - Stop the service corresponding to the profile""")
 class TreatmentCenterE2E : E2ETest()
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Ignore
+@Ignore("Precondition: Run start.sh")
 class RemoteE2E : E2ETest()
 
-@Ignore("Needs external services")
-open class E2ETest {
-    @Autowired
-    lateinit var restTemplateBuilder: RestTemplateBuilder
+@Ignore("Do not use directly; Needs external setup")
+@TestPropertySource(
+    properties = [
+        "manufactureEndpoint=http://localhost:8081",
+        "treatmentCenterEndpoint=http://localhost:8082"
+    ]
+)
+@ImportAutoConfiguration
+abstract class E2ETest {
 
-    lateinit var manufactureClient: ManufactureClient
-    lateinit var treatmentCenterClient: TreatmentCenterClient
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun agentConnection(): AgentConnection = PythonRefAgentConnection().apply {
+            connect(
+                url = "ws://localhost:8094/ws",
+                login = "agentUser",
+                password = "password"
+            ).toBlocking().value()
+        }
 
-    @PostConstruct
-    fun initialize() {
-        val mfRestTemplate = restTemplateBuilder.rootUri("http://localhost:8081").build()
-        val tcRestTemplate = restTemplateBuilder.rootUri("http://localhost:8082").build()
+        @Bean
+        fun ssiUser(): SsiUser {
+            val pool: Pool
+            val poolName: String = "test-pool-${Math.abs(Random().nextInt())}"
+            val tmpTestWalletId = "tmpTestWallet${Math.abs(Random().nextInt())}"
 
-        manufactureClient = ManufactureClient(mfRestTemplate)
-        treatmentCenterClient = TreatmentCenterClient(tcRestTemplate)
+            val genesisFile = File("../cordapp/src/main/resources/genesis/indy_pool_dev.txn")
+            if (!GenesisHelper.exists(genesisFile))
+                throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
+
+            PoolHelper.createOrTrunc(genesisFile, poolName)
+            pool = PoolHelper.openExisting(poolName)
+
+            //creating user wallet with credentials required by logic
+            File(this.javaClass.classLoader.getResource("testUserWallet.db").file)
+                .copyTo(File("${FileUtils.getUserDirectory()}/.indy_client/wallet/$tmpTestWalletId/sqlite.db"))
+                .apply {
+                    Runtime.getRuntime().addShutdownHook(Thread { FileUtils.deleteQuietly(parentFile) })
+                }
+
+            val wallet = WalletHelper.openExisting(tmpTestWalletId, "password")
+
+            val walletUser = IndySDKWalletUser(wallet)
+            val ledgerUser = IndyPoolLedgerUser(pool, walletUser.getIdentityDetails().did) { walletUser.sign(it) }
+            return IndyUser.with(walletUser).with(ledgerUser).build()
+        }
     }
+
+    @Autowired
+    lateinit var manufactureClient: ManufactureClient
+
+    @Autowired
+    lateinit var treatmentCenterClient: TreatmentCenterClient
 
     @Test
     fun mainFlow() {
@@ -67,9 +125,10 @@ open class E2ETest {
         `treatment center can receive package`()
         `treatment center can give package`()
         `treatment center can observe packages`()
+        `manufacturer can provide history for package`()
     }
 
-    val syncUpDelay = 5000L
+    val syncUpRetry = 15
 
     fun `treatment center can issue new package`() {
         val packagesBefore = treatmentCenterClient.getPackages()
@@ -77,32 +136,39 @@ open class E2ETest {
 
         //TODO: Take credentials required for initFlow
         val invite = treatmentCenterClient.getInvite()
-        treatmentCenterClient.initFlow("Treatment London GB", invite)
+        treatmentCenterClient.initFlow("TC SEEHOF Zurich CH", invite)
 
-        sleep(syncUpDelay)
-        val packagesAfter = treatmentCenterClient.getPackages()
-        val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.ISSUED) }.size
 
-        assert(packagesCountBefore < packagesCountAfter)
+        waitThenAssert(syncUpRetry) {
+            val packagesAfter = treatmentCenterClient.getPackages()
+            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.ISSUED) }.size
+
+            packagesCountBefore < packagesCountAfter
+        }
     }
 
     fun `treatment center can receive package`() {
+        waitThenAssert(syncUpRetry) {
+            val packagesAfter = treatmentCenterClient.getPackages()
+            packagesAfter.filter { packageHasStatus(it, PackageState.PROCESSED) }.firstOrNull() != null
+        }
+
         val packagesBefore = treatmentCenterClient.getPackages()
         assert(packagesBefore.isNotEmpty())
 
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
 
-        val readyToReceivePackage = packagesBefore.find { packageHasStatus(it, PackageState.PROCESSED) }!!
+        val readyToReceivePackage = packagesBefore.findLast { packageHasStatus(it, PackageState.PROCESSED) }!!
         assertPackageValid(readyToReceivePackage)
 
         treatmentCenterClient.receivePackage(readyToReceivePackage.serial)
 
-        sleep(syncUpDelay)
-        val packagesAfter = treatmentCenterClient.getPackages()
-        assert(packagesAfter.isNotEmpty())
+        waitThenAssert(syncUpRetry) {
+            val packagesAfter = treatmentCenterClient.getPackages()
+            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
 
-        val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
-        assert(packagesCountBefore < packagesCountAfter)
+            packagesCountBefore < packagesCountAfter
+        }
     }
 
     fun `treatment center can give package`() {
@@ -111,17 +177,17 @@ open class E2ETest {
 
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
 
-        val readyToGivePackage = packagesBefore.find { packageHasStatus(it, PackageState.DELIVERED) }!!
+        val readyToGivePackage = packagesBefore.findLast { packageHasStatus(it, PackageState.DELIVERED) }!!
         assertPackageValid(readyToGivePackage)
 
         treatmentCenterClient.collectPackage(readyToGivePackage.serial, treatmentCenterClient.getInvite())
 
-        sleep(syncUpDelay)
-        val packagesAfter = treatmentCenterClient.getPackages()
-        assert(packagesAfter.isNotEmpty())
+        waitThenAssert(syncUpRetry) {
+            val packagesAfter = treatmentCenterClient.getPackages()
+            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
 
-        val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
-        assert(packagesCountBefore < packagesCountAfter)
+            packagesCountBefore < packagesCountAfter
+        }
     }
 
     fun `manufacturer can process issued package`() {
@@ -130,17 +196,27 @@ open class E2ETest {
 
         val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
 
-        val packageToProcess = packagesBefore.find { packageHasStatus(it, PackageState.ISSUED) }!!
+        val packageToProcess = packagesBefore.findLast { packageHasStatus(it, PackageState.ISSUED) }!!
         assertPackageValid(packageToProcess)
 
         manufactureClient.processPackage(packageToProcess.serial)
 
-        sleep(syncUpDelay)
-        val packagesAfter = manufactureClient.getPackages()
-        assert(packagesAfter.isNotEmpty())
+        waitThenAssert(syncUpRetry) {
+            val packagesAfter = manufactureClient.getPackages()
+            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
 
-        val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
-        assert(packagesCountBefore < packagesCountAfter)
+            packagesCountBefore < packagesCountAfter
+        }
+    }
+
+    fun `manufacturer can provide history for package`() {
+        val packagesBefore = treatmentCenterClient.getPackages()
+        assert(packagesBefore.isNotEmpty())
+
+        val packageToProcess = packagesBefore.findLast { packageHasStatus(it, PackageState.COLLECTED) }!!
+        assertPackageValid(packageToProcess)
+
+        manufactureClient.packageHistory(packageToProcess.serial)
     }
 
     fun `treatment center can observe packages`() {
@@ -158,7 +234,6 @@ open class E2ETest {
         assert(pack.patientDid.isNotEmpty())
         assert(pack.patientDiagnosis?.isNotEmpty() ?: false)
         assert(pack.medicineName?.isNotEmpty() ?: false)
-        assert(pack.medicineDescription?.isNotEmpty() ?: false)
 
         when (pack.state) {
             PackageState.NEW -> {
@@ -196,4 +271,20 @@ open class E2ETest {
         assert(at ?: 0 > 0)
         assert(by?.organisation?.isNotEmpty() ?: false)
     }
+
+    inline fun waitThenAssert(
+        tryCount: Int,
+        retryDelaySec: Long = 1,
+        noinline assertion: () -> Boolean
+    ) {
+        var i = 0
+        while (i++ < tryCount) {
+            if (!assertion())
+                TimeUnit.SECONDS.sleep(retryDelaySec)
+            else
+                return
+        }
+        throw AssertionError("Waited $tryCount seconds")
+    }
+
 }

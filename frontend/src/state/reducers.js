@@ -4,6 +4,9 @@ import {
     PACKAGE_LOAD,
     PACKAGE_LOAD_FAIL,
     PACKAGE_LOAD_SUCCESS,
+    PACKAGE_PROOFS,
+    PACKAGE_PROOFS_FAIL,
+    PACKAGE_PROOFS_SUCCESS,
     PACKAGE_MANUFACTURE
 } from "./actions";
 
@@ -13,6 +16,12 @@ const initialPackagesState = {
     loading: false,
     manufacturing: null,
     invite: null
+};
+
+const initialProofsState = {
+    proofs: [],
+    error: null,
+    loading: false
 };
 
 const PackagesReducer = (state = initialPackagesState, action) => {
@@ -64,7 +73,32 @@ const PackagesReducer = (state = initialPackagesState, action) => {
     }
 };
 
+const ProofsReducer = (state = initialProofsState, action) => {
+    switch (action.type) {
+        case PACKAGE_PROOFS:
+            return {
+                ...state,
+                loading: true
+            };
+
+        case PACKAGE_PROOFS_SUCCESS:
+            return {
+                ...initialProofsState,
+                proofs: action.payload,
+            };
+
+        case PACKAGE_PROOFS_FAIL:
+            return {
+                ...initialProofsState,
+                error: action.payload
+            };
+
+        default:
+            return state;
+    }
+};
 
 export default {
-    packages: PackagesReducer
+    packages: PackagesReducer,
+    proofs: ProofsReducer
 }

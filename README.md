@@ -10,8 +10,6 @@ This project deals with a confined use case of creating personalised medicine an
 The connected parties in this case are Patients, Treatment Centers and Medicine Manufacturers.
 The protected information may include results of medical tests, DNA information or personal information such as patient’s age or nationality.
 
-For more information about usage scenarios please refer to [docs/Scenarios.md](docs/Scenarios.md).
-
 ### Business Roles
 
 1. **Patient** - person who have medical conditions sufficient to request a cure
