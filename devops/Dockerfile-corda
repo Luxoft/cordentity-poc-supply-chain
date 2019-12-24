@@ -1,16 +1,18 @@
-# Base image from (http://phusion.github.io/baseimage-docker)
-FROM teamblockchain/libindyjava:1.5.0
+FROM ubuntu:18.04
+
+RUN apt-get update && apt-get install -y openjdk-8-jre-headless software-properties-common
+
+# Install libindy
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 && \
+    add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial stable"
+# -o Acquire::https::*::Verify-Peer=false is to make build work in environments with filtered https
+RUN apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false update && \
+    apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false install -y libindy=1.8.2
 
 ENV CORDA_VERSION=${BUILDTIME_CORDA_VERSION}
 
 # Set image labels
 LABEL net.corda.version = ${CORDA_VERSION}
-
-# Install Java
-# RUN apt-get update && \
-#    apt-get install -y openjdk-8-jdk
-
-RUN apt-get update && apt-get install --allow-unauthenticated -y libindy=1.8.2
 
 # Add user
 RUN addgroup corda && \
@@ -38,6 +40,5 @@ WORKDIR /opt/corda
 
 # Start it
 ENTRYPOINT ["/usr/bin/java"]
-CMD ["-Xmx1024m", \
-     "-jar", \
+CMD ["-jar", \
      "corda.jar"]
