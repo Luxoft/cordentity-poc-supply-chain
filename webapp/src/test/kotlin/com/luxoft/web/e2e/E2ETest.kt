@@ -129,7 +129,7 @@ abstract class E2ETest {
         `manufacturer can provide history for package`()
     }
 
-    val syncUpRetry = 15
+    val syncUpRetry = 30
 
     fun `treatment center can issue new package`() {
         val packagesBefore = treatmentCenterClient.getPackages()
@@ -290,4 +290,4 @@ abstract class E2ETest {
 
 }
 
-fun <T> Single<T>.getValue() = this.timeout(15, TimeUnit.SECONDS).toBlocking().value()
+fun <T> Single<T>.getValue() = this.timeout(30, TimeUnit.SECONDS).toBlocking().value()
