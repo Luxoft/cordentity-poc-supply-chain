@@ -17,7 +17,7 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2b.IssueCredentialFlowB2B
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIs
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
@@ -87,17 +87,17 @@ object DeliverShipment {
 
         @Suspendable
         fun issueDeliveryCertificate(info: PackageInfo) {
-            val credentialDefinition = getCredDefLike(CertificateIndySchema.schemaName)!!.state.data
-            val credentialOffer = indyUser().createCredentialOffer(credentialDefinition.id)
-            val credentialRequest =
-                indyUser().createCredentialRequest(indyUser().walletUser.getIdentityDetails().did, credentialOffer)
-            val credentialInfo =
-                indyUser().issueCredentialAndUpdateLedger(credentialRequest, credentialOffer, null) {
+            val revocationRegistryDefinition = getRevocationRegistryLike(CertificateIndySchema.schemaName)!!.state.data
+            subFlow(
+                IssueCredentialFlowB2B.Issuer(
+                    ourIdentity.name,
+                    revocationRegistryDefinition.credentialDefinitionId,
+                    revocationRegistryDefinition.id
+                ) {
                     attributes["serial"] = CredentialValue(serial)
                     attributes["status"] = CredentialValue(info.state.name)
                     attributes["time"] = CredentialValue(info.processedAt!!.toString())
-                }
-            indyUser().checkLedgerAndReceiveCredential(credentialInfo, credentialRequest, credentialOffer)
+                })
         }
     }
 

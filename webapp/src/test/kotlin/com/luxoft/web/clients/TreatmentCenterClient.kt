@@ -19,11 +19,17 @@ package com.luxoft.web.clients
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.TailsHelper
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialValue
+import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
+import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proveNonRevocation
+import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
 import com.luxoft.web.data.Serial
+import com.luxoft.web.e2e.getValue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -92,7 +98,7 @@ class TreatmentCenterClient {
     }
 
     fun initFlow(tcName: String, invite: Invite) {
-        val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
+        val indyParty = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).getValue()
 
         val initRequest = AskForPackageRequest(tcName, invite.clientUUID!!)
 
@@ -109,17 +115,33 @@ class TreatmentCenterClient {
         }
 
         indyParty.also {
-            val proofRequest = it.receiveProofRequest().toBlocking().value()
+            val proofRequest = it.receiveProofRequest().getValue()
             val proofInfo = ssiUser.createProofFromLedgerData(proofRequest)
             it.sendProof(proofInfo)
 
-            val credentialOffer = it.receiveCredentialOffer().toBlocking().value()
+            val credentialOffer = it.receiveCredentialOffer().getValue()
             val credentialRequest =
                 ssiUser.createCredentialRequest(ssiUser.walletUser.getIdentityDetails().did, credentialOffer)
             it.sendCredentialRequest(credentialRequest)
 
-            val credential = it.receiveCredential().toBlocking().value()
+            val credential = it.receiveCredential().getValue()
             ssiUser.checkLedgerAndReceiveCredential(credential, credentialRequest, credentialOffer)
+            val revocationRegistryInfo = ssiUser.getRevocationRegistryDefinition(
+                credential.credential.getCredentialDefinitionIdObject()
+            )
+            val tailsHash = revocationRegistryInfo!!.value["tailsHash"].toString()
+            val tailsResponse = it.requestTails(tailsHash).getValue()
+            TailsHelper.DefaultWriter(ssiUser.walletUser.getTailsPath()).write(tailsResponse)
+
+            val serialProofRequest = com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest("proof_req", "1.0") {
+                reveal("serial") {
+                    "serial" shouldBe credential.credential.values["serial"]!!.raw
+                    FilterProperty.IssuerDid shouldBe credential.credential.getCredentialDefinitionIdObject().did
+                }
+                proveNonRevocation(Interval.allTime())
+            }
+            val serialProof = ssiUser.createProofFromLedgerData(serialProofRequest)
+            assert(ssiUser.verifyProofWithLedgerData(serialProofRequest, serialProof))
         }
     }
 
@@ -133,7 +155,7 @@ class TreatmentCenterClient {
     }
 
     fun collectPackage(serial: String, invite: Invite) {
-        val acceptInvite = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
+        val acceptInvite = agentClient.acceptInvite(invite.invite).timeout(30, TimeUnit.SECONDS).getValue()
 
         val collectRequest = Serial(serial, invite.clientUUID)
         val collectResponse =
@@ -144,7 +166,7 @@ class TreatmentCenterClient {
         }
 
         acceptInvite.also {
-            val proofRequest = it.receiveProofRequest().toBlocking().value()
+            val proofRequest = it.receiveProofRequest().getValue()
             val proof = ssiUser.createProofFromLedgerData(proofRequest)
             it.sendProof(proof)
         }

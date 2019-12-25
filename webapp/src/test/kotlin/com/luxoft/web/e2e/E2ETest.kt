@@ -43,6 +43,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
+import rx.Single
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -288,3 +289,5 @@ abstract class E2ETest {
     }
 
 }
+
+fun <T> Single<T>.getValue() = this.timeout(15, TimeUnit.SECONDS).toBlocking().value()

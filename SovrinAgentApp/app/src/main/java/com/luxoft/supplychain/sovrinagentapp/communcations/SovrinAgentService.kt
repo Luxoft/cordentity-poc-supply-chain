@@ -27,9 +27,6 @@ import rx.Observable
 
 interface SovrinAgentService {
 
-    @GET("/api/tc/tails")
-    fun getTails(): Observable<Map<String, String>>
-
     @POST("/api/tc/package/history")
     fun packageHistory(@Body serial: Serial): Observable<Invite>
 

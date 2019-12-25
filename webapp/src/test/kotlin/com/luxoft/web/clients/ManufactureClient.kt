@@ -18,16 +18,15 @@ package com.luxoft.web.clients
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
-import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
-import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
-import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
-import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
+import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
+import com.luxoft.blockchainlab.hyperledger.indy.utils.*
 import com.luxoft.poc.supplychain.data.AuthorityInfoMap
 import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
 import com.luxoft.web.data.ProcessPackageRequest
 import com.luxoft.web.data.Serial
+import com.luxoft.web.e2e.getValue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -97,7 +96,7 @@ class ManufactureClient {
         }
 
         val acceptInvite =
-            agentClient.acceptInvite(response.body.invite).timeout(30, TimeUnit.SECONDS).toBlocking().value()
+            agentClient.acceptInvite(response.body.invite).timeout(30, TimeUnit.SECONDS).getValue()
 
         val packageCredential = ssiUser.walletUser.getCredentials().asSequence().find {
             it.getSchemaIdObject().name.contains(PackageIndySchema.schemaName.split("-").first()) &&
@@ -110,7 +109,7 @@ class ManufactureClient {
 
         acceptInvite.also {
             run {
-                val proofRequest = it.receiveProofRequest().toBlocking().value()
+                val proofRequest = it.receiveProofRequest().getValue()
                 val proofInfo = ssiUser.createProofFromLedgerData(proofRequest)
                 it.sendProof(proofInfo)
             }
@@ -127,9 +126,10 @@ class ManufactureClient {
                         FilterProperty.IssuerDid shouldBe authority.did
                         FilterProperty.SchemaId shouldBe authority.schemaId
                     }
+                    proveNonRevocation(Interval.allTime())
                 }
                 it.sendProofRequest(proofRequest)
-                val proof = it.receiveProof().toBlocking().value()
+                val proof = it.receiveProof().getValue()
                 assert(ssiUser.verifyProofWithLedgerData(proofRequest, proof))
                 proof
             }
