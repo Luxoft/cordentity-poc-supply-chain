@@ -91,7 +91,7 @@ abstract class E2ETest {
             val poolName: String = "test-pool-${Math.abs(Random().nextInt())}"
             val tmpTestWalletId = "tmpTestWallet${Math.abs(Random().nextInt())}"
 
-            val genesisFile = File("../cordapp/src/main/resources/genesis/indy_pool_dev.txn")
+            val genesisFile = File("../devops/profile/develop/genesis/indy_pool_dev.txn")
             if (!GenesisHelper.exists(genesisFile))
                 throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
 

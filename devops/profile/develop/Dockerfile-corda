@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.04 AS libindyjava
 
 RUN apt-get update && apt-get install -y openjdk-8-jre-headless software-properties-common
 
@@ -8,6 +8,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 &&
 # -o Acquire::https::*::Verify-Peer=false is to make build work in environments with filtered https
 RUN apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false update && \
     apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false install -y libindy=1.8.2
+
+FROM libindyjava
 
 ENV CORDA_VERSION=${BUILDTIME_CORDA_VERSION}
 
@@ -28,7 +30,6 @@ ADD network-parameters      /opt/corda/
 ADD cordapps/               /opt/corda/cordapps
 ADD additional-node-infos/  /opt/corda/additional-node-infos
 ADD certificates/           /opt/corda/certificates
-ADD drivers/                /opt/corda/drivers
 ADD persistence*            /opt/corda/
 ADD indyconfig/             /opt/corda/indyconfig
 ADD genesis/                /opt/corda/genesis
@@ -41,4 +42,5 @@ WORKDIR /opt/corda
 # Start it
 ENTRYPOINT ["/usr/bin/java"]
 CMD ["-jar", \
+     "-Dcapsule.jvm.args='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n'", \
      "corda.jar"]

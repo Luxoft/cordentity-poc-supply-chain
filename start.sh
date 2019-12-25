@@ -3,7 +3,8 @@
 docker-compose down --rmi local --volumes
 
 set -e
-./gradlew killCordaProcesses clean assemble
+./gradlew killCordaProcesses clean assemble bootstrap
+docker-compose build cordabaseimage
 docker-compose build notary tccorda mfcorda
 docker-compose build tcweb mfweb
 docker-compose up -d agent94 agent95 agent96 agentInitiator
