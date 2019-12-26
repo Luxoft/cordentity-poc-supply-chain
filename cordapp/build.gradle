@@ -80,17 +80,3 @@ task integrationTest(type: Test, dependsOn: []) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
-task initInventoryAWS(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'com.luxoft.rpc.RPCClient'
-    args = ['54.175.244.82:10003', '34.228.61.142:10003', '34.235.129.45:10003', '52.201.230.41:10003']
-}
-
-task initInventoryLocalhost(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'com.luxoft.rpc.RPCClient'
-    args = ['127.0.0.1:10009'/*, '127.0.0.1:10109'*/]
-}
-
-apply from: "$rootDir/indy-run.gradle"
-

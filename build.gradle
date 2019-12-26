@@ -53,6 +53,7 @@ subprojects {
 }
 
 apply from: "corda-run.gradle"
+apply from: "docker.gradle"
 
 clean.shouldRunAfter(killCordaProcesses)
 
@@ -64,5 +65,3 @@ dependencies {
   cordappDeploy "com.github.${cordentity_provider}.cordentity:cordentity-cordapp:$cordentity_version"
   cordappDeploy "com.github.${cordentity_provider}.cordentity:cordentity-cordapp-contracts-states:$cordentity_version"
 }
-
-apply from: "indy-run.gradle"
