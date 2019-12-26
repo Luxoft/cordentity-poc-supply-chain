@@ -71,7 +71,7 @@ class RemoteE2E : E2ETest()
         "treatmentCenterEndpoint=http://localhost:8082"
     ]
 )
-@ImportAutoConfiguration
+@ImportAutoConfiguration(classes = [E2ETest.TestConfig::class])
 abstract class E2ETest {
 
     @TestConfiguration
