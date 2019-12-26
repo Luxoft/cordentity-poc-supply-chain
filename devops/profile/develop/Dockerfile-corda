@@ -36,6 +36,9 @@ ADD genesis/                /opt/corda/genesis
 
 # Working directory for Corda
 WORKDIR /opt/corda
+ENV HOME=/opt/corda
+RUN chown -R corda:corda /opt/corda
+USER corda
 
 # ENV RUST_LOG=trace
 
