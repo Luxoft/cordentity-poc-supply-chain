@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y openjdk-8-jre-headless software-propert
 
 # Install libindy
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 && \
-    add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial stable"
+    add-apt-repository -n "deb https://repo.sovrin.org/sdk/deb xenial stable"
 # -o Acquire::https::*::Verify-Peer=false is to make build work in environments with filtered https
 RUN apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false update && \
     apt-get -o Acquire::https::repo.sovrin.org::Verify-Peer=false install -y libindy=1.8.2

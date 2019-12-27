@@ -42,6 +42,7 @@ dockerCompose {
     cordaComposeUp.shouldRunAfter(agentsComposeUp)
     baseimagesComposeBuild.dependsOn("bootstrap")
     cordaComposeBuild.dependsOn("bootstrap")
+    cordaComposeBuild.dependsOn(baseimagesComposeBuild)
     cordaComposeBuild.mustRunAfter(baseimagesComposeBuild)
     backendsComposeBuild.dependsOn(":webapp:assemble")
     backendsComposeBuild.dependsOn("bootstrap")
