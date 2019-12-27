@@ -61,7 +61,7 @@ class TreatmentCenterE2E : E2ETest()
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Ignore("Precondition: Run start.sh")
+//Precondition: Run start.sh
 class RemoteE2E : E2ETest()
 
 @Ignore("Do not use directly; Needs external setup")

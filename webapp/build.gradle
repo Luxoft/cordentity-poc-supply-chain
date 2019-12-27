@@ -34,6 +34,18 @@ sourceSets {
       srcDir "config/test"
     }
   }
+  integrationTest {
+    kotlin {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file('src/integrationTest/kotlin')
+    }
+  }
+}
+
+configurations {
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
 }
 
 task copyFrontendArtifacts(type: Copy) {
@@ -44,6 +56,21 @@ task copyFrontendArtifacts(type: Copy) {
 }
 
 processResources.dependsOn(copyFrontendArtifacts)
+
+task integrationTest(type: Test, dependsOn: []) {
+  description = 'Runs integration tests.'
+  group = 'verification'
+  outputs.upToDateWhen { false }
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+task integrationTestWithDocker(dependsOn: [":agentsComposeBuild", ":cordaComposeBuild", ":backendsComposeBuild", ":agentsComposeUp", ":cordaComposeUp", ":backendsComposeUp", integrationTest, ":backendsComposeDown", ":cordaComposeDown", ":agentsComposeDown"]) {
+  description = 'Start dockerised system and runs integration tests.'
+  group = 'verification'
+}
+
+integrationTest.mustRunAfter(":backendsComposeUp")
 
 dependencies {
 
