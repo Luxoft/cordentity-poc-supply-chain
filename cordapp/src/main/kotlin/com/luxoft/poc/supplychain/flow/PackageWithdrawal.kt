@@ -20,8 +20,10 @@ import co.paralleluniverse.fibers.Suspendable
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
+import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
 import com.luxoft.blockchainlab.hyperledger.indy.utils.FilterProperty
 import com.luxoft.blockchainlab.hyperledger.indy.utils.proofRequest
+import com.luxoft.blockchainlab.hyperledger.indy.utils.proveNonRevocation
 import com.luxoft.blockchainlab.hyperledger.indy.utils.reveal
 import com.luxoft.poc.supplychain.contract.PackageContract
 import com.luxoft.poc.supplychain.data.PackageState
@@ -64,6 +66,7 @@ class PackageWithdrawal {
                     "serial" shouldBe serial
                     FilterProperty.IssuerDid shouldBe indyUser().walletUser.getIdentityDetails().did
                 }
+                proveNonRevocation(Interval.allTime())
             }
             subFlow(VerifyCredentialFlowB2C.Verifier(serial, clientDid, serialProofRequest))
         }

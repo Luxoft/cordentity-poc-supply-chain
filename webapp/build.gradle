@@ -1,6 +1,4 @@
 buildscript {
-  ext.springBootVersion = '2.0.0.M5'
-
   repositories {
     mavenLocal()
     mavenCentral()
@@ -36,6 +34,18 @@ sourceSets {
       srcDir "config/test"
     }
   }
+  integrationTest {
+    kotlin {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file('src/integrationTest/kotlin')
+    }
+  }
+}
+
+configurations {
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
 }
 
 task copyFrontendArtifacts(type: Copy) {
@@ -47,6 +57,21 @@ task copyFrontendArtifacts(type: Copy) {
 
 processResources.dependsOn(copyFrontendArtifacts)
 
+task integrationTest(type: Test, dependsOn: []) {
+  description = 'Runs integration tests.'
+  group = 'verification'
+  outputs.upToDateWhen { false }
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+task integrationTestWithDocker(dependsOn: [":agentsComposeBuild", ":cordaComposeBuild", ":backendsComposeBuild", ":agentsComposeUp", ":cordaComposeUp", ":backendsComposeUp", integrationTest, ":backendsComposeDown", ":cordaComposeDown", ":agentsComposeDown"]) {
+  description = 'Start dockerised system and runs integration tests.'
+  group = 'verification'
+}
+
+integrationTest.mustRunAfter(":backendsComposeUp")
+
 dependencies {
 
   // CorDapp dependencies
@@ -55,6 +80,15 @@ dependencies {
 
   // app specific deps
   compile 'com.corundumstudio.socketio:netty-socketio:1.7.13'
+
+  //TODO: java.lang.ClassNotFoundException: javax.json.JsonValue fix
+  compile("org.apache.activemq:artemis-core-client:2.2.0") {
+    force = true
+  }
+  compile("org.apache.activemq:artemis-commons:2.2.0") {
+    force = true
+  }
+  compile("javax.json:javax.json-api")
 
   // Spring Boot
   compile('org.springframework.boot:spring-boot-starter')

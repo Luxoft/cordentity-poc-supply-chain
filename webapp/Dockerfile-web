@@ -1,7 +1,6 @@
-FROM frolvlad/alpine-java:jdk8-slim
-MAINTAINER Alexey Koren
-COPY ./build/libs/webapp.jar webapp.jar
-ENTRYPOINT ["/usr/bin/java"]
+FROM openjdk:8-jre-slim
+COPY ./build/libs/*.jar webapp.jar
+ENTRYPOINT ["java"]
 CMD ["-agentlib:jdwp=transport=dt_socket,suspend=n,server=y", \
      "-jar", \
      "webapp.jar"]

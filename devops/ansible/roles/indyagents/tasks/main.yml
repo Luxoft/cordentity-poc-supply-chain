@@ -13,7 +13,7 @@
 
 - name: Copy docker-compose file
   synchronize:
-    src: "../../../docker-compose-agents.yml"
+    src: "../../../../docker-compose.yml"
     dest: "{{ ansible_env.HOME}}/docker-compose.yml"
     delete: yes
 

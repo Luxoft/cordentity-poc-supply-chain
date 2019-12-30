@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.4'
 services:
 
   #indypool should be created beforehand, with schemas and credentials issued for user auth
@@ -9,6 +9,13 @@ services:
   #      - "9701-9708:9701-9708"
   #    container_name: indypool
 
+  cordabaseimage:
+    network_mode: host
+    build:
+      context: ./devops/profile/develop
+      dockerfile: Dockerfile-corda
+      target: libindyjava
+    image: libindyjava
 
 # -------------------- Corda nodes -----------------------
 
