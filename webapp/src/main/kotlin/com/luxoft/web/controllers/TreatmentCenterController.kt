@@ -17,13 +17,13 @@
 package com.luxoft.web.controllers
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
-import com.luxoft.poc.supplychain.data.AcceptanceResult
-import com.luxoft.poc.supplychain.data.state.Package
-import com.luxoft.poc.supplychain.flow.GetInviteFlow
-import com.luxoft.poc.supplychain.flow.PackageWithdrawal
-import com.luxoft.poc.supplychain.flow.ReceiveShipment
-import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
-import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
+import com.luxoft.lumedic.ssi.corda.data.AcceptanceResult
+import com.luxoft.lumedic.ssi.corda.data.state.Package
+import com.luxoft.lumedic.ssi.corda.flow.GetInviteFlow
+import com.luxoft.lumedic.ssi.corda.flow.PackageWithdrawal
+import com.luxoft.lumedic.ssi.corda.flow.ReceiveShipment
+import com.luxoft.lumedic.ssi.corda.flow.AuthPatient
+import com.luxoft.lumedic.ssi.corda.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.AskForPackageRequest
 import com.luxoft.web.data.FAILURE
@@ -74,7 +74,7 @@ class TreatmentCenterController(rpc: RPCComponent) {
 
     @PostMapping("request/create")
     fun createPackageRequest(@RequestBody tc: AskForPackageRequest) {
-        services.startFlow(AskNewPackage::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
+        services.startFlow(AuthPatient::Treatment, UUID.fromString(tc.clientUUID), trustedCredentialsIssuerDID)
     }
 
     @PostMapping("package/withdraw")

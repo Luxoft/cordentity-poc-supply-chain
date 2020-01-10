@@ -29,7 +29,7 @@ allprojects {
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://repo.sovrin.org/repository/maven-releases' }
     maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.sovrin.org/repository/maven-releases' }
+    maven { url 'http://repo.gradle.org/gradle/libs-releases-local' }
   }
 }
 

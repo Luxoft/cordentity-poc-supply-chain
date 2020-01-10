@@ -16,9 +16,9 @@
 
 package com.luxoft.web.controllers
 
-import com.luxoft.poc.supplychain.data.state.Package
-import com.luxoft.poc.supplychain.flow.DeliverShipment
-import com.luxoft.poc.supplychain.flow.medicine.GetPackageHistory
+import com.luxoft.lumedic.ssi.corda.data.state.Package
+import com.luxoft.lumedic.ssi.corda.flow.DeliverShipment
+import com.luxoft.lumedic.ssi.corda.flow.medicine.GetPackageHistory
 import com.luxoft.web.components.RPCComponent
 import com.luxoft.web.data.FAILURE
 import com.luxoft.web.data.Invite

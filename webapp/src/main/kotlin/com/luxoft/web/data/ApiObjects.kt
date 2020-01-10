@@ -16,7 +16,7 @@
 
 package com.luxoft.web.data
 
-import com.luxoft.poc.supplychain.data.PackageInfo
+import com.luxoft.lumedic.ssi.corda.data.PackageInfo
 
 val SUCCESS = mapOf("success" to true)
 val FAILURE = mapOf("success" to false)

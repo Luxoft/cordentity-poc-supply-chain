@@ -17,9 +17,8 @@
 package com.luxoft.web.components
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndySchema
-import com.luxoft.poc.supplychain.IdentityInitService
-import com.luxoft.poc.supplychain.data.schema.CertificateIndySchema
-import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
+import com.luxoft.lumedic.ssi.corda.data.schema.CertificateIndySchema
+import com.luxoft.lumedic.ssi.corda.data.schema.PackageIndySchema
 import net.corda.core.utilities.loggerFor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile

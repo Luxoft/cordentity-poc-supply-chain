@@ -20,8 +20,8 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.Interval
 import com.luxoft.blockchainlab.hyperledger.indy.utils.*
-import com.luxoft.poc.supplychain.data.AuthorityInfoMap
-import com.luxoft.poc.supplychain.data.schema.PackageIndySchema
+import com.luxoft.lumedic.ssi.corda.data.AuthorityInfoMap
+import com.luxoft.lumedic.ssi.corda.data.schema.PackageIndySchema
 import com.luxoft.web.data.Invite
 import com.luxoft.web.data.PackagesResponse
 import com.luxoft.web.data.ProcessPackageRequest

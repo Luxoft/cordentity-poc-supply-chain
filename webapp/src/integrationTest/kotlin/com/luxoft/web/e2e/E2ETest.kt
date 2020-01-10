@@ -25,8 +25,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
-import com.luxoft.poc.supplychain.data.PackageInfo
-import com.luxoft.poc.supplychain.data.PackageState
+import com.luxoft.lumedic.ssi.corda.data.PackageInfo
+import com.luxoft.lumedic.ssi.corda.data.PackageState
 import com.luxoft.web.clients.ManufactureClient
 import com.luxoft.web.clients.TreatmentCenterClient
 import net.corda.core.identity.CordaX500Name
