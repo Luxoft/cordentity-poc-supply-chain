@@ -17,7 +17,7 @@
         app:marker="@drawable/time_line_marker"
         app:markerSize="12dp" />
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         style="@style/Card"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="10dp"
@@ -48,6 +48,6 @@
 
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

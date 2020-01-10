@@ -22,8 +22,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
-import android.support.v4.app.NotificationCompat
-import android.support.v4.content.ContextCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.NOTIFICATION_CHANNEL_ID
 import com.luxoft.supplychain.sovrinagentapp.application.NOTIFICATION_CHANNEL_NAME

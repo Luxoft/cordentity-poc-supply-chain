@@ -3,8 +3,8 @@ package com.luxoft.supplychain.sovrinagentapp.ui.activities
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.PermissionChecker
-import android.support.v7.app.AppCompatActivity
+import androidx.core.content.PermissionChecker
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R

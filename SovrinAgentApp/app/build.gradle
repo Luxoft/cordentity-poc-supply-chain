@@ -19,8 +19,8 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         ndk {
             abiFilters 'x86', 'arm64-v8a', 'armeabi-v7a'
         }
@@ -52,19 +52,17 @@ dependencies {
 
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'
 
-//TODO: migrate com.android.support to androidx https://developer.android.com/jetpack/androidx/migrate
-//   implementation "androidx.constraintlayout:constraintlayout:1.1.3"
-    implementation "com.android.support.constraint:constraint-layout:1.1.3"
+   implementation "androidx.constraintlayout:constraintlayout:1.1.3"
 
     //noinspection GradleCompatible
 
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.2.0') {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    }
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     implementation 'org.koin:koin-android:1.0.2'
@@ -84,7 +82,7 @@ dependencies {
 
     // Timeline
     implementation 'com.github.vipulasri:timelineview:1.0.6'
-    implementation "com.android.support:cardview-v7:28.0.0"
+    implementation "androidx.cardview:cardview:1.0.0"
 
     // QR code scanning
     implementation 'com.github.blikoon:QRCodeScanner:0.1.2'

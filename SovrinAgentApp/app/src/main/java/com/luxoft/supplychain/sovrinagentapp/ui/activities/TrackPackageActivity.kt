@@ -17,8 +17,8 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.activities
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.MenuItem
 import android.widget.Toast
 import com.luxoft.supplychain.sovrinagentapp.R
