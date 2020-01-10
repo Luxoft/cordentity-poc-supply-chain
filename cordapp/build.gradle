@@ -49,9 +49,12 @@ dependencies {
         transitive = false
     }
 
+    // todo: replace with 'api'
+    // leaks com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
     compile "com.github.${cordentity_provider}.cordentity:cordentity-indy-utils:$cordentity_version"
-    compile "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
-    compile 'net.java.dev.jna:jna:4.5.1'
+
+    implementation "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
+    implementation 'net.java.dev.jna:jna:4.5.1'
 
     implementation 'com.github.alexeykoren:konfig:2.0.4'
 
@@ -62,10 +65,10 @@ dependencies {
     cordaCompile "net.corda:corda-node-api:${corda_release_version}"
     cordaRuntime "net.corda:corda:${corda_release_version}"
 
-    testCompile "net.corda:corda-node-driver:4.0"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "junit:junit:4.12"
-    testCompile "org.assertj:assertj-core:3.10.0"
+    testImplementation "net.corda:corda-node-driver:4.0"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.assertj:assertj-core:3.10.0"
 
     // app specific deps
     implementation 'com.corundumstudio.socketio:netty-socketio:1.7.13'

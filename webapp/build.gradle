@@ -76,23 +76,19 @@ dependencies {
 
   // CorDapp dependencies
   // Specify your cordapp's dependencies below, including dependent cordapps
-  compile project(':cordapp')
+  implementation project(':cordapp')
 
   // app specific deps
-  compile 'com.corundumstudio.socketio:netty-socketio:1.7.13'
+  implementation 'com.corundumstudio.socketio:netty-socketio:1.7.13'
 
   //TODO: java.lang.ClassNotFoundException: javax.json.JsonValue fix
-  compile("org.apache.activemq:artemis-core-client:2.2.0") {
-    force = true
-  }
-  compile("org.apache.activemq:artemis-commons:2.2.0") {
-    force = true
-  }
-  compile("javax.json:javax.json-api")
+  implementation("org.apache.activemq:artemis-core-client:2.2.0") { force = true }
+  implementation("org.apache.activemq:artemis-commons:2.2.0") { force = true }
+  implementation "javax.json:javax.json-api"
 
   // Spring Boot
-  compile('org.springframework.boot:spring-boot-starter')
-  compile('org.springframework.boot:spring-boot-starter-web')
-  testCompile('org.springframework.boot:spring-boot-starter-test')
-  testCompile('org.springframework.boot:spring-boot-test')
+  implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-test'
 }
