@@ -30,6 +30,14 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/get_credentials"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Credentials"
+        android:background="@drawable/gradient"
+        android:visibility="visible"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"

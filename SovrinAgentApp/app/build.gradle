@@ -45,8 +45,8 @@ android {
 }
 
 dependencies {
-    implementation("com.github.devalexey.cordentity:cordentity-indy-utils:$cordentity_version")
-    implementation("com.github.devalexey.cordentity:cordentity-agent-connection:$cordentity_version")
+    implementation("com.github.hyperledger-labs.cordentity:cordentity-indy-utils:$cordentity_version")
+    implementation("com.github.hyperledger-labs.cordentity:cordentity-agent-connection:$cordentity_version")
 
     implementation('net.java.dev.jna:jna:4.5.1@aar')
 
@@ -55,6 +55,11 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.hendraanggrian:collapsingtoolbarlayout-subtitle:27.1.0'
+
+//TODO: migrate com.android.support to androidx https://developer.android.com/jetpack/androidx/migrate
+//   implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+    implementation "com.android.support.constraint:constraint-layout:1.1.3"
+
     //noinspection GradleCompatible
 
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {

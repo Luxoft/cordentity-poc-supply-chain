@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         nameClaims.addChangeListener { claims ->
-            val userName = claims.first()?.value ?: ""
+            val userName = claims.firstOrNull()?.value ?: ""
             supportActionBar?.title = userName
         }
     }

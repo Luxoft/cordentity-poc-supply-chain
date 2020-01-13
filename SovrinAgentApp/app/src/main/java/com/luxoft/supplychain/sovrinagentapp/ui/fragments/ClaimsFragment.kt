@@ -16,8 +16,10 @@
 
 package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -31,10 +33,13 @@ import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.TIME
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ClaimsAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
+import kotlinx.android.synthetic.main.fragment_claims.view.*
 import org.koin.android.ext.android.inject
 
 class ClaimsFragment : Fragment() {
@@ -61,6 +66,15 @@ class ClaimsFragment : Fragment() {
             val numCredRefs = result.distinctBy { it.credRefSeqNo }.size
             tvClaims.text = getString(R.string.verified_credentials, numCredRefs)
         }
+
+        val getCredentialsButton = view.get_credentials
+        view.get_credentials.setOnClickListener {
+            ContextCompat.startActivity(getCredentialsButton.context,
+                    Intent().setClass(getCredentialsButton.context, SimpleScannerActivity::class.java)
+                            .putExtra("state", PackageState.GETPROOFS.name), null
+            )
+        }
+        getCredentialsButton.visibility = View.VISIBLE
 
         val linearLayoutManager = LinearLayoutManager(activity)
         recycler.layoutManager = linearLayoutManager
