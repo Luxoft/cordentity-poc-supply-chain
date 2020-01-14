@@ -25,6 +25,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.splashScreen
@@ -52,7 +53,21 @@ val IndyModule: Module = module {
         p
     }
 
-    single<IndyUser> { provideIndyUser(get<Wallet>(), get<Pool>()) }
+    single<IndyUser> {
+        val wallet = get<Wallet>()
+        val existingDid = wallet.getOwnIdentities().firstOrNull()?.did
+
+        val walletUser: WalletUser
+        if(existingDid != null) {
+            walletUser = IndySDKWalletUser(wallet, existingDid, TAILS_PATH)
+        } else {
+            walletUser = IndySDKWalletUser(wallet, tailsPath = TAILS_PATH)
+            walletUser.createMasterSecret(DEFAULT_MASTER_SECRET_ID)
+        }
+
+        val ledgerUser = IndyPoolLedgerUser(get<Pool>(), walletUser.did, walletUser::sign)
+        IndyUser(walletUser, ledgerUser, createDefaultMasterSecret = false)
+    }
 
     single<AgentConnection>(createOnStart = true) {
         val agentConnection = PythonRefAgentConnection()
@@ -119,14 +134,4 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
         }
     }
     return Pair(wallet, pool)
-}
-
-fun provideIndyUser(wallet:Wallet, pool: Pool): IndyUser {
-    val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
-        IndySDKWalletUser(wallet, did, TAILS_PATH)
-    } ?: run {
-        IndySDKWalletUser(wallet, tailsPath = TAILS_PATH).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
-    }
-
-    return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
 }
