@@ -25,11 +25,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
-import com.luxoft.lumedic.ssi.corda.data.PackageInfo
-import com.luxoft.lumedic.ssi.corda.data.PackageState
-import com.luxoft.web.clients.ManufactureClient
-import com.luxoft.web.clients.TreatmentCenterClient
-import net.corda.core.identity.CordaX500Name
+import com.luxoft.web.clients.HospitalClient
 import org.apache.commons.io.FileUtils
 import org.hyperledger.indy.sdk.pool.Pool
 import org.junit.Ignore
@@ -57,7 +53,7 @@ Preconditions:
  - Set profile to one of {treatmentcenter, manufacture}
  - Run start.sh
  - Stop the service corresponding to the profile""")
-class TreatmentCenterE2E : E2ETest()
+class HospitalE2E : E2ETest()
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -67,13 +63,11 @@ class RemoteE2E : E2ETest()
 @Ignore("Do not use directly; Needs external setup")
 @TestPropertySource(
     properties = [
-        "manufactureEndpoint=http://localhost:8081",
-        "treatmentCenterEndpoint=http://localhost:8082"
+        "hospitalEndpoint=http://localhost:8081"
     ]
 )
 @ImportAutoConfiguration(classes = [E2ETest.TestConfig::class])
 abstract class E2ETest {
-
     @TestConfiguration
     class TestConfig {
         @Bean
@@ -91,7 +85,7 @@ abstract class E2ETest {
             val poolName: String = "test-pool-${Math.abs(Random().nextInt())}"
             val tmpTestWalletId = "tmpTestWallet${Math.abs(Random().nextInt())}"
 
-            val genesisFile = File("../devops/profile/develop/genesis/indy_pool_dev.txn")
+            val genesisFile = File("../devops/profile/develop/genesis/indy_pool_lumedic.txn")
             if (!GenesisHelper.exists(genesisFile))
                 throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
 
@@ -114,180 +108,27 @@ abstract class E2ETest {
     }
 
     @Autowired
-    lateinit var manufactureClient: ManufactureClient
-
-    @Autowired
-    lateinit var treatmentCenterClient: TreatmentCenterClient
+    lateinit var hospitalClient: HospitalClient
 
     @Test
     fun mainFlow() {
-        `treatment center can issue new package`()
-        `manufacturer can process issued package`()
-        `treatment center can receive package`()
-        `treatment center can give package`()
-        `treatment center can observe packages`()
-        `manufacturer can provide history for package`()
+        hospitalClient.authPatientFlow()
     }
-
-    val syncUpRetry = 30
-
-    fun `treatment center can issue new package`() {
-        val packagesBefore = treatmentCenterClient.getPackages()
-        val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.ISSUED) }.size
-
-        //TODO: Take credentials required for initFlow
-        val invite = treatmentCenterClient.getInvite()
-        treatmentCenterClient.initFlow("TC SEEHOF Zurich CH", invite)
-
-
-        waitThenAssert(syncUpRetry) {
-            val packagesAfter = treatmentCenterClient.getPackages()
-            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.ISSUED) }.size
-
-            packagesCountBefore < packagesCountAfter
-        }
-    }
-
-    fun `treatment center can receive package`() {
-        waitThenAssert(syncUpRetry) {
-            val packagesAfter = treatmentCenterClient.getPackages()
-            packagesAfter.filter { packageHasStatus(it, PackageState.PROCESSED) }.firstOrNull() != null
-        }
-
-        val packagesBefore = treatmentCenterClient.getPackages()
-        assert(packagesBefore.isNotEmpty())
-
-        val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
-
-        val readyToReceivePackage = packagesBefore.findLast { packageHasStatus(it, PackageState.PROCESSED) }!!
-        assertPackageValid(readyToReceivePackage)
-
-        treatmentCenterClient.receivePackage(readyToReceivePackage.serial)
-
-        waitThenAssert(syncUpRetry) {
-            val packagesAfter = treatmentCenterClient.getPackages()
-            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.DELIVERED) }.size
-
-            packagesCountBefore < packagesCountAfter
-        }
-    }
-
-    fun `treatment center can give package`() {
-        val packagesBefore = treatmentCenterClient.getPackages()
-        assert(packagesBefore.isNotEmpty())
-
-        val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
-
-        val readyToGivePackage = packagesBefore.findLast { packageHasStatus(it, PackageState.DELIVERED) }!!
-        assertPackageValid(readyToGivePackage)
-
-        treatmentCenterClient.collectPackage(readyToGivePackage.serial, treatmentCenterClient.getInvite())
-
-        waitThenAssert(syncUpRetry) {
-            val packagesAfter = treatmentCenterClient.getPackages()
-            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.COLLECTED) }.size
-
-            packagesCountBefore < packagesCountAfter
-        }
-    }
-
-    fun `manufacturer can process issued package`() {
-        val packagesBefore = manufactureClient.getPackages()
-        assert(packagesBefore.isNotEmpty())
-
-        val packagesCountBefore = packagesBefore.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
-
-        val packageToProcess = packagesBefore.findLast { packageHasStatus(it, PackageState.ISSUED) }!!
-        assertPackageValid(packageToProcess)
-
-        manufactureClient.processPackage(packageToProcess.serial)
-
-        waitThenAssert(syncUpRetry) {
-            val packagesAfter = manufactureClient.getPackages()
-            val packagesCountAfter = packagesAfter.filter { packageHasStatus(it, PackageState.PROCESSED) }.size
-
-            packagesCountBefore < packagesCountAfter
-        }
-    }
-
-    fun `manufacturer can provide history for package`() {
-        val packagesBefore = treatmentCenterClient.getPackages()
-        assert(packagesBefore.isNotEmpty())
-
-        val packageToProcess = packagesBefore.findLast { packageHasStatus(it, PackageState.COLLECTED) }!!
-        assertPackageValid(packageToProcess)
-
-        manufactureClient.packageHistory(packageToProcess.serial)
-    }
-
-    fun `treatment center can observe packages`() {
-        val packages = treatmentCenterClient.getPackages()
-        assert(packages.isNotEmpty())
-    }
-
-    private fun packageHasStatus(pack: PackageInfo, status: PackageState): Boolean {
-        return pack.state == status
-    }
-
-    private fun assertPackageValid(pack: PackageInfo) {
-        assert(pack.serial.isNotEmpty())
-        assert(pack.state.name.isNotBlank())
-        assert(pack.patientDid.isNotEmpty())
-        assert(pack.patientDiagnosis?.isNotEmpty() ?: false)
-        assert(pack.medicineName?.isNotEmpty() ?: false)
-
-        when (pack.state) {
-            PackageState.NEW -> {
-                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
-            }
-            PackageState.ISSUED -> {
-                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
-                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-            }
-            PackageState.PROCESSED -> {
-                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
-                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-                assertWaypointPresence(pack.processedAt, pack.processedBy)
-            }
-            PackageState.DELIVERED -> {
-                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
-                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-                assertWaypointPresence(pack.processedAt, pack.processedBy)
-                assertWaypointPresence(pack.deliveredAt, pack.deliveredTo)
-//                assert(pack.qp ?: false)
-            }
-            PackageState.COLLECTED -> {
-                assertWaypointPresence(pack.requestedAt, pack.requestedBy)
-                assertWaypointPresence(pack.issuedAt, pack.issuedBy)
-                assertWaypointPresence(pack.processedAt, pack.processedBy)
-                assertWaypointPresence(pack.deliveredAt, pack.deliveredTo)
-//                assert(pack.qp ?: false)
-                assertWaypointPresence(pack.collectedAt, pack.deliveredTo)
-            }
-            else -> assert(false)
-        }
-    }
-
-    private fun assertWaypointPresence(at: Long?, by: CordaX500Name?) {
-        assert(at ?: 0 > 0)
-        assert(by?.organisation?.isNotEmpty() ?: false)
-    }
-
-    inline fun waitThenAssert(
-        tryCount: Int,
-        retryDelaySec: Long = 1,
-        noinline assertion: () -> Boolean
-    ) {
-        var i = 0
-        while (i++ < tryCount) {
-            if (!assertion())
-                TimeUnit.SECONDS.sleep(retryDelaySec)
-            else
-                return
-        }
-        throw AssertionError("Waited $tryCount seconds")
-    }
-
 }
 
-fun <T> Single<T>.getValue() = this.timeout(30, TimeUnit.SECONDS).toBlocking().value()
+inline fun waitThenAssert(
+    tryCount: Int,
+    retryDelaySec: Long = 1,
+    noinline assertion: () -> Boolean
+) {
+    var i = 0
+    while (i++ < tryCount) {
+        if (!assertion())
+            TimeUnit.SECONDS.sleep(retryDelaySec)
+        else
+            return
+    }
+    throw AssertionError("Waited $tryCount seconds")
+}
+
+fun <T> Single<T>.getValue() = this.timeout(60, TimeUnit.SECONDS).toBlocking().value()

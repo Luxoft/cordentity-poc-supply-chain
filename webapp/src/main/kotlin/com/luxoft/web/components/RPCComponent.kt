@@ -20,12 +20,10 @@ import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.NetworkHostAndPort
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 
 @Component
-@Profile("manufacture", "treatmentcenter")
 class RPCComponent {
 
     @Value("\${node.address}")

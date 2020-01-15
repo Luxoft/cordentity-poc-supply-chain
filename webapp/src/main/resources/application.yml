@@ -1,6 +1,3 @@
-
-spring:
-  profiles: manufacture
 server:
   port: 8081
 node:
@@ -8,17 +5,5 @@ node:
   rpcPort: 10002
   rpcUser: user1
   rpcPassword: test
-
----
-
-spring:
-  profiles: treatmentcenter
-server:
-  port: 8082
-node:
-  address: localhost
-  rpcPort: 10102
-  rpcUser: user1
-  rpcPassword: test
 indy:
-  trustedCredentialsIssuerDID: RRqP3Ze8x953G3chawJFJm
+  trustedCredentialsIssuerDID: XXdcqNCR9EkhpGwosNkF58

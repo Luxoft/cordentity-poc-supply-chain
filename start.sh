@@ -2,6 +2,7 @@
 
 ./gradlew backendsComposeDown
 ./gradlew cordaComposeDown
+./gradlew agentsComposeDown
 ./gradlew killCordaProcesses
 ./gradlew clean
 docker system prune -f

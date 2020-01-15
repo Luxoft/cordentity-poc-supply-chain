@@ -22,15 +22,15 @@ dockerCompose {
     }
     backends {
         projectName = name
-        startedServices = ['tcweb', 'mfweb']
+        startedServices = ['hospitalweb']
     }
     corda {
         projectName = name
-        startedServices = ['notary', 'tccorda', 'mfcorda']
+        startedServices = ['notary']
     }
     agents {
         projectName = name
-        startedServices = ['agent95', 'agent96', 'agentInitiator']
+        startedServices = ['agent94', 'agent95', 'agentInitiator']
     }
     cordaComposeUp.doLast {
         sleep(60 * 1000)

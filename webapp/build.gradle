@@ -9,7 +9,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
     classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
   }
 }
@@ -89,6 +89,10 @@ dependencies {
     force = true
   }
   compile("javax.json:javax.json-api")
+
+  //Swagger
+  compile "io.springfox:springfox-swagger2:$springfox_version"
+  compile "io.springfox:springfox-swagger-ui:$springfox_version"
 
   // Spring Boot
   compile('org.springframework.boot:spring-boot-starter')

@@ -18,65 +18,23 @@ services:
     image: libindyjava
 
 # -------------------- Corda nodes -----------------------
-
-
-  tccorda:
-    network_mode: host
-    build:
-      context: ./build/nodes/SEEHOF
-      dockerfile: Dockerfile-corda
-    ports:
-      - "10101:10101"
-      - "10102:10102"
-      - "10103:10103"
-    container_name: tccorda
-    environment:
-      - RUST_LOG=trace
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-
-
-  mfcorda:
-    network_mode: host
-    build:
-      context: ./build/nodes/PharmaOne
-      dockerfile: Dockerfile-corda
-    ports:
-      - "10001:10001"
-      - "10002:10002"
-      - "10003:10003"
-    container_name: mfcorda
-    environment:
-      - RUST_LOG=trace
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-
-
   notary:
     network_mode: host
     build:
       context: ./build/nodes/Notary
       dockerfile: Dockerfile-corda
     ports:
-      - "10701:10701"
-      - "10702:10702"
-      - "10703:10703"
+      - "10001:10001"
+      - "10002:10002"
+      - "10003:10003"
     container_name: notary
     deploy:
       resources:
         limits:
           memory: 500m
 
-
-
 # -------------------- Spring nodes -----------------------
-
-
-  mfweb:
+  hospitalweb:
     network_mode: host
     build:
       context: ./webapp
@@ -84,24 +42,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - "SPRING_PROFILES_ACTIVE=manufacture"
-    container_name: mfweb
-    deploy:
-      resources:
-        limits:
-          memory: 50m
-
-
-  tcweb:
-    network_mode: host
-    build:
-      context: ./webapp
-      dockerfile: Dockerfile-web
-    ports:
-      - "8082:8082"
-    environment:
-      - "SPRING_PROFILES_ACTIVE=treatmentcenter"
-    container_name: tcweb
+      - "SPRING_PROFILES_ACTIVE=swagger"
+    container_name: hospitalweb
     deploy:
       resources:
         limits:
@@ -124,14 +66,6 @@ services:
       - "PORT=8095"
     container_name: agent95
 
-  agent96:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
-    ports:
-      - "8096:8096"
-    environment:
-      - "PORT=8096"
-    container_name: agent96
-
   agentInitiator:
     network_mode: host
     image: alpine:3.6
@@ -139,5 +73,4 @@ services:
     depends_on:
       - agent94
       - agent95
-      - agent96
-    command: sh -c 'sleep 10; /usr/bin/wget --spider http://localhost:8094/; /usr/bin/wget --spider http://localhost:8095/; /usr/bin/wget --spider http://localhost:8096/'
+    command: sh -c 'sleep 10; /usr/bin/wget --spider http://localhost:8094/; /usr/bin/wget --spider http://localhost:8095/'
