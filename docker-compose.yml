@@ -43,6 +43,7 @@ services:
       - "8081:8081"
     environment:
       - "SPRING_PROFILES_ACTIVE=swagger"
+      - "indy_trustedCredentialsIssuerDID=XXdcqNCR9EkhpGwosNkF58"
     container_name: hospitalweb
     deploy:
       resources:
@@ -56,6 +57,9 @@ services:
       - "8094:8094"
     environment:
       - "PORT=8094"
+    hostname: agent
+    volumes:
+      - ./hosts:/etc/hosts:ro
     container_name: agent94
 
   agent95:
@@ -64,6 +68,9 @@ services:
       - "8095:8095"
     environment:
       - "PORT=8095"
+    hostname: agent
+    volumes:
+      - ./hosts:/etc/hosts:ro
     container_name: agent95
 
   agentInitiator:
