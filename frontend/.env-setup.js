@@ -8,7 +8,7 @@ console.log('-- example file read')
 
 const result = data
 .replace(/#{ENV_NAME}#/g, 'local')
-.replace(/#{API_BASE_URL}#/g, 'http://54.219.170.40:8080/')
+.replace(/#{API_BASE_URL}#/g, 'http://13.92.115.239:8081')
 
 console.log('-- contents replaced')
 

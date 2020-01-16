@@ -1,7 +1,8 @@
-import React, {useState} from 'react'
+import React, {useRef, useReducer, useEffect} from 'react'
 import { createUseStyles, useTheme } from 'react-jss'
 import QRCode from 'qrcode.react'
 import { ProgressRing, Toast } from '@salesforce/design-system-react/'
+import credentialsService from 'Services/CredentialsService'
 
 const useStyles = createUseStyles((theme) => ({
     root: {
@@ -45,36 +46,96 @@ const useStyles = createUseStyles((theme) => ({
     }
 }))
 
-export default function OperatorDeskPageContent() {
-    const classes = useStyles(useTheme())
-    const [progress, setProgress] = useState(0)
-    const isLoading = progress < 100
-    let heading = 'Authorization failed'
-    let variant = 'error'
+const initialState = {
+    invite: null,
+    requestId: null,
+    status: null,
+    progress: 0
+}
 
-    if (isLoading) {
-        setTimeout(() => setProgress(progress + 1),20)
+function reducer(state, action) {
+  switch (action.type) {
+    case 'setInvite':
+      return {
+        ...state,
+        invite: action.invite,
+        requestId: action.requestId,
     }
-    else {
-        if (Date.now().valueOf() % 2 === 0) {
-            heading = 'Authorization success'
-            variant = 'success'
+    case 'updateInviteStatus':
+      return {
+        ...state,
+        status: action.status
+    }
+    case 'setProgress': 
+      return {
+        ...state,
+        progress: action.progress,
+    }
+    default:
+      return state
+  }
+}
+
+const mapToastPropsFromStatus = (status) => {
+    if (status === 'SUCCESS') {
+        return {
+            heading: 'Authorization success',
+            variant: 'success'
         }
     }
+    return {
+        heading: 'Authorization failed',
+        variant: 'error'
+    }
+} 
+
+export default function OperatorDeskPageContent() {
+    const classes = useStyles(useTheme())
+    const [state, dispatch] = useReducer(reducer, initialState)
+    const progressRef = useRef(state.progress);
+    progressRef.current = state.progress;
+    const qrSize = window.screen.width * window.devicePixelRatio < 500 ? 200 : 300
+    const isLoading = !(['SUCCESS', 'FAILED'].includes(state.status))
+
+    useEffect(() => {
+        if(!state.requestId) {
+            credentialsService.auth({})
+                .then(invite => dispatch({ type: 'setInvite', ...invite }))
+                .catch(e => console.error(e))
+        }
+        else if (isLoading) {
+            const progressHandle = setInterval(() =>  {
+                const newProgress = progressRef.current === 100 ? 0 : progressRef.current + 1
+                dispatch({ type: 'setProgress', progress: newProgress })
+            }, 20)
+            const statusHandle = setInterval(() => {
+                credentialsService.checkStatus(state.requestId)
+                .then(status => dispatch({ type: 'updateInviteStatus', status }))
+                .catch(e => console.error(e))
+            }, 1500)
+        
+            return () => { 
+                window.clearInterval(progressHandle)
+                window.clearInterval(statusHandle) 
+            }
+        }
+    }, [state.requestId])
+
+    const toastProps = mapToastPropsFromStatus(state.status)
     const progressContent = isLoading ? (<>
-            <ProgressRing flowDirection="fill" size="large" value={progress} />
+            <ProgressRing flowDirection="fill" size="large" value={state.progress} />
             <strong className={classes.progressStatus}>Receiving authorization status... </strong>
-        </>) : (<Toast className={classes.toast} labels={{ heading }} variant={variant} />)
-    const qrSize = window.screen.width * window.devicePixelRatio < 600 ? 200 : 400;
+        </>) : (<Toast className={classes.toast} labels={{ heading: toastProps.heading }} variant={toastProps.variant} />)
+
+    const inviteContent = state.invite ? <QRCode fgColor="#161616" value={JSON.stringify(state.invite)} size={qrSize} level='H'/> : ''
     return (
-                <div className={classes.root}>
-                    <div className={classes.qrContainer}>
-                        <QRCode fgColor="#161616" size={qrSize} value={JSON.stringify({"invite":"http://172.21.0.3:8094/indy?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJsYWJlbCI6ICJjcmVkZW50aWFsLWlzc3VlciIsICJyZWNpcGllbnRLZXlzIjogWyJDajdDc0Rydm9zMnZrSjdmekZVM3Jna1NUZVFNVTZuVkc4RzZ6dEh1ZlNMViJdLCAic2VydmljZUVuZHBvaW50IjogImh0dHA6Ly8xNzIuMjEuMC4zOjgwOTQvaW5keSIsICJAaWQiOiAiM2M4NDU4ZDMtNzIwMC00OWNkLWI2YWUtMWFiNmZmNzZlNjU3In0="})}
-                                level='H'/>
-                        <div className={classes.progressContainer}>
-                            {progressContent}
-                        </div>
+            <div className={classes.root}>
+                <div className={classes.qrContainer}>
+                    {inviteContent}
+                    <div className={classes.progressContainer}>
+                        {progressContent}
                     </div>
                 </div>
+            </div>
     )
 }
