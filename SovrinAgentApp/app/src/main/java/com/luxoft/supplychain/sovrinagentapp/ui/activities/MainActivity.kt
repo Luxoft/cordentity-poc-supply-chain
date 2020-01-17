@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
 
     private val appState: ApplicationState by inject()
-    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     private lateinit var ordersFragment: OrdersFragment
 
@@ -57,6 +56,10 @@ class MainActivity : AppCompatActivity() {
 
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
         System.setProperty("jna.debug_load", "true")
+
+        appState.indyState.indyUser.observe({this.lifecycle}) { user: IndyUser ->
+            user.walletUser.updateCredentialsInRealm()
+        }
 
         setContentView(R.layout.activity_main)
         setupToolbar()
@@ -82,7 +85,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        indyUser.walletUser.updateCredentialsInRealm()
+        appState.updateWalletCredentials()
+
         val nameClaims = realm.where(ClaimAttribute::class.java)
                 .equalTo(FIELD_KEY, NAME)
                 .findAllAsync()  // todo: replace with `findFirstAsync` after you fix realm.delete on each update

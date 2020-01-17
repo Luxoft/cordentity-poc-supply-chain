@@ -17,13 +17,12 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
@@ -54,7 +53,10 @@ class HistoryFragment : Fragment() {
         }
 
         mSwipeRefreshLayout = swipe_container
-        mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
+        mSwipeRefreshLayout.setOnRefreshListener {
+            updateMyOrders()
+            mSwipeRefreshLayout.isRefreshing = false
+        }
 
         updateMyOrders()
     }

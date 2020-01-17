@@ -18,9 +18,6 @@ package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
-import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.View
@@ -28,8 +25,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.*
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
+import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
+import com.luxoft.supplychain.sovrinagentapp.application.FIELD_COLLECTED_AT
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
@@ -44,12 +48,13 @@ import io.realm.Sort
 import kotlinx.android.synthetic.main.block_medicine_info.view.*
 import kotlinx.android.synthetic.main.item_history.view.*
 import kotlinx.android.synthetic.main.item_history_content.view.*
+import org.koin.android.ext.android.getKoin
 
 class HistoryAdapter(private val realm: Realm, private val parent: HistoryFragment) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
+    private val appState: ApplicationState by lazy { parent.getKoin().get<ApplicationState>() }
 
     private fun rescanOrders() : List<Product> {
-        val receiptSerials = parent.indyUser.walletUser.getCredentials()
-            .asSequence()
+        val receiptSerials = appState.walletCredentials.value!!
             .filter { ref -> ref.getSchemaIdObject().name.contains("package_receipt") }
             .map { ref -> ref.attributes[EXTRA_SERIAL] }
             .toSet()

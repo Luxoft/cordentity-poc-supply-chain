@@ -11,6 +11,9 @@ import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.TAILS_PATH
 import com.luxoft.supplychain.sovrinagentapp.utils.combine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
 import java.io.File
@@ -46,17 +49,21 @@ class IndyState(
 
     fun openOrCreateWallet() {
         val wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
-        mutWallet.value = wallet
+        GlobalScope.launch(Dispatchers.Main) {
+            mutWallet.value = wallet
+        }
     }
 
     fun connectToPool() {
         initGenesisFile()
-        val pool = PoolHelper.openOrCreate(File(genesisPath), "pool")
-        mutPool.value = pool
+        val pool = PoolHelper.openOrCreate(File(genesisPath.toString()), "pool")
+        GlobalScope.launch(Dispatchers.Main) {
+            mutPool.value = pool
+        }
     }
 
     private fun initGenesisFile() {
-        val genesis = File(genesisPath)
+        val genesis = File(genesisPath.toString())
 
         if (genesis.exists()) genesis.delete()
         genesis.createNewFile()

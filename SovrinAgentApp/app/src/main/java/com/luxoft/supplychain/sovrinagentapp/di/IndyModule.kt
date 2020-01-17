@@ -19,8 +19,6 @@ package com.luxoft.supplychain.sovrinagentapp.di
 import android.app.AlertDialog
 import android.os.Environment
 import android.util.Log
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.DEFAULT_MASTER_SECRET_ID
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
@@ -29,7 +27,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
-import com.luxoft.supplychain.sovrinagentapp.application.*
+import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
+import com.luxoft.supplychain.sovrinagentapp.application.TAILS_PATH
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.splashScreen
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
@@ -70,13 +69,6 @@ val IndyModule: Module = module {
 
         val ledgerUser = IndyPoolLedgerUser(get<Pool>(), walletUser.did, walletUser::sign)
         IndyUser(walletUser, ledgerUser, createDefaultMasterSecret = false)
-    }
-
-    single<AgentConnection>(createOnStart = true) {
-        val agentConnection = PythonRefAgentConnection()
-        val agentConnectionProgress = agentConnection.connect(WS_ENDPOINT, WS_LOGIN, WS_PASS)
-        agentConnectionProgress.toBlocking().value()  // await
-        agentConnection
     }
 }
 

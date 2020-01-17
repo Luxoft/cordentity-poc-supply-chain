@@ -3,19 +3,13 @@ package com.luxoft.supplychain.sovrinagentapp.ui.activities
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.content.PermissionChecker
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.PermissionChecker
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_CONTENT
-import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
-import rx.Completable
-import rx.schedulers.Schedulers
-import java.io.File
 
 lateinit var splashScreen: SplashActivity
 
@@ -47,15 +41,13 @@ class SplashActivity : AppCompatActivity() {
                     state.indyState.openOrCreateWallet()
                     state.indyState.connectToPool()
 
-                    state.walletCredentials.value!!.forEach {
+                    state.walletCredentials.value?.forEach {
                         Log.d("User", "User $it")
                     }
 
-                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-                        val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    }
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
                 }
             }
         }

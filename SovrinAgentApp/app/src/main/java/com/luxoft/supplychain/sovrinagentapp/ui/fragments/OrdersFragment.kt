@@ -53,20 +53,11 @@ class OrdersFragment : Fragment() {
             adapter = recyclerAdapter
         }
         mSwipeRefreshLayout = swipe_container
-        mSwipeRefreshLayout.setOnRefreshListener { updateMyOrders() }
+        mSwipeRefreshLayout.setOnRefreshListener { mSwipeRefreshLayout.isRefreshing = false }
     }
 
     override fun onResume() {
         super.onResume()
-        updateMyOrders()
-    }
-
-    private fun updateMyOrders() {
-        // getPackages() -> saveOrders()
-    }
-
-    private fun loaded() {
-        mSwipeRefreshLayout.isRefreshing = false
     }
 
     private fun saveOrders(offers: List<Product>) {

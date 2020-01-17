@@ -21,13 +21,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
@@ -37,7 +36,6 @@ import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
 import org.koin.android.ext.android.inject
@@ -111,7 +109,8 @@ class SimpleScannerActivity : AppCompatActivity() {
                                             indyUser.checkLedgerAndReceiveCredential(credential, credentialRequest, this)
                                         }
                                     } while (credOffer != null)
-                                    indyUser.walletUser.updateCredentialsInRealm()
+
+                                    appState.updateWalletCredentials()
                                     notifyAndFinish(R.string.progress_state_get_proofs_finished)
                                 }
                             } catch (er: Exception) {

@@ -18,15 +18,14 @@ package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
@@ -37,7 +36,6 @@ import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ClaimsAdapter
-import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
 import kotlinx.android.synthetic.main.fragment_claims.view.*
@@ -51,7 +49,6 @@ class ClaimsFragment : Fragment() {
     private val realm: Realm = Realm.getDefaultInstance()
 
     private val appState: ApplicationState by inject()
-    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_claims, container, false)
@@ -87,14 +84,9 @@ class ClaimsFragment : Fragment() {
         recycler.adapter = adapterRecycler
 
         swipeRefreshLayout = swipe_container
-        swipeRefreshLayout.setOnRefreshListener { updateMyClaims() }
-
-        updateMyClaims()
-    }
-
-    private fun updateMyClaims() {
-        swipeRefreshLayout.isRefreshing = true
-        indyUser.walletUser.updateCredentialsInRealm()
-        swipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.setOnRefreshListener {
+            appState.updateWalletCredentials()
+            swipeRefreshLayout.isRefreshing = false
+        }
     }
 }
