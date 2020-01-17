@@ -34,7 +34,6 @@ import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
 import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
@@ -49,7 +48,6 @@ import java.util.concurrent.TimeoutException
 
 class SimpleScannerActivity : AppCompatActivity() {
 
-    private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
     private val requestCodeScan = 101

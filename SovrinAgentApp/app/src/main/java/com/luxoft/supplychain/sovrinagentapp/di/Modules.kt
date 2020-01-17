@@ -31,16 +31,12 @@ import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
 import com.luxoft.supplychain.sovrinagentapp.application.*
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.splashScreen
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.module
-import retrofit.GsonConverterFactory
-import retrofit.Retrofit
-import retrofit.RxJavaCallAdapterFactory
 import rx.Completable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -51,7 +47,6 @@ import java.util.concurrent.TimeUnit
 // Koin module
 val myModule: Module = module {
     single { provideGson() }
-    single { provideApiClient(get()) } // get() will resolve Service instance
     factory { provideWalletAndPool() }
     single { provideIndyUser(get()) }
     single { connectedAgentConnection() }
@@ -134,18 +129,6 @@ fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     }
 
     return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
-}
-
-fun provideApiClient(gson: Gson): SovrinAgentService {
-    val retrofit: Retrofit = Retrofit.Builder()
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .baseUrl(BASE_URL)
-        .build()
-
-    retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
-
-    return retrofit.create(SovrinAgentService::class.java)
 }
 
 fun provideGson(): Gson {
