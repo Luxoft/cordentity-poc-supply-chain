@@ -4,7 +4,8 @@ buildscript {
   ext.corda_gradle_plugins_version = '4.0.42'
   ext.cordentity_version = 'fc9cad8'
   ext.cordentity_provider = 'hyperledger-labs'
-  ext.springBootVersion = '2.1.0.RELEASE'
+  ext.spring_boot_version = '2.1.0.RELEASE'
+  ext.springfox_version = '2.0.1'
   ext.quasar_version = '0.7.10'
   ext.junit_version = '4.12'
   ext.kotlin_version = '1.2.71'
@@ -29,7 +30,7 @@ allprojects {
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://repo.sovrin.org/repository/maven-releases' }
     maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.sovrin.org/repository/maven-releases' }
+    maven { url 'http://repo.gradle.org/gradle/libs-releases-local' }
   }
 }
 
