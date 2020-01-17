@@ -29,6 +29,7 @@ import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.NAME
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
+import com.luxoft.supplychain.sovrinagentapp.di.clearIndyUserViaFS
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.clear_wallet -> {
-                // TODO: clear wallet
+                clearIndyUserViaFS()
                 true
             }
             else -> super.onOptionsItemSelected(item)

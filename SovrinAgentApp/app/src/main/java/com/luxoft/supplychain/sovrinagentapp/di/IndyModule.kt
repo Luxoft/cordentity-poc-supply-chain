@@ -17,6 +17,8 @@
 package com.luxoft.supplychain.sovrinagentapp.di
 
 import android.app.AlertDialog
+import android.os.Environment
+import android.util.Log
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.DEFAULT_MASTER_SECRET_ID
@@ -33,6 +35,7 @@ import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.module
+import org.koin.standalone.StandAloneContext
 import rx.Completable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -134,4 +137,26 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
         }
     }
     return Pair(wallet, pool)
+}
+
+fun clearIndyUserViaFS() {
+    val koin = StandAloneContext.getKoin()
+    val koinContext = koin.koinContext
+
+    val indyUser = koinContext.get<IndyUser>()
+    val walletUser = indyUser.walletUser as IndySDKWalletUser
+    val wallet = walletUser.wallet
+
+    val folder = Environment.getExternalStorageDirectory().toPath().resolve(".indy_client").toFile()
+    Log.i("clear-indy-user", "Indy Client Folder: ${folder.path}")
+    Log.i("clear-indy-user", "Indy Client Exists: ${folder.exists()}")
+
+    wallet.close()
+    Log.i("clear-indy-user", "Closed Indy Wallet")
+
+    val success = folder.deleteRecursively()
+    Log.i("clear-indy-user", "Deleted Indy Client folder: $success")
+
+//    koin.loadModules(listOf(IndyModule))
+//    Log.i("clear-indy-user", "Reloaded koin IndyModule")
 }
