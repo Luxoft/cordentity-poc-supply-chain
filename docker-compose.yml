@@ -59,7 +59,8 @@ services:
       - "PORT=8094"
     hostname: agent
     volumes:
-      - ./hosts:/etc/hosts:ro
+      []
+    #  - ./hosts:/etc/hosts:ro
     container_name: agent94
 
   agent95:
@@ -70,7 +71,8 @@ services:
       - "PORT=8095"
     hostname: agent
     volumes:
-      - ./hosts:/etc/hosts:ro
+      []
+    #  - ./hosts:/etc/hosts:ro
     container_name: agent95
 
   agentInitiator:
