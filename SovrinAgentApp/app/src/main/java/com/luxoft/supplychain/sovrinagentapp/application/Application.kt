@@ -21,7 +21,6 @@ import android.os.Environment
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
-import com.luxoft.supplychain.sovrinagentapp.di.ExternalServiceModule
 import com.luxoft.supplychain.sovrinagentapp.di.IndyModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -33,7 +32,7 @@ class Application : Application() {
 
         System.setProperty("INDY_HOME", Environment.getExternalStorageDirectory().absolutePath)
 
-        startKoin(this, listOf(IndyModule, ExternalServiceModule))
+        startKoin(this, listOf(IndyModule))
 
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder().build())

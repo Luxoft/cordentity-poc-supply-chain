@@ -17,31 +17,24 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.data.ProductOperation
-import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.OrdersAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.fragment_recycler.*
-import org.koin.android.ext.android.inject
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 
 class OrdersFragment : Fragment() {
 
-    private val api: SovrinAgentService by inject()
     private val realm: Realm = Realm.getDefaultInstance()
     private var recyclerAdapter: OrdersAdapter? = null
 
@@ -69,16 +62,7 @@ class OrdersFragment : Fragment() {
     }
 
     private fun updateMyOrders() {
-        mSwipeRefreshLayout.isRefreshing = true
-        api.getPackages().subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                loaded()
-                saveOrders(it)
-            }, { error ->
-                Log.e("Get Packages Error: ", error.message, error)
-                showAlertDialog(context!!, "Get Packages Error: ${error.message}") { loaded() }
-            })
+        // getPackages() -> saveOrders()
     }
 
     private fun loaded() {

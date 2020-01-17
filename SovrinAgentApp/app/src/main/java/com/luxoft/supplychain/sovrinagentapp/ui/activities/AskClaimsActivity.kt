@@ -24,7 +24,6 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.popupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity.Companion.showAlertDialog
@@ -37,7 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger
 class AskClaimsActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val api: SovrinAgentService by inject()
     private val indyUser: IndyUser by inject()
     private val agentConnection: AgentConnection by inject()
     lateinit var proofRequest: ProofRequest
