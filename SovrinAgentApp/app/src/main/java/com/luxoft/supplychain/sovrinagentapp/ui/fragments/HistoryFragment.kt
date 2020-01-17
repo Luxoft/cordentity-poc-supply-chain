@@ -34,7 +34,6 @@ import org.koin.android.ext.android.inject
 class HistoryFragment : Fragment() {
 
     private val appState: ApplicationState by inject()
-    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     private val realm: Realm = Realm.getDefaultInstance()
     private lateinit var recyclerAdapter: HistoryAdapter

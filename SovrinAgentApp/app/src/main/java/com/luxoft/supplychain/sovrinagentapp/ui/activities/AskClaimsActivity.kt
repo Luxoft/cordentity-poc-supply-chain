@@ -39,7 +39,6 @@ class AskClaimsActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
 
     private val appState: ApplicationState by inject()
-    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     private val agentConnection: AgentConnection by inject()
     lateinit var proofRequest: ProofRequest
@@ -69,6 +68,8 @@ class AskClaimsActivity : AppCompatActivity() {
         Completable.complete().observeOn(Schedulers.io()).subscribe({
             popupStatus = AtomicInteger(PopupStatus.IN_PROGRESS.ordinal)
             finish()
+
+            val indyUser = appState.indyState.indyUser.value!!
 
             val partyDid = intent?.getStringExtra("partyDID")!!
             val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
