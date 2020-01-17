@@ -30,7 +30,6 @@ import com.luxoft.supplychain.sovrinagentapp.application.NAME
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
-import com.luxoft.supplychain.sovrinagentapp.di.clearIndyUserViaFS
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
@@ -57,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
         System.setProperty("jna.debug_load", "true")
 
-        appState.indyState.indyUser.observe({this.lifecycle}) { user: IndyUser ->
+        appState.indyState.indyUser.observeForever { user: IndyUser ->
             user.walletUser.updateCredentialsInRealm()
         }
 
@@ -114,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.clear_wallet -> {
-                clearIndyUserViaFS()
+                appState.indyState.resetWallet()
                 true
             }
             else -> super.onOptionsItemSelected(item)

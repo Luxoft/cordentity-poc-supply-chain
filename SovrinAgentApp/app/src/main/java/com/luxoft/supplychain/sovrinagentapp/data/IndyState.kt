@@ -1,5 +1,7 @@
 package com.luxoft.supplychain.sovrinagentapp.data
 
+import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.luxoft.blockchainlab.hyperledger.indy.DEFAULT_MASTER_SECRET_ID
@@ -52,6 +54,16 @@ class IndyState(
         GlobalScope.launch(Dispatchers.Main) {
             mutWallet.value = wallet
         }
+    }
+
+    fun resetWallet() {
+        wallet.value?.close()
+
+        val folder = Environment.getExternalStorageDirectory().toPath().resolve(".indy_client").toFile()
+        val success = folder.deleteRecursively()
+        Log.i("clear-indy-user", "Deleted Indy Client folder: $success")
+
+        openOrCreateWallet()
     }
 
     fun connectToPool() {

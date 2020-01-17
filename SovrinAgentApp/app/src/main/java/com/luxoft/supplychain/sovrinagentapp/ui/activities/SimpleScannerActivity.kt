@@ -48,7 +48,6 @@ import java.util.concurrent.TimeoutException
 class SimpleScannerActivity : AppCompatActivity() {
 
     private val appState: ApplicationState by inject()
-    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     private val agentConnection: AgentConnection by inject()
     private val requestCodeScan = 101
@@ -102,6 +101,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 throw e
                                             null
                                         }?.apply {
+                                            val indyUser = appState.indyState.indyUser.value!!
                                             val credentialRequest = indyUser.createCredentialRequest(indyUser.walletUser.getIdentityDetails().did, this)
                                             sendCredentialRequest(credentialRequest)
                                             val credential = receiveCredential().toBlocking().value()
@@ -144,7 +144,7 @@ class SimpleScannerActivity : AppCompatActivity() {
 
                                                     val partyDid = partyDID()
                                                     publishProgress(R.string.progress_providing_authentication_proofs)
-                                                    val proofFromLedgerData = indyUser.createProofFromLedgerData(proofRequest)
+                                                    val proofFromLedgerData = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
                                                     val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
                                                             ?: throw RuntimeException("Agent connection with $partyDid not found")
                                                     connection.sendProof(proofFromLedgerData)
