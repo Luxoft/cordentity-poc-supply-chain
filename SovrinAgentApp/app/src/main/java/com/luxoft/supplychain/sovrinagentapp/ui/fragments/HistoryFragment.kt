@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.HistoryAdapter
 import io.realm.Realm
@@ -33,7 +34,9 @@ import org.koin.android.ext.android.inject
 
 class HistoryFragment : Fragment() {
 
-    val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
+    private val indyUser by lazy { appState.indyState.indyUser.value!! }
+
     private val realm: Realm = Realm.getDefaultInstance()
     private lateinit var recyclerAdapter: HistoryAdapter
 

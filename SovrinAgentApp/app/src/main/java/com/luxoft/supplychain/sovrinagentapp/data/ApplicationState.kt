@@ -8,7 +8,6 @@ import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.utils.map
 import com.luxoft.supplychain.sovrinagentapp.utils.mapNotNull
-import com.luxoft.supplychain.sovrinagentapp.utils.switch
 import java.net.InetAddress
 import java.net.URI
 
@@ -18,14 +17,10 @@ class ApplicationState(
         indyPoolGenesisPath: URI,
         indyPoolGenesisContent: (nodeIp: InetAddress) -> String = ::StandardIndyPoolGenesis)
 {
-    private val mutIndy = MutableLiveData<IndyState>()
-    val indy: LiveData<IndyState> = mutIndy
-    init {
-        mutIndy.value = IndyState(indyPoolIp, indyPoolGenesisPath, indyPoolGenesisContent)
-    }
+    val indyState: IndyState = IndyState(indyPoolIp, indyPoolGenesisPath, indyPoolGenesisContent)
 
     val walletCredentials: LiveData<List<CredentialReference>> =
-        indy.switch { it.indyUser }
+        indyState.indyUser
             .map { it.walletUser.getCredentials().asSequence().toList() }
 
     val user: LiveData<UserState> =

@@ -32,6 +32,7 @@ import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.TIME
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
@@ -48,7 +49,9 @@ class ClaimsFragment : Fragment() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val indyUser: IndyUser by inject()
+
+    private val appState: ApplicationState by inject()
+    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_claims, container, false)

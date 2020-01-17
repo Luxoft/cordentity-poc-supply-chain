@@ -27,6 +27,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.NAME
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.di.clearIndyUserViaFS
@@ -45,7 +46,10 @@ import java.util.concurrent.atomic.AtomicInteger
 class MainActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val indyUser: IndyUser by inject()
+
+    private val appState: ApplicationState by inject()
+    private val indyUser by lazy { appState.indyState.indyUser.value!! }
+
     private lateinit var ordersFragment: OrdersFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {

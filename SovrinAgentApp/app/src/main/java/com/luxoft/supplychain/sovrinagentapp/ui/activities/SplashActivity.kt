@@ -10,6 +10,8 @@ import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_CONTENT
 import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.schedulers.Schedulers
@@ -21,7 +23,8 @@ class SplashActivity : AppCompatActivity() {
 
     private val permissionRequestCode = 101
 
-    private val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
+    private val indyUser by lazy { appState.indyState.indyUser.value!! }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +43,15 @@ class SplashActivity : AppCompatActivity() {
                 if (grantResults.any { it != PermissionChecker.PERMISSION_GRANTED })
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
-                    initGenesis()
+                    val state = getKoin().get<ApplicationState>()
+                    state.indyState.openOrCreateWallet()
+                    state.indyState.connectToPool()
+
+                    state.walletCredentials.value!!.forEach {
+                        Log.d("User", "User $it")
+                    }
+
                     Completable.complete().observeOn(Schedulers.io()).subscribe {
-                        indyUser.walletUser.getCredentials().forEachRemaining {
-                            Log.d("User", "User $it")
-                        }
                         val intent = Intent(this, MainActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
@@ -52,12 +59,5 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun initGenesis() {
-        val genesis = File(GENESIS_PATH)
-        if (genesis.exists()) genesis.delete()
-        genesis.createNewFile()
-        genesis.writeText(GENESIS_CONTENT)
     }
 }
