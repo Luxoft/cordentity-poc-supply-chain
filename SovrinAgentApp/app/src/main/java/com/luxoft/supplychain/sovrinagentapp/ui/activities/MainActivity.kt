@@ -25,10 +25,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
-import com.luxoft.supplychain.sovrinagentapp.application.NAME
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
@@ -63,39 +60,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setupToolbar()
         setupViewPager()
-        setupCollapsingToolbar()
+
+        collapse_toolbar.isTitleEnabled = true
 
         startTimer()
     }
 
-    private fun setupCollapsingToolbar() {
-        collapse_toolbar.isTitleEnabled = true
-    }
-
     private fun setupViewPager() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
+
         adapter.addFrag(ClaimsFragment())
         ordersFragment = OrdersFragment()
         adapter.addFrag(ordersFragment)
         adapter.addFrag(HistoryFragment())
+
         viewpager.adapter = adapter
 
         tabs.setupWithViewPager(viewpager)
     }
 
     private fun setupToolbar() {
-        appState.updateWalletCredentials()
-
-        val nameClaims = realm.where(ClaimAttribute::class.java)
-                .equalTo(FIELD_KEY, NAME)
-                .findAllAsync()  // todo: replace with `findFirstAsync` after you fix realm.delete on each update
-
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-        nameClaims.addChangeListener { claims ->
-            val userName = claims.firstOrNull()?.value ?: ""
-            supportActionBar?.title = userName
+        appState.user.observe({lifecycle}) { user ->
+            supportActionBar?.title = user.name
         }
     }
 

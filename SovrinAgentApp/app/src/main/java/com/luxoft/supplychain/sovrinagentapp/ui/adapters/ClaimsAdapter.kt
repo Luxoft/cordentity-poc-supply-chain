@@ -17,40 +17,57 @@
 package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 
 import android.graphics.BitmapFactory
-import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.RecyclerView
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.utils.inflate
-import io.realm.RealmChangeListener
-import io.realm.RealmResults
 import kotlinx.android.synthetic.main.item_claim_pic.view.iv_pic
-import kotlinx.android.synthetic.main.item_claim_text.view.tv_value
-import kotlinx.android.synthetic.main.item_claim_text.view.tv_verifier
+import kotlinx.android.synthetic.main.item_claim_text.view.*
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_name
 import kotlinx.android.synthetic.main.item_claim_text.view.tv_schema_id
+import kotlinx.android.synthetic.main.item_claim_text.view.tv_verifier
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 
-class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
+class ClaimsAdapter(private val credentials: LiveData<List<CredentialReference>>) : RecyclerView.Adapter<ClaimsAdapter.ClaimViewHolder>() {
     private val TAG = this::class.simpleName
 
-    var realmChangeListener = RealmChangeListener<RealmResults<ClaimAttribute>> {
-        Log.i(TAG, "Change occurred!")
-        this.notifyDataSetChanged()
-    }
+    private var claims: List<ClaimAttribute> = listOf()
 
     init {
-        claims.addChangeListener(realmChangeListener)
+        credentials.observeForever { creds ->
+            claims = creds.flatMap { credRef ->
+                val schema = credRef.getSchemaIdObject()
+                val credDefId = credRef.getCredentialDefinitionIdObject()
+
+                credRef.attributes.map { attribute ->
+                    ClaimAttribute().apply {
+                        key = attribute.key
+                        value = attribute.value?.toString()
+                        schemaName = schema.name
+                        schemaVersion = schema.version
+                        issuerDid = credDefId.did
+                        credRefSeqNo = credDefId.schemaSeqNo
+                    }
+                }
+            }
+
+            notifyDataSetChanged()
+        }
     }
+
 
     //region ******************** OVERRIDE *************************************************************
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, itemTypeOrdinal: Int): ClaimViewHolder {
+
         val itemType = ItemType.values().getOrElse(itemTypeOrdinal) { ordinal ->
             Log.e(TAG, "Unknown itemTypeOrdinal $ordinal")
             ItemType.TEXT_ITEM_VIEW
@@ -62,17 +79,13 @@ class ClaimsAdapter(private val claims: RealmResults<ClaimAttribute>) : Recycler
         }
     }
 
-    override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) {
-        claims[position]?.let { holder.bind(it) }
-    }
+    override fun onBindViewHolder(holder: ClaimViewHolder, position: Int) = holder.bind(claims[position])
 
-    override fun getItemCount(): Int {
-        return claims.size
-    }
+    override fun getItemCount(): Int = claims.size
 
     override fun getItemViewType(position: Int): Int {
         val claim = claims[position]
-        val valueSize = claim?.value?.length
+        val valueSize = claim.value?.length
 
         val itemType = if (valueSize == null || valueSize < MIN_PIC_VALUE_LEN)
             ItemType.TEXT_ITEM_VIEW

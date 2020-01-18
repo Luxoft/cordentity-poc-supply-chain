@@ -25,7 +25,7 @@ class ApplicationState(
     private val medWalletCredentials = MediatorLiveData<List<CredentialReference>>()
     val walletCredentials: LiveData<List<CredentialReference>> = medWalletCredentials
     init {
-        medWalletCredentials.addSource(indyState.indyUser) {}
+        medWalletCredentials.addSource(indyState.wallet) { updateWalletCredentials() }
     }
 
     val user: LiveData<UserState> =

@@ -27,26 +27,17 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
-import com.luxoft.supplychain.sovrinagentapp.application.TIME
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ClaimsAdapter
-import io.realm.Realm
 import kotlinx.android.synthetic.main.fragment_claims.*
 import kotlinx.android.synthetic.main.fragment_claims.view.*
 import org.koin.android.ext.android.inject
 
 class ClaimsFragment : Fragment() {
 
-    private lateinit var adapterRecycler: ClaimsAdapter
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-
-    private val realm: Realm = Realm.getDefaultInstance()
 
     private val appState: ApplicationState by inject()
 
@@ -55,16 +46,9 @@ class ClaimsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val claims = realm.where(ClaimAttribute::class.java)
-            .sort(FIELD_KEY)
-            .notEqualTo(FIELD_KEY, AUTHORITIES)
-            .notEqualTo(FIELD_KEY, TIME)
-            .notEqualTo(FIELD_KEY, EXTRA_SERIAL)
-            .findAll()
 
-        claims.addChangeListener { result ->
-            val numCredRefs = result.distinctBy { it.credRefSeqNo }.size
-            tvClaims.text = getString(R.string.verified_credentials, numCredRefs)
+        appState.walletCredentials.observe({lifecycle}) { creds ->
+            tvClaims.text = getString(R.string.verified_credentials, creds.size)
         }
 
         val getCredentialsButton = view.get_credentials
@@ -74,14 +58,12 @@ class ClaimsFragment : Fragment() {
                             .putExtra("state", PackageState.GETPROOFS.name), null
             )
         }
-        getCredentialsButton.visibility = View.VISIBLE
 
         val linearLayoutManager = LinearLayoutManager(activity)
         recycler.layoutManager = linearLayoutManager
         recycler.addItemDecoration(DividerItemDecoration(recycler.context, linearLayoutManager.orientation))
 
-        adapterRecycler = ClaimsAdapter(claims)
-        recycler.adapter = adapterRecycler
+        recycler.adapter = ClaimsAdapter(appState.walletCredentials)
 
         swipeRefreshLayout = swipe_container
         swipeRefreshLayout.setOnRefreshListener {
