@@ -60,17 +60,19 @@ fun <T> MutableLiveData(initialValue: T) = MutableLiveData<T>().apply { value = 
 /**
  * A [LiveData] that can be manually refreshed calling the [refresh] method
  * */
-class VolatileLiveDataHolder<T>(val source: LiveData<T>) {
+class VolatileLiveDataHolder<T: Any>(val source: LiveData<T>) {
     private val mediator = MediatorLiveData<T>()
     val liveData: LiveData<T> = mediator
 
     init {
         mediator.addSource(source) { value -> mediator.value = value }
-        mediator.value = source.value
+        refresh()
     }
 
     @MainThread
     fun refresh() {
-         mediator.value = source.value
+        val sourceValue = source.value
+        if(sourceValue != null)
+            mediator.value = sourceValue
     }
 }
