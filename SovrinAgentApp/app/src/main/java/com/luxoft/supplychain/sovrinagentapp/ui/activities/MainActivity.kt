@@ -28,9 +28,9 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.OrdersFragment
+import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ProfileFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupViewPager() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
 
-        adapter.addFrag(ClaimsFragment())
+        adapter.addFrag(ProfileFragment())
         ordersFragment = OrdersFragment()
         adapter.addFrag(ordersFragment)
         adapter.addFrag(HistoryFragment())

@@ -23,52 +23,44 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
-import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ClaimsAdapter
-import kotlinx.android.synthetic.main.fragment_claims.*
-import kotlinx.android.synthetic.main.fragment_claims.view.*
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.CredentialsListAdapter
+import kotlinx.android.synthetic.main.fragment_profile.*
 import org.koin.android.ext.android.inject
 
-class ClaimsFragment : Fragment() {
 
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+class ProfileFragment : Fragment() {
 
     private val appState: ApplicationState by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_claims, container, false)
+        return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         appState.walletCredentials.observe({lifecycle}) { creds ->
-            tvClaims.text = getString(R.string.verified_credentials, creds.size)
+            walletStatus.text = getString(R.string.you_have_d_verified_credentials, creds.size)
+            walletStatus.visibility = View.VISIBLE
         }
 
-        val getCredentialsButton = view.get_credentials
-        view.get_credentials.setOnClickListener {
-            ContextCompat.startActivity(getCredentialsButton.context,
-                    Intent().setClass(getCredentialsButton.context, SimpleScannerActivity::class.java)
-                            .putExtra("state", PackageState.GETPROOFS.name), null
-            )
+        scanNewCredential.setOnClickListener {
+            val intent = Intent()
+                    .setClass(scanNewCredential.context, SimpleScannerActivity::class.java)
+                    .putExtra("state", PackageState.GETPROOFS.name)
+
+            ContextCompat.startActivity(scanNewCredential.context, intent,/*options=*/null)
         }
 
-        val linearLayoutManager = LinearLayoutManager(activity)
-        recycler.layoutManager = linearLayoutManager
-        recycler.addItemDecoration(DividerItemDecoration(recycler.context, linearLayoutManager.orientation))
+        credentialList.setAdapter(CredentialsListAdapter(requireContext(),  appState.walletCredentials))
 
-        recycler.adapter = ClaimsAdapter(appState.walletCredentials)
-
-        swipeRefreshLayout = swipe_container
-        swipeRefreshLayout.setOnRefreshListener {
+        swipeContainer.setOnRefreshListener {
             appState.updateWalletCredentials()
-            swipeRefreshLayout.isRefreshing = false
+            swipeContainer.isRefreshing = false
         }
+
     }
 }
