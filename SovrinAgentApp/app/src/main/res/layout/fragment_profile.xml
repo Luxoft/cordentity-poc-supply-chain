@@ -18,6 +18,13 @@
                 android:layout_height="wrap_content"
                 android:text="Scan Credentials"
                 android:background="@drawable/gradient"
+
+                android:drawableEnd="@drawable/ic_qr_code"
+                android:drawablePadding="20dp"
+                android:gravity="start|center_vertical"
+                android:paddingEnd="25dp"
+                android:paddingStart="37dp"
+
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
