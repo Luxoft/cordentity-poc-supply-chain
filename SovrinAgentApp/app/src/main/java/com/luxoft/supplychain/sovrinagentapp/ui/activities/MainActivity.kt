@@ -78,8 +78,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-        appState.user.observe({lifecycle}) { user ->
-            supportActionBar?.title = user.name
+        appState.user.observeForever { user ->
+            supportActionBar?.title = user.name ?: ""
         }
     }
 

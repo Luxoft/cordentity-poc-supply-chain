@@ -29,15 +29,12 @@ class ApplicationState(
     }
 
     val user: LiveData<UserState> =
-        walletCredentials.mapNotNull { creds ->
+        walletCredentials.map { creds ->
             val credRef = creds.firstOrNull { it.getSchemaIdObject().name == "Patient Demographics" }
             val name = credRef?.attributes?.getOrDefault("Full_legal_name", null)?.toString()
             val pic = context.getDrawable(R.drawable.user)
 
-            if(name != null && pic != null)
-                UserState(name, pic)
-            else
-                null
+            UserState(name, pic)
         }
 
     private val mutAuthenticationHistory = MutableLiveData(initialValue = listOf<ProofInfo>())
