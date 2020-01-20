@@ -56,11 +56,5 @@ class ProfileFragment : Fragment() {
         }
 
         credentialList.setAdapter(CredentialsListAdapter(requireContext(),  appState.walletCredentials))
-
-        swipeContainer.setOnRefreshListener {
-            appState.updateWalletCredentials()
-            swipeContainer.isRefreshing = false
-        }
-
     }
 }

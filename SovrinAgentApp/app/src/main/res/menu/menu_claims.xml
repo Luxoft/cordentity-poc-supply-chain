@@ -4,7 +4,11 @@
       tools:context="com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity">
 
     <item android:id="@+id/clear_wallet"
-          android:title="Clear All Claims"
+          android:title="Clear All Credentials"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/rescan_wallet"
+          android:title="Rescan Wallet"
           app:showAsAction="never"/>
 
     <item android:id="@+id/action_settings"

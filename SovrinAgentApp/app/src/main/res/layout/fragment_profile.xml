@@ -8,16 +8,11 @@
     android:background="@color/bg_main"
     android:orientation="vertical">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
-            <Button
+        <Button
                 android:id="@+id/scanNewCredential"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -26,7 +21,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
-            <TextView
+        <TextView
                 android:id="@+id/walletStatus"
                 app:layout_constraintTop_toBottomOf="@id/scanNewCredential"
                 app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +36,7 @@
                 tools:text="@string/you_have_d_verified_credentials"
                 tools:visibility="visible"/>
 
-            <ExpandableListView
+        <ExpandableListView
                 android:id="@+id/credentialList"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -49,21 +44,19 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:listitem="@layout/item_credentilal" android:clipToPadding="false"/>
 
-           <!-- <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/scanNewCredential"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_qr_code"
-                android:backgroundTint="#FFF9DD74"
-                app:backgroundTint="#00FFFFFF"
-                android:layout_margin="25dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-            />-->
+        <!-- <com.google.android.material.floatingactionbutton.FloatingActionButton
+             android:id="@+id/scanNewCredential"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:src="@drawable/ic_qr_code"
+             android:backgroundTint="#FFF9DD74"
+             app:backgroundTint="#00FFFFFF"
+             android:layout_margin="25dp"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintTop_toTopOf="parent"
+         />-->
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -105,6 +105,10 @@ class MainActivity : AppCompatActivity() {
                 appState.indyState.resetWallet()
                 true
             }
+            R.id.rescan_wallet -> {
+                appState.updateWalletCredentials()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
