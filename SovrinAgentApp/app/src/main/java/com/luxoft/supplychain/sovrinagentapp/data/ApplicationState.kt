@@ -43,6 +43,9 @@ class ApplicationState(
     private val mutAuthenticationHistory = MutableLiveData(initialValue = listOf<ProofInfo>())
     val authenticationHistory: LiveData<List<ProofInfo>> = mutAuthenticationHistory
 
+    val credentialPresentationRules = CredentialPresentationRules()
+    val credentialAttributePresentationRules = CredentialAttributePresentationRules()
+
     fun updateWalletCredentials() {
         GlobalScope.launch(Dispatchers.Main) {
             refreshedIndyUser.refresh()

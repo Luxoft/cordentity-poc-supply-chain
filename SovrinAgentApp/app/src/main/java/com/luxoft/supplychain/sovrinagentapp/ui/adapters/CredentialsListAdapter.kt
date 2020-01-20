@@ -8,13 +8,15 @@ import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import kotlinx.android.synthetic.main.item_credential_attribute.view.*
 import kotlinx.android.synthetic.main.item_credentilal.view.*
-import org.apache.commons.lang3.StringUtils
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class CredentialsListAdapter(val context: Context, val credentials: LiveData<List<CredentialReference>>) : BaseExpandableListAdapter() {
-
+class CredentialsListAdapter(val context: Context, val credentials: LiveData<List<CredentialReference>>) :
+    BaseExpandableListAdapter(), KoinComponent
+{
     private var groups: List<CredentialReference> = listOf()
     private var items: List<List<Pair<String, String>>> = listOf()
 
@@ -27,6 +29,7 @@ class CredentialsListAdapter(val context: Context, val credentials: LiveData<Lis
         }
     }
 
+    private val appState: ApplicationState by inject()
     private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getGroup(groupPosition: Int): Any = groups[groupPosition]
@@ -42,29 +45,31 @@ class CredentialsListAdapter(val context: Context, val credentials: LiveData<Lis
 
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
         val cred = groups[groupPosition]
-        val schemaId = cred.getSchemaIdObject()
-        val credDefId = cred.getCredentialDefinitionIdObject()
 
         // todo: reuse [convertView]
         // todo: maybe use parent view as root?
         val view = inflater.inflate(R.layout.item_credentilal, /*root=*/null)
 
-        view.tittle.text = schemaId.name
-        view.description.text = cred.referent
-        view.verifier.text = credDefId.tag
+        val formatter = appState.credentialPresentationRules
+
+        view.tittle.text = formatter.formatName(cred)
+        view.description.text = formatter.formatDescription(cred)
+        view.verifier.text = formatter.formatIssuerName(cred)
 
         return view
     }
 
     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
-        val (name, content) = items[groupPosition][childPosition]
+        val (key, value) = items[groupPosition][childPosition]
 
         // todo: reuse [convertView]
         // todo: maybe use parent view as root?
         val view = inflater.inflate(R.layout.item_credential_attribute, /*root=*/null)
 
-        view.name.text = name
-        view.textValue.text = content
+        val formatter = appState.credentialAttributePresentationRules
+
+        view.name.text = formatter.formatName(key)
+        view.textValue.text = formatter.formatValueText(key, value, maxWidth = 45)
 
         /* Handle img attribute:
         item.value ?: return
@@ -78,8 +83,3 @@ class CredentialsListAdapter(val context: Context, val credentials: LiveData<Lis
     }
 
 }
-
-
-private fun ClaimAttribute.prettyKey(): String = StringUtils.abbreviate(key ?: "---", 30)
-private fun ClaimAttribute.prettyValue(): String = StringUtils.abbreviate(value ?: "null", 512)
-private fun ClaimAttribute.prettySchema(): String = "$schemaName:$schemaVersion"
