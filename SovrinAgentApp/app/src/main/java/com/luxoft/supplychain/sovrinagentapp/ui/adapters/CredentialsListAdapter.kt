@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_credentilal.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-class CredentialsListAdapter(val context: Context, val credentials: LiveData<List<CredentialReference>>) :
+class CredentialsListAdapter(val context: Context, credentials: LiveData<List<CredentialReference>>) :
     BaseExpandableListAdapter(), KoinComponent
 {
     private var groups: List<CredentialReference> = listOf()
@@ -41,7 +41,7 @@ class CredentialsListAdapter(val context: Context, val credentials: LiveData<Lis
     override fun getChildId(groupPosition: Int, childPosition: Int): Long = childPosition.toLong()
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = false
-    override fun hasStableIds(): Boolean = true // todo: what is it?
+    override fun hasStableIds(): Boolean = false // todo: what is it?
 
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
         val cred = groups[groupPosition]

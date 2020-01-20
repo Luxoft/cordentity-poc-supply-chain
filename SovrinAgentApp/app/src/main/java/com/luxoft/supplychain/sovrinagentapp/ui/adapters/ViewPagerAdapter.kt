@@ -35,8 +35,7 @@ class ViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager,
     override fun getPageTitle(position: Int): CharSequence? {
         return when(position) {
             0 -> "PROFILE"
-            1 -> "MY ORDERS"
-            2 -> "HISTORY"
+            1 -> "CREDENTIALS"
             else -> ""
         }
     }

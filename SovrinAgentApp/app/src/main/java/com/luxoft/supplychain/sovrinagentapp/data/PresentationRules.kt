@@ -6,8 +6,10 @@ import java.util.*
 
 class CredentialPresentationRules() {
 
-    fun formatName(cred: CredentialReference): String {
-        return cred.getSchemaIdObject().name
+    fun formatName(cred: CredentialReference): String = formatName(cred.getSchemaIdObject().name)
+
+    fun formatName(schemaName: String): String {
+        return schemaName
     }
 
     fun formatDescription(cred: CredentialReference): String? {

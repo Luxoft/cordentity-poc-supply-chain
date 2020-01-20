@@ -27,34 +27,30 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.SimpleScannerActivity
-import com.luxoft.supplychain.sovrinagentapp.ui.adapters.CredentialsListAdapter
-import kotlinx.android.synthetic.main.fragment_profile.*
+import com.luxoft.supplychain.sovrinagentapp.ui.adapters.VerificationsHistoryAdapter
+import kotlinx.android.synthetic.main.fragment_verifications.*
 import org.koin.android.ext.android.inject
 
 
-class ProofsFragment : Fragment() {
+class VerificationsFragment : Fragment() {
 
     private val appState: ApplicationState by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        return inflater.inflate(R.layout.fragment_verifications, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        appState.walletCredentials.observe({lifecycle}) { creds ->
-            walletStatus.text = getString(R.string.you_have_d_verified_credentials, creds.size)
-            walletStatus.visibility = View.VISIBLE
-        }
-
-        scanNewCredential.setOnClickListener {
+        scanVerificationRequest.setOnClickListener {
             val intent = Intent()
-                    .setClass(scanNewCredential.context, SimpleScannerActivity::class.java)
-                    .putExtra("state", PackageState.GETPROOFS.name)
+                .setClass(scanVerificationRequest.context, SimpleScannerActivity::class.java)
+                .putExtra("serial", 0) // not used
+                .putExtra("state", PackageState.NEW.name)
 
-            ContextCompat.startActivity(scanNewCredential.context, intent,/*options=*/null)
+            ContextCompat.startActivity(scanVerificationRequest.context, intent, /*options=*/null)
         }
 
-        credentialList.setAdapter(CredentialsListAdapter(requireContext(),  appState.walletCredentials))
+        verificationHistory.adapter = VerificationsHistoryAdapter(requireContext(), appState.authenticationHistory)
     }
 }

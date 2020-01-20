@@ -28,9 +28,8 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.OrdersFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ProfileFragment
+import com.luxoft.supplychain.sovrinagentapp.ui.fragments.VerificationsFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
@@ -44,8 +43,6 @@ class MainActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
 
     private val appState: ApplicationState by inject()
-
-    private lateinit var ordersFragment: OrdersFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,9 +67,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
 
         adapter.addFrag(ProfileFragment())
-        ordersFragment = OrdersFragment()
-        adapter.addFrag(ordersFragment)
-        adapter.addFrag(HistoryFragment())
+        adapter.addFrag(VerificationsFragment())
 
         viewpager.adapter = adapter
 
@@ -139,7 +134,6 @@ class MainActivity : AppCompatActivity() {
                 if (inProgress) {
                     inProgress = false
                     showNotification(this, getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
-                    ordersFragment.onResume()
                 }
             }
             PopupStatus.HISTORY.ordinal -> {
