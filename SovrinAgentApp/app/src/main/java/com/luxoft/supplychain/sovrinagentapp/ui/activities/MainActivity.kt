@@ -39,6 +39,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = this::class.simpleName
 
     private val realm: Realm = Realm.getDefaultInstance()
 
@@ -55,7 +56,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
-        setupToolbar()
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+        supportActionBar?.title = "NAME"
+
+        /*appState.user.observeForever { user ->
+            val name = user.name
+            if(name != null) {
+                supportActionBar?.title = name
+                supportActionBar?.setDisplayShowTitleEnabled(true)
+            } else {
+                supportActionBar?.title = ""
+                supportActionBar?.setDisplayShowTitleEnabled(false)
+            }
+        }
+*/
+
+        appState.user.observeForever { user ->
+            headerTitle.text = user.name ?: ""
+        }
+
         setupViewPager()
 
         collapse_toolbar.isTitleEnabled = true
@@ -72,15 +94,6 @@ class MainActivity : AppCompatActivity() {
         viewpager.adapter = adapter
 
         tabs.setupWithViewPager(viewpager)
-    }
-
-    private fun setupToolbar() {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
-        appState.user.observeForever { user ->
-            supportActionBar?.title = user.name ?: ""
-        }
     }
 
     override fun onDestroy() {
