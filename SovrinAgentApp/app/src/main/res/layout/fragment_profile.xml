@@ -51,19 +51,6 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:listitem="@layout/item_credentilal" android:clipToPadding="false"/>
 
-        <!-- <com.google.android.material.floatingactionbutton.FloatingActionButton
-             android:id="@+id/scanNewCredential"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:src="@drawable/ic_qr_code"
-             android:backgroundTint="#FFF9DD74"
-             app:backgroundTint="#00FFFFFF"
-             android:layout_margin="25dp"
-             app:layout_constraintStart_toStartOf="parent"
-             app:layout_constraintBottom_toBottomOf="parent"
-             app:layout_constraintTop_toTopOf="parent"
-         />-->
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
