@@ -23,7 +23,7 @@
                 android:drawablePadding="20dp"
                 android:gravity="start|center_vertical"
                 android:paddingEnd="25dp"
-                android:paddingStart="37dp"
+                android:paddingStart="@dimen/element_paddingStart_level1"
 
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
@@ -33,7 +33,7 @@
                 app:layout_constraintTop_toBottomOf="@id/scanNewCredential"
                 app:layout_constraintStart_toStartOf="parent"
                 style="@style/Text"
-                android:paddingStart="37dp"
+                android:paddingStart="@dimen/element_paddingStart_level1"
                 android:paddingEnd="25dp"
                 android:paddingTop="21dp"
                 android:paddingBottom="26dp"

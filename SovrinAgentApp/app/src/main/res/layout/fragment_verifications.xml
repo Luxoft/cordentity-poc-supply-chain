@@ -18,7 +18,7 @@
         android:drawablePadding="20dp"
         android:gravity="start|center_vertical"
         android:paddingEnd="25dp"
-        android:paddingStart="37dp"
+        android:paddingStart="@dimen/element_paddingStart_level1"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

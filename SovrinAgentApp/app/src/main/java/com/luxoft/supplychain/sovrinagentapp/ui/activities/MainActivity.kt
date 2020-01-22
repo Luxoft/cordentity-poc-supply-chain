@@ -59,28 +59,13 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-        supportActionBar?.title = "NAME"
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        /*appState.user.observeForever { user ->
-            val name = user.name
-            if(name != null) {
-                supportActionBar?.title = name
-                supportActionBar?.setDisplayShowTitleEnabled(true)
-            } else {
-                supportActionBar?.title = ""
-                supportActionBar?.setDisplayShowTitleEnabled(false)
-            }
-        }
-*/
-
-        appState.user.observeForever { user ->
+        appState.user.observe({lifecycle}) { user ->
             headerTitle.text = user.name ?: ""
         }
 
         setupViewPager()
-
-        collapse_toolbar.isTitleEnabled = true
 
         startTimer()
     }
