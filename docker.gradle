@@ -30,7 +30,7 @@ dockerCompose {
     }
     agents {
         projectName = name
-        startedServices = ['agent94', 'agent95', 'agentInitiator']
+        startedServices = ['agent94', 'agent95']
     }
     cordaComposeUp.doLast {
         sleep(60 * 1000)

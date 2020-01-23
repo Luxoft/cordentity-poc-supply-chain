@@ -52,34 +52,26 @@ services:
 
   # -------------------- Indy agents -----------------------
   agent94:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
+    image: teamblockchain/indy-agent-python:2a838e3
     ports:
       - "8094:8094"
     environment:
       - "PORT=8094"
-    hostname: agent
-    volumes:
-      []
-    #  - ./hosts:/etc/hosts:ro
+      - "HOST=172.100.100.1"
     container_name: agent94
 
   agent95:
-    image: teamblockchain/indy-agent-python:eee0475e1ac3417990a4ec55164b1a32eb3bd6d5
+    image: teamblockchain/indy-agent-python:2a838e3
     ports:
       - "8095:8095"
     environment:
       - "PORT=8095"
-    hostname: agent
-    volumes:
-      []
-    #  - ./hosts:/etc/hosts:ro
+      - "HOST=172.100.100.1"
     container_name: agent95
 
-  agentInitiator:
-    network_mode: host
-    image: alpine:3.6
-    container_name: agentInitiator
-    depends_on:
-      - agent94
-      - agent95
-    command: sh -c 'sleep 10; /usr/bin/wget --spider http://localhost:8094/; /usr/bin/wget --spider http://localhost:8095/'
+networks:
+  agents:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.100.100.0/24
