@@ -4,16 +4,17 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
+import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.utils.MutableLiveData
 import com.luxoft.supplychain.sovrinagentapp.utils.VolatileLiveDataHolder
 import com.luxoft.supplychain.sovrinagentapp.utils.map
-import com.luxoft.supplychain.sovrinagentapp.utils.mapNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.net.InetAddress
 import java.net.URI
+import java.time.Instant
 
 class ApplicationState(
         val context: Context,
@@ -37,8 +38,8 @@ class ApplicationState(
             UserState(name, pic)
         }
 
-    private val mutAuthenticationHistory = MutableLiveData(initialValue = listOf<ProofInfo>())
-    val authenticationHistory: LiveData<List<ProofInfo>> = mutAuthenticationHistory
+    private val mutAuthenticationHistory = MutableLiveData(initialValue = listOf<VerificationEvent>())
+    val authenticationHistory: LiveData<List<VerificationEvent>> = mutAuthenticationHistory
 
     val credentialPresentationRules = CredentialPresentationRules()
     val credentialAttributePresentationRules = CredentialAttributePresentationRules()
@@ -48,4 +49,26 @@ class ApplicationState(
             refreshedIndyUser.refresh()
         }
     }
+
+    fun clearLocalData() {
+        indyState.resetWallet()
+        GlobalScope.launch(Dispatchers.Main) {
+            mutAuthenticationHistory.value = listOf()
+        }
+    }
+
+    fun storeVerificationEvent(event: VerificationEvent) {
+        val oldList = mutAuthenticationHistory.value ?: listOf()
+        GlobalScope.launch(Dispatchers.Main) {
+            mutAuthenticationHistory.value = oldList + listOf(event)
+        }
+    }
 }
+
+// todo: move to a dedicated file
+data class VerificationEvent(
+        val verificationInstant: Instant,
+        val proof: ProofInfo,
+        val proofRequest: ProofRequest,
+        val requestedAttributeNames: Set<String>
+)

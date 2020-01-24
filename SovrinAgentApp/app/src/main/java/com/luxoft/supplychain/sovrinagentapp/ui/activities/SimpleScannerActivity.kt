@@ -27,6 +27,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
@@ -36,12 +37,14 @@ import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
 import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
@@ -129,7 +132,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     val proofRequest = receiveProofRequest().toBlocking().value()
                                     val requestedDataBuilder = StringBuilder()
                                     publishProgress(R.string.progress_providing_credential_proofs)
-                                    val requestedData = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+                                    val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
                                     for (key in requestedData) {
                                         requestedDataBuilder.append(", $key")
                                     }
@@ -144,10 +147,18 @@ class SimpleScannerActivity : AppCompatActivity() {
 
                                                     val partyDid = partyDID()
                                                     publishProgress(R.string.progress_providing_authentication_proofs)
-                                                    val proofFromLedgerData = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
+                                                    val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
                                                     val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
                                                             ?: throw RuntimeException("Agent connection with $partyDid not found")
                                                     connection.sendProof(proofFromLedgerData)
+
+                                                    val event = VerificationEvent(
+                                                            Instant.now(),
+                                                            proofFromLedgerData,
+                                                            proofRequest,
+                                                            requestedData)
+
+                                                    appState.storeVerificationEvent(event)
 
                                                     this@SimpleScannerActivity.finish()
                                                 }

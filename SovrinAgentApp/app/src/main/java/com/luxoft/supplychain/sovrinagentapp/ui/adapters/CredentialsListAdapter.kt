@@ -21,11 +21,13 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
     private var items: List<List<Pair<String, String>>> = listOf()
 
     init {
+        // todo: observe on lifecycle
         credentials.observeForever { creds ->
             groups = creds
             items = creds.map { cred ->
                 cred.attributes.map { (k, v) -> Pair(k, v.toString()) }
             }
+            notifyDataSetChanged()
         }
     }
 

@@ -6,24 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import androidx.lifecycle.LiveData
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
+import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
 import kotlinx.android.synthetic.main.item_verification.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import java.text.DateFormat
-import java.time.Instant
 import java.util.*
 
-class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<ProofInfo>>) :
+class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<VerificationEvent>>) :
     BaseAdapter(), KoinComponent
 {
-    private var items: List<ProofInfo> = listOf()
+    private var items: List<VerificationEvent> = listOf()
 
     init {
+        // todo: observe on lifecycle
         history.observeForever { list ->
             items = list
+            notifyDataSetChanged()
         }
     }
 
@@ -35,20 +36,16 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<P
     override fun getCount(): Int = items.size
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val proofInfo = items[position]
+        val event = items[position]
 
         // todo: re-use [convertView]
         // todo: maybe use parent view as root?
         val view = inflater.inflate(R.layout.item_verification, /*root=*/null)
 
-        val verificationDate = Instant.now()
+        val revealedAttributeNames = event.requestedAttributeNames.map { appState.credentialAttributePresentationRules.formatName(it) }
 
-        val credentialSet = setOf("Insurance and Subscriber Data Elements", "Patient Demographics").map { schemaName ->
-            appState.credentialPresentationRules.formatName(schemaName)
-        }
-
-        view.verificationDate.text = DateFormat.getDateInstance().format(Date.from(verificationDate))
-        view.credentialSet.text = credentialSet.joinToString()
+        view.verificationDate.text = DateFormat.getDateTimeInstance().format(Date.from(event.verificationInstant))
+        view.provedData.text = revealedAttributeNames.joinToString()
 
         return view
     }
