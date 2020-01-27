@@ -3,12 +3,12 @@
 
     <item android:drawable="@drawable/bg_main" />
 
-    <item
+ <!--   <item
         android:bottom="56dp"
         android:right="24dp">
         <bitmap
             android:gravity="right|bottom"
             android:src="@drawable/logo_luxoft" />
-    </item>
+    </item>-->
 
 </layer-list>
