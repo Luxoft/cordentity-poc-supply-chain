@@ -43,7 +43,7 @@ services:
       - "8081:8081"
     environment:
       - "SPRING_PROFILES_ACTIVE=swagger"
-      - "indy_trustedCredentialsIssuerDID=XXdcqNCR9EkhpGwosNkF58"
+      - "indy_trustedCredentialsIssuerDID=MRzYgbx16JDgukDLa2tuyk"
     container_name: hospitalweb
     deploy:
       resources:
