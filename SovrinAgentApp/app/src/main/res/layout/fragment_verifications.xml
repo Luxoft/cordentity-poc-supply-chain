@@ -7,13 +7,13 @@
     android:layout_height="match_parent"
     android:background="@color/bg_main">
 
-<!--
     <Button
         android:id="@+id/scanVerificationRequest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Provide Credentials"
         android:background="@drawable/gradient"
+        android:layout_margin="@dimen/card_margin"
 
         android:drawableEnd="@drawable/ic_qr_code"
         android:drawablePadding="20dp"
@@ -23,7 +23,6 @@
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
--->
 
     <ListView
         android:id="@+id/verificationHistory"
@@ -31,20 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/card_margin_half"
         android:divider="@android:color/transparent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scanVerificationRequest"
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/item_verification"/>
-
-     <com.google.android.material.floatingactionbutton.FloatingActionButton
-           android:id="@+id/scanVerificationRequest"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:src="@drawable/ic_qr_code"
-           android:backgroundTint="#FFF9DD74"
-           app:backgroundTint="#00FFFFFF"
-           android:layout_margin="25dp"
-           app:layout_constraintEnd_toEndOf="parent"
-           app:layout_constraintBottom_toBottomOf="parent"
-       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

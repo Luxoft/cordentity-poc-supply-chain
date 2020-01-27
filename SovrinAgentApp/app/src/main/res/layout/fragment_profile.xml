@@ -12,25 +12,21 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
-        <Button
-                android:id="@+id/scanNewCredential"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Scan Credentials"
-                android:background="@drawable/gradient"
-
-                android:drawableEnd="@drawable/ic_qr_code"
-                android:drawablePadding="20dp"
-                android:gravity="start|center_vertical"
-                android:paddingEnd="25dp"
-                android:paddingStart="@dimen/element_paddingStart_level1"
-
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/scanNewCredential"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_qr_code"
+            android:backgroundTint="#FFF9DD74"
+            app:backgroundTint="#00FFFFFF"
+            android:layout_margin="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+        />
 
         <TextView
                 android:id="@+id/walletStatus"
-                app:layout_constraintTop_toBottomOf="@id/scanNewCredential"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 style="@style/Text"
                 android:paddingStart="@dimen/element_paddingStart_level1"
