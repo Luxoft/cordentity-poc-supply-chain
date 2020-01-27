@@ -17,30 +17,21 @@
 package com.luxoft.supplychain.sovrinagentapp.di
 
 import android.app.AlertDialog
-import com.google.gson.ExclusionStrategy
-import com.google.gson.FieldAttributes
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.DEFAULT_MASTER_SECRET_ID
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
 import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
 import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
+import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.getOwnIdentities
-import com.luxoft.supplychain.sovrinagentapp.application.*
-import com.luxoft.supplychain.sovrinagentapp.communcations.SovrinAgentService
+import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
+import com.luxoft.supplychain.sovrinagentapp.application.TAILS_PATH
 import com.luxoft.supplychain.sovrinagentapp.ui.activities.splashScreen
-import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
 import org.koin.dsl.module.Module
 import org.koin.dsl.module.module
-import retrofit.GsonConverterFactory
-import retrofit.Retrofit
-import retrofit.RxJavaCallAdapterFactory
 import rx.Completable
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -49,21 +40,33 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 // Koin module
-val myModule: Module = module {
-    single { provideGson() }
-    single { provideApiClient(get()) } // get() will resolve Service instance
-    factory { provideWalletAndPool() }
-    single { provideIndyUser(get()) }
-    single { connectedAgentConnection() }
-}
+val IndyModule: Module = module {
 
-//Async agent initialization for smooth UX
+    val (w, p) = provideWalletAndPool()
 
-val agentConnection = PythonRefAgentConnection()
-val agentConnect = agentConnection.connect(WS_ENDPOINT, WS_LOGIN, WS_PASS).toCompletable()
-fun connectedAgentConnection(): AgentConnection {
-    agentConnect.await()
-    return agentConnection
+    factory<Wallet> {
+        w
+    }
+
+    factory<Pool> {
+        p
+    }
+
+    single<IndyUser> {
+        val wallet = get<Wallet>()
+        val existingDid = wallet.getOwnIdentities().firstOrNull()?.did
+
+        val walletUser: WalletUser
+        if(existingDid != null) {
+            walletUser = IndySDKWalletUser(wallet, existingDid, TAILS_PATH)
+        } else {
+            walletUser = IndySDKWalletUser(wallet, tailsPath = TAILS_PATH)
+            walletUser.createMasterSecret(DEFAULT_MASTER_SECRET_ID)
+        }
+
+        val ledgerUser = IndyPoolLedgerUser(get<Pool>(), walletUser.did, walletUser::sign)
+        IndyUser(walletUser, ledgerUser, createDefaultMasterSecret = false)
+    }
 }
 
 //Async indy initialization for smooth UX
@@ -123,39 +126,4 @@ fun provideWalletAndPool(): Pair<Wallet, Pool> {
         }
     }
     return Pair(wallet, pool)
-}
-
-fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
-    val (wallet, pool) = walletAndPool
-    val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
-        IndySDKWalletUser(wallet, did, TAILS_PATH)
-    } ?: run {
-        IndySDKWalletUser(wallet, tailsPath = TAILS_PATH).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
-    }
-
-    return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
-}
-
-fun provideApiClient(gson: Gson): SovrinAgentService {
-    val retrofit: Retrofit = Retrofit.Builder()
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .baseUrl(BASE_URL)
-        .build()
-
-    retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
-
-    return retrofit.create(SovrinAgentService::class.java)
-}
-
-fun provideGson(): Gson {
-    return GsonBuilder().setExclusionStrategies(object : ExclusionStrategy {
-        override fun shouldSkipField(f: FieldAttributes): Boolean {
-            return f.declaringClass == RealmObject::class.java
-        }
-
-        override fun shouldSkipClass(clazz: Class<*>): Boolean {
-            return false
-        }
-    }).create()
 }
