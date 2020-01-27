@@ -29,6 +29,8 @@
         android:id="@+id/verificationHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/card_margin_half"
+        android:divider="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/item_verification"/>

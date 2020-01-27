@@ -29,7 +29,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
     }
 
     private val appState: ApplicationState by inject()
-    private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val inflater = LayoutInflater.from(context)
 
     override fun getItem(position: Int): Any = items[position]
     override fun getItemId(position: Int): Long = position.toLong()
@@ -39,8 +39,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         val event = items[position]
 
         // todo: re-use [convertView]
-        // todo: maybe use parent view as root?
-        val view = inflater.inflate(R.layout.item_verification, /*root=*/null)
+        val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
 
         val revealedAttributeNames = event.requestedAttributeNames.map { appState.credentialAttributePresentationRules.formatName(it) }
 

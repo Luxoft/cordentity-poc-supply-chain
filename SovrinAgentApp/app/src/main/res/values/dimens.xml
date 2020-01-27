@@ -13,6 +13,8 @@
     <dimen name="card_corners">4dp</dimen>
     <dimen name="card_item_image_width">56dp</dimen>
     <dimen name="card_item_image_height">47dp</dimen>
+    <dimen name="card_margin">16dp</dimen>
+    <dimen name="card_margin_half">8dp</dimen> <!--1/2 * card_margin-->
 
     <dimen name="element_paddingStart_level1">37dp</dimen>
 </resources>
