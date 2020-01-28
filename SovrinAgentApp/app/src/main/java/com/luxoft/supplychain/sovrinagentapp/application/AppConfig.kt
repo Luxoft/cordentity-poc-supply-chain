@@ -1,8 +1,9 @@
 package com.luxoft.supplychain.sovrinagentapp.application
 
 //const val WS_ENDPOINT = "ws://localhost:8094/ws"
-const val WS_ENDPOINT = "ws://13.92.115.239:8094/ws"  // azure
+//const val WS_ENDPOINT = "ws://13.92.115.239:8094/ws"  // azure
 //const val WS_ENDPOINT = "ws://3.17.65.252:8094/ws"  // amazon
+const val WS_ENDPOINT = "ws://52.224.104.135:8094/ws"  // client
 
 const val WS_LOGIN = "medical-supplychain"
 const val WS_PASS = "secretPassword"
