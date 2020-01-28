@@ -28,6 +28,8 @@ services:
       - "10002:10002"
       - "10003:10003"
     container_name: notary
+    depends_on:
+      - epicmock
     deploy:
       resources:
         limits:
@@ -43,12 +45,25 @@ services:
       - "8081:8081"
     environment:
       - "SPRING_PROFILES_ACTIVE=swagger"
-      - "indy_trustedCredentialsIssuerDID=XXdcqNCR9EkhpGwosNkF58"
+      - "indy_trustedCredentialsIssuerDID=MRzYgbx16JDgukDLa2tuyk"
     container_name: hospitalweb
     deploy:
       resources:
         limits:
           memory: 50m
+
+  # -------------------- Mocked bakends -----------------------
+  epicmock:
+    image: mockserver/mockserver
+    ports:
+      - "8082:8082"
+    environment:
+      - "LOG_LEVEL=DEBUG"
+      - "SERVER_PORT=8082"
+      - "MOCKSERVER_INITIALIZATION_JSON_PATH=/mockServer.json"
+    volumes:
+      - ./devops/mockServer.json:/mockServer.json:ro
+    container_name: epicmock
 
   # -------------------- Indy agents -----------------------
   agent94:

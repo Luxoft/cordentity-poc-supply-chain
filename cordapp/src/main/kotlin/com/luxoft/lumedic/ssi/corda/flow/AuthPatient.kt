@@ -17,6 +17,8 @@
 package com.luxoft.lumedic.ssi.corda.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.schema.CredentialProofSchemaV1
+import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredentialProof
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.b2c.VerifyCredentialFlowB2C
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.finalizeTransaction
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.me
@@ -35,6 +37,9 @@ import com.luxoft.lumedic.ssi.corda.service.epicCommunicationService
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.StateRef
 import net.corda.core.flows.*
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.node.services.vault.builder
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
@@ -141,7 +146,15 @@ class AuthPatient {
                     setAuthState(authProcessStateAndRef, AuthState.SUCCESS, ToDoContract.Commands.Do())
 
                 progressTracker.currentStep = UPDATE_EPIC
-                epicCommunicationService().postData("")
+
+                val credentialProof = builder {
+                    val idQueryCriteria = QueryCriteria.VaultCustomQueryCriteria(
+                        CredentialProofSchemaV1.PersistentProof::id.equal(authResponse.requestId)
+                    )
+                    serviceHub.vaultService.queryBy<IndyCredentialProof>(idQueryCriteria)
+                }.states.single().state.data.proof
+
+                epicCommunicationService().submitInsurancePost(credentialProof)
             } catch (e: Exception) {
                 logger.error("Error in ${this.javaClass.canonicalName}", e)
                 setAuthState(authProcessStateAndRef, AuthState.FAILED, ToDoContract.Commands.Do())
@@ -154,14 +167,16 @@ class AuthPatient {
             val constraints: (Filter.() -> Unit) =
                 { FilterProperty.IssuerDid shouldBe credentialsIssuerDid }
             val proofRequest = proofRequest("user_proof_req", "1.0") {
-                reveal("Insurance_company_name", constraints)
+                reveal("Payor", constraints)
                 reveal("Insurance/member_ID", constraints)
+                reveal("Group_number", constraints)
+                reveal("Subscriber_name", constraints)
+                reveal("Subscriber_date_of_birth_ms", constraints)
                 reveal("Insurance_effective_date_ms", constraints)
-                reveal("Covered_through_ms", constraints)
+                reveal("Covered_through", constraints)
                 reveal("Copayment_amount", constraints)
                 reveal("Full_legal_name", constraints)
                 reveal("SSN", constraints)
-                reveal("Date_of_birth_ms", constraints)
             }
             if (!subFlow(VerifyCredentialFlowB2C.Verifier(requestId, patientDid, proofRequest)))
                 throw throw FlowException("Permission verification failed")
