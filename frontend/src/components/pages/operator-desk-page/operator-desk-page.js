@@ -10,7 +10,7 @@ export default function OperatorDeskPage({ userMeta = { name: 'Adam Smith'} }) {
         <>
             <TemplateFullWidth
                 growContent
-                globalHeaderEl={<LUMGlobalHeader title='Welcome to Cherry Hill Medical Center' userMeta={userMeta}/>}
+                globalHeaderEl={<LUMGlobalHeader title='Welcome to Cherry Hill Medical Center' userMeta={null}/>}
                 pageHeaderEl={<OperatorDeskPageHeader userMeta={null}/>}
                 pageContentEl={<OperatorDeskPageContent />}
             />
