@@ -42,6 +42,7 @@ export const LUMGlobalHeader = function LUMGlobalHeader({
           region="secondary"
           className="lum-global-header__right"
         >
+          {userMeta &&
             <Button className="slds-global-actions__avatar">
                 <Avatar
                     variant="user"
@@ -49,6 +50,7 @@ export const LUMGlobalHeader = function LUMGlobalHeader({
                     size="medium"
                 />
             </Button>
+          }
         </GlobalNavigationBarRegion>
       </GlobalNavigationBar>
       {/* Print-only display for labeled header */}
@@ -80,7 +82,7 @@ LUMGlobalHeader.defaultProps = {
   title: '',
   isAuthenticated: true,
   authInProgress: false,
-  userMeta: { name: 'Test Patient'}
+  userMeta: null,
 }
 
 LUMGlobalHeader.propTypes = {

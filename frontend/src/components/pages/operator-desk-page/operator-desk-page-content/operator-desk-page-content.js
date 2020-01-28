@@ -79,7 +79,7 @@ function reducer(state, action) {
 const mapToastPropsFromStatus = (status) => {
     if (status === 'SUCCESS') {
         return {
-            heading: 'Authorization success',
+            heading: 'Patient information updated!',
             variant: 'success'
         }
     }
@@ -95,7 +95,8 @@ export default function OperatorDeskPageContent() {
     const progressRef = useRef(state.progress);
     progressRef.current = state.progress;
     const qrSize = window.screen.width * window.devicePixelRatio < 500 ? 200 : 300
-    const isLoading = !(['SUCCESS', 'FAILED'].includes(state.status))
+    const isLoading = state.status === 'CONNECTED'
+    const isComplete = (['SUCCESS', 'FAILED'].includes(state.status))
 
     useEffect(() => {
         if(!state.requestId) {
@@ -103,11 +104,14 @@ export default function OperatorDeskPageContent() {
                 .then(invite => dispatch({ type: 'setInvite', ...invite }))
                 .catch(e => console.error(e))
         }
-        else if (isLoading) {
-            const progressHandle = setInterval(() =>  {
-                const newProgress = progressRef.current === 100 ? 0 : progressRef.current + 1
-                dispatch({ type: 'setProgress', progress: newProgress })
-            }, 20)
+        else if (!isComplete) {
+            let progressHandle
+            if (isLoading) {
+                progressHandle = setInterval(() =>  {
+                    const newProgress = progressRef.current === 100 ? 0 : progressRef.current + 1
+                    dispatch({ type: 'setProgress', progress: newProgress })
+                }, 20)
+            }
             const statusHandle = setInterval(() => {
                 credentialsService.checkStatus(state.requestId)
                 .then(status => dispatch({ type: 'updateInviteStatus', status }))
@@ -115,25 +119,24 @@ export default function OperatorDeskPageContent() {
             }, 1500)
         
             return () => { 
-                window.clearInterval(progressHandle)
+                progressHandle && window.clearInterval(progressHandle)
                 window.clearInterval(statusHandle) 
             }
         }
     }, [state.requestId])
 
     const toastProps = mapToastPropsFromStatus(state.status)
-    const progressContent = isLoading ? (<>
-            <ProgressRing flowDirection="fill" size="large" value={state.progress} />
-            <strong className={classes.progressStatus}>Receiving authorization status... </strong>
-        </>) : (<Toast className={classes.toast} labels={{ heading: toastProps.heading }} variant={toastProps.variant} />)
-
     const inviteContent = state.invite ? <QRCode fgColor="#161616" value={JSON.stringify(state.invite)} size={qrSize} level='H'/> : ''
     return (
             <div className={classes.root}>
                 <div className={classes.qrContainer}>
                     {inviteContent}
                     <div className={classes.progressContainer}>
-                        {progressContent}
+                        {isLoading && <>
+                            <ProgressRing flowDirection="fill" size="large" value={state.progress} />
+                            <strong className={classes.progressStatus}>Receiving personal and coverage information... </strong>
+                        </>}
+                        {isComplete && <Toast className={classes.toast} labels={{ heading: toastProps.heading }} variant={toastProps.variant} />}
                     </div>
                 </div>
             </div>
