@@ -83,7 +83,7 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
         val formatter = appState.credentialAttributePresentationRules
 
         view.name.text = formatter.formatName(key)
-        view.textValue.text = formatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 45)
+        view.textValue.text = formatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 40)
 
         /* Handle img attribute:
         item.value ?: return

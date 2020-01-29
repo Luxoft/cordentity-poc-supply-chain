@@ -36,7 +36,7 @@ class CredentialAttributePresentationRules() {
 
     fun formatName(attrKey: String): String {
         val removedSuffix = attrKey.removeSuffix("_ms")
-        return removedSuffix.replace('_', ' ')
+        return removedSuffix.replace('_', ' ').trim()
     }
 
     fun formatValueText(attrKey: String,
@@ -44,7 +44,7 @@ class CredentialAttributePresentationRules() {
                         maxWidth: Int = Int.MAX_VALUE,
                         maxWidthWithKey: Int = Int.MAX_VALUE): String
     {
-        val str = attrValue?.toString()
+        val str = attrValue?.toString()?.trim()
 
         val keyStr = formatName(attrKey)
         val maxTextWidth = min(maxWidth, maxWidthWithKey - keyStr.length)
@@ -68,8 +68,9 @@ class CredentialAttributePresentationRules() {
 }
 
 fun String.abbreviate(maxWidth: Int, ending: String = "..."): String {
-    return if (length <= maxWidth)
-        return this
-    else
-        this.take(maxWidth - ending.length) + ending
+    return when {
+        length <= maxWidth -> return this
+        maxWidth < ending.length -> "?"
+        else -> this.take(maxWidth - ending.length).trimEnd() + ending
+    }
 }
