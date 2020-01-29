@@ -14,7 +14,8 @@
 
     <item android:id="@+id/rescan_wallet"
           android:title="Rescan Wallet"
-          app:showAsAction="never"/>
+          app:showAsAction="never"
+          android:visible="false"/>
 
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings"
