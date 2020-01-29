@@ -59,8 +59,13 @@
 
 - name: Copy corda dockerfile
   copy:
-    src: "../../../../devops/profile/develop//Dockerfile-corda"
+    src: "../../../../devops/profile/develop/Dockerfile-corda"
     dest: "{{ ansible_env.HOME}}/devops/profile/develop/Dockerfile-web"
+
+- name: Copy mockServer config
+  copy:
+    src: "../../../../devops/mockServer.json"
+    dest: "{{ ansible_env.HOME}}/devops/mockServer.json"
 
 - name: Start agents
   command: docker-compose up -d agent94 agent95
