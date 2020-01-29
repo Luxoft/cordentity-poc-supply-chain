@@ -27,6 +27,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
@@ -135,15 +136,13 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
                                         val verifier = verifierInfoFromDid(partyDID())
 
-                                        val requestedClaims = requestedData
-                                            .map { appState.credentialAttributePresentationRules.formatName(it) }
-                                            .joinToString(separator = ", ")
-
-                                        val bodyMsg = "${verifier.name} is requesting your following claims: $requestedClaims"
+                                        val bodyMessage = formatPopupMessage(verifier, requestedData,
+                                            appState.walletCredentials.value,
+                                            appState.credentialPresentationRules, appState.credentialAttributePresentationRules)
 
                                         val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
                                             .setTitle("Claims Requested")
-                                            .setMessage(bodyMsg)
+                                            .setMessage(bodyMessage)
                                             .setCancelable(false)
                                             .setPositiveButton("ALLOW") { _, _ ->
                                                 Completable.complete().observeOn(Schedulers.io()).subscribe {
@@ -220,4 +219,28 @@ class SimpleScannerActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+}
+
+fun formatPopupMessage(
+    verifier: VerifierInfo,
+    requestedAttributeKeys: Set<String>,
+    creds: List<CredentialReference>?,
+    credentialPresentationRules: CredentialPresentationRules,
+    attributePresentationRules: CredentialAttributePresentationRules
+): String {
+    val requestedClaims = requestedAttributeKeys
+        .map { attributePresentationRules.formatName(it) }
+        .joinToString(separator = "\n  - ", prefix = "  - ")
+
+    val requestedCredentials = creds!!
+        .filter { it.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
+        .map { credentialPresentationRules.formatName(it) }
+        .joinToString(separator = ", ")
+
+    return """
+        |${verifier.name} is requesting your $requestedCredentials credentials.
+        |
+        |The following claims will be revealed:
+        |${requestedClaims} 
+    """.trimMargin()
 }
