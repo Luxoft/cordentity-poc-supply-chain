@@ -235,7 +235,7 @@ fun formatPopupMessage(
     val requestedCredentials = creds!!
         .filter { it.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
         .map { credentialPresentationRules.formatName(it) }
-        .joinToString(separator = ", ")
+        .joinToStringPrettyAnd()
 
     return """
         |${verifier.name} is requesting your $requestedCredentials credentials.
@@ -244,3 +244,9 @@ fun formatPopupMessage(
         |${requestedClaims} 
     """.trimMargin()
 }
+
+/**
+ * Joins a list to string: "el1, el2, el3 and el4"
+* */
+fun <T> List<T>.joinToStringPrettyAnd() =
+    this.dropLast(1).joinToString(separator = ", ") + " and " + this.last().toString()
