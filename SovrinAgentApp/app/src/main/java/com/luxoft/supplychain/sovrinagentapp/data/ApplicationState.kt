@@ -28,8 +28,8 @@ class ApplicationState(
 
     val user: LiveData<UserState> =
         walletCredentials.map { creds ->
-            val credRef = creds.firstOrNull { it.getSchemaIdObject().name == "Patient Demographics" }
-            val name = credRef?.attributes?.getOrDefault("Full_legal_name", null)?.toString()
+            val credRef = creds.firstOrNull { it.getSchemaIdObject().name == KnownSchemas.PersonalId.schemaName }
+            val name = credRef?.attributes?.getOrDefault(KnownSchemas.PersonalId.attributes.name, null)?.toString()
             val pic = context.getDrawable(R.drawable.user)
 
             UserState(name, pic)

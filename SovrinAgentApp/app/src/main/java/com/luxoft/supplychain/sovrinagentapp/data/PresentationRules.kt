@@ -8,16 +8,16 @@ import java.util.*
 class CredentialPresentationRules() {
 
     fun formatName(cred: CredentialReference): String {
-        return cred.attributes["Credential_Type"]?.toString()
+        return cred.attributes[KnownSchemas.Common.attributes.type]?.toString()
             ?: cred.getSchemaIdObject().name
     }
 
     fun formatDescription(cred: CredentialReference): String? {
-        return cred.attributes["Credential_Name"]?.toString()
+        return cred.attributes[KnownSchemas.Common.attributes.name]?.toString()
     }
 
     fun formatIssuerName(cred: CredentialReference): String? {
-        return cred.attributes["Credential_Issuer"]?.toString()
+        return cred.attributes[KnownSchemas.Common.attributes.issuer]?.toString()
     }
 }
 
