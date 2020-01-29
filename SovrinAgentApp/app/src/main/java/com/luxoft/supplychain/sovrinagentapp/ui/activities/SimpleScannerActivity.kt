@@ -127,26 +127,31 @@ class SimpleScannerActivity : AppCompatActivity() {
                                 agentConnection.acceptInvite(result).toBlocking().value().apply {
                                     publishProgress(R.string.progress_waiting_for_authentication)
                                     val proofRequest = receiveProofRequest().toBlocking().value()
-                                    val requestedDataBuilder = StringBuilder()
                                     publishProgress(R.string.progress_providing_credential_proofs)
                                     val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
-                                    for (key in requestedData) {
-                                        requestedDataBuilder.append(", $key")
-                                    }
-                                    getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataBuilder.toString().substring(1)).apply()
+                                    val requestedDataStr = requestedData.joinToString(separator = ", ")
+
+                                    getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataStr).apply()
                                     Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+                                        val verifier = verifierInfoFromDid(partyDID())
+
+                                        val requestedClaims = requestedData
+                                            .map { appState.credentialAttributePresentationRules.formatName(it) }
+                                            .joinToString(separator = ", ")
+
+                                        val bodyMsg = "${verifier.name} is requesting your following claims: $requestedClaims"
+
                                         val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
-                                            .setTitle("Claims request")
-                                            .setMessage("Treatment center \"TC SEEHOF\" requesting your " + requestedDataBuilder.toString().substring(2) + " to approve your request.Provide it ?")
+                                            .setTitle("Claims Requested")
+                                            .setMessage(bodyMsg)
                                             .setCancelable(false)
-                                            .setPositiveButton("PROVIDE") { _, _ ->
+                                            .setPositiveButton("ALLOW") { _, _ ->
                                                 Completable.complete().observeOn(Schedulers.io()).subscribe {
 
-                                                    val partyDid = partyDID()
                                                     publishProgress(R.string.progress_providing_authentication_proofs)
                                                     val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
-                                                    val connection = agentConnection.getIndyPartyConnection(partyDid).toBlocking().value()
-                                                            ?: throw RuntimeException("Agent connection with $partyDid not found")
+                                                    val connection = agentConnection.getIndyPartyConnection(verifier.did).toBlocking().value()
+                                                            ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
                                                     connection.sendProof(proofFromLedgerData)
 
                                                     val event = VerificationEvent(
@@ -154,7 +159,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                             proofFromLedgerData,
                                                             proofRequest,
                                                             requestedData,
-                                                            verifierInfoFromDid(partyDid))
+                                                            verifier)
 
                                                     appState.storeVerificationEvent(event)
 
