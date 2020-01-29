@@ -1,45 +1,23 @@
 package com.luxoft.supplychain.sovrinagentapp.data
 
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
-import com.luxoft.supplychain.sovrinagentapp.data.KnownSchemas.demographicsSchemaName
-import com.luxoft.supplychain.sovrinagentapp.data.KnownSchemas.insuranceSchemaName
 import java.lang.Integer.min
 import java.text.DateFormat
 import java.util.*
 
-object KnownSchemas {
-    val insuranceSchemaName = "Insurance and Subscriber Data Elements"
-    val demographicsSchemaName = "Patient Demographics"
-
-    val schemaNames = listOf(insuranceSchemaName, demographicsSchemaName)
-}
-
 class CredentialPresentationRules() {
 
-    fun formatName(cred: CredentialReference): String = formatName(cred.getSchemaIdObject().name)
-
-    fun formatName(schemaName: String): String {
-        return when(schemaName) {
-            insuranceSchemaName -> "Health Member Plan"
-            demographicsSchemaName -> "Personal Digital ID"
-            else -> schemaName
-        }
+    fun formatName(cred: CredentialReference): String {
+        return cred.attributes["Credential_Type"]?.toString()
+            ?: cred.getSchemaIdObject().name
     }
 
     fun formatDescription(cred: CredentialReference): String? {
-        return when(cred.getSchemaIdObject().name) {
-            insuranceSchemaName -> "Health Plan"
-            demographicsSchemaName -> cred.attributes["Full_legal_name"]?.toString()
-            else -> null
-        }
+        return cred.attributes["Credential_Name"]?.toString()
     }
 
     fun formatIssuerName(cred: CredentialReference): String? {
-        return when(cred.getSchemaIdObject().name) {
-            insuranceSchemaName -> cred.attributes["Insurance_company_name"]?.toString()
-            demographicsSchemaName -> "U.S. Department of State"
-            else -> null
-        }
+        return cred.attributes["Credential_Issuer"]?.toString()
     }
 }
 

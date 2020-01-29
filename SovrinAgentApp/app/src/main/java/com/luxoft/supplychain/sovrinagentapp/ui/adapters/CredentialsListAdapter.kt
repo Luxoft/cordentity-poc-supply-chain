@@ -3,6 +3,8 @@ package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
@@ -56,7 +58,17 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
 
         view.tittle.text = formatter.formatName(cred)
         view.description.text = formatter.formatDescription(cred)
-        view.verifier.text = formatter.formatIssuerName(cred)
+
+        val issuerName = formatter.formatIssuerName(cred)
+        if(issuerName != null) {
+            view.verifier.text = issuerName
+            view.verifier.visibility = VISIBLE
+            view.verified_by.visibility = VISIBLE
+        } else {
+            view.verifier.visibility = GONE
+            view.verified_by.visibility = GONE
+        }
+
 
         return view
     }
