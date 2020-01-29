@@ -45,6 +45,9 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
 
         view.verificationDate.text = DateFormat.getDateTimeInstance().format(Date.from(event.verificationInstant))
         view.provedData.text = revealedAttributeNames.joinToString()
+        view.verifierName.text = event.verifier.name
+        view.verifierAddress.text = event.verifier.address
+        view.verifierContactPhone.text = event.verifier.contactPhone
 
         return view
     }

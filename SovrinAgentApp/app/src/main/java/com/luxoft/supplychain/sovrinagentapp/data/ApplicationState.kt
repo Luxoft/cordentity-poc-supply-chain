@@ -3,8 +3,6 @@ package com.luxoft.supplychain.sovrinagentapp.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.utils.MutableLiveData
 import com.luxoft.supplychain.sovrinagentapp.utils.VolatileLiveDataHolder
@@ -14,7 +12,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.net.InetAddress
 import java.net.URI
-import java.time.Instant
 
 class ApplicationState(
         val context: Context,
@@ -65,10 +62,3 @@ class ApplicationState(
     }
 }
 
-// todo: move to a dedicated file
-data class VerificationEvent(
-        val verificationInstant: Instant,
-        val proof: ProofInfo,
-        val proofRequest: ProofRequest,
-        val requestedAttributeNames: Set<String>
-)

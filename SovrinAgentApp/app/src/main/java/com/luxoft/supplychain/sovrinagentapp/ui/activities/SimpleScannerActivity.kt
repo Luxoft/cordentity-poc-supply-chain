@@ -34,10 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
 import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
-import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
-import com.luxoft.supplychain.sovrinagentapp.data.Invite
-import com.luxoft.supplychain.sovrinagentapp.data.PackageState
-import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
+import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
 import org.koin.android.ext.android.inject
@@ -156,7 +153,8 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                             Instant.now(),
                                                             proofFromLedgerData,
                                                             proofRequest,
-                                                            requestedData)
+                                                            requestedData,
+                                                            verifierInfoFromDid(partyDid))
 
                                                     appState.storeVerificationEvent(event)
 
