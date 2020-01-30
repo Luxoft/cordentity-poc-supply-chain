@@ -20,8 +20,8 @@ module.exports = merge(common, {
     runtimeChunk: 'single',
     splitChunks: {
       chunks: 'all',
-      maxInitialRequests: Infinity,
-      minSize: 0,
+      maxInitialRequests: 6,
+      minSize: 30000,
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
