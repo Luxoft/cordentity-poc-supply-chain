@@ -95,7 +95,6 @@ export default function OperatorDeskPageContent() {
     const progressRef = useRef(state.progress);
     progressRef.current = state.progress;
     const qrSize = window.screen.width * window.devicePixelRatio < 500 ? 200 : 300
-    const isLoading = state.status === 'CONNECTED'
     const isComplete = (['SUCCESS', 'FAILED'].includes(state.status))
 
     useEffect(() => {
@@ -106,20 +105,22 @@ export default function OperatorDeskPageContent() {
         }
         else if (!isComplete) {
             let progressHandle
-            if (isLoading) {
-                progressHandle = setInterval(() =>  {
-                    const newProgress = progressRef.current === 100 ? 0 : progressRef.current + 1
-                    dispatch({ type: 'setProgress', progress: newProgress })
-                }, 20)
-            }
             const statusHandle = setInterval(() => {
                 credentialsService.checkStatus(state.requestId)
-                .then(status => dispatch({ type: 'updateInviteStatus', status }))
+                .then(status => {                    
+                    dispatch({ type: 'updateInviteStatus', status })
+                    if (status === 'CONNECTED' && !progressHandle) {
+                        progressHandle = setInterval(() =>  {
+                            const newProgress = progressRef.current === 100 ? 0 : progressRef.current + 2
+                            dispatch({ type: 'setProgress', progress: newProgress })
+                        }, 20)
+                    }
+                })
                 .catch(e => console.error(e))
             }, 1500)
         
             return () => { 
-                progressHandle && window.clearInterval(progressHandle)
+                window.clearInterval(progressHandle)
                 window.clearInterval(statusHandle) 
             }
         }
@@ -132,7 +133,7 @@ export default function OperatorDeskPageContent() {
                 <div className={classes.qrContainer}>
                     {inviteContent}
                     <div className={classes.progressContainer}>
-                        {isLoading && <>
+                        {state.status === 'CONNECTED' && <>
                             <ProgressRing flowDirection="fill" size="large" value={state.progress} />
                             <strong className={classes.progressStatus}>Receiving personal and coverage information... </strong>
                         </>}
