@@ -17,9 +17,14 @@ class ApplicationState(
         val context: Context,
         indyPoolIp: InetAddress,
         indyPoolGenesisPath: URI,
+        indyPoolTailsPath: URI,
         indyPoolGenesisContent: (nodeIp: InetAddress) -> String = ::StandardIndyPoolGenesis)
 {
-    val indyState: IndyState = IndyState(indyPoolIp, indyPoolGenesisPath, indyPoolGenesisContent)
+    val indyState: IndyState = IndyState(
+        indyPoolIp,
+        indyPoolGenesisPath,
+        indyPoolTailsPath,
+        indyPoolGenesisContent)
 
     private val refreshedIndyUser = VolatileLiveDataHolder(indyState.indyUser)
     val walletCredentials: LiveData<List<CredentialReference>> = refreshedIndyUser.liveData.map { indyUser ->

@@ -42,6 +42,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Good read on Android flavors: https://proandroiddev.com/advanced-android-flavors-part-2-enter-flavor-dimensions-4ad7f486f6
+    flavorDimensions("client")
+    productFlavors {
+        develop {
+            dimension "client"
+            applicationIdSuffix ".develop"
+        }
+        client0 {
+            dimension "client"
+            applicationIdSuffix ".client0"
+        }
+    }
 }
 
 dependencies {
