@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cd $(dirname $0)
+
 ./gradlew backendsComposeDown
 ./gradlew cordaComposeDown
 ./gradlew agentsComposeDown

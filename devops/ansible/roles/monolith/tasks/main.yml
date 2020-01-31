@@ -51,12 +51,6 @@
     dest: "{{ ansible_env.HOME}}"
     delete: yes
 
-- name: Copy agents hosts file
-  synchronize:
-    src: "../../../../hosts"
-    dest: "{{ ansible_env.HOME}}"
-    delete: yes
-
 - name: Creates profile directory
   file:
     path: "{{ ansible_env.HOME}}/devops/profile/develop/"
@@ -65,14 +59,16 @@
 
 - name: Copy corda dockerfile
   copy:
-    src: "../../../../devops/profile/develop//Dockerfile-corda"
+    src: "../../../../devops/profile/develop/Dockerfile-corda"
     dest: "{{ ansible_env.HOME}}/devops/profile/develop/Dockerfile-web"
+
+- name: Copy mockServer config
+  copy:
+    src: "../../../../devops/mockServer.json"
+    dest: "{{ ansible_env.HOME}}/devops/mockServer.json"
 
 - name: Start agents
   command: docker-compose up -d agent94 agent95
-
-- name: Start agentInitiator
-  command: docker-compose up agentInitiator
 
 - name: Start Corda
   command: docker-compose up -d notary

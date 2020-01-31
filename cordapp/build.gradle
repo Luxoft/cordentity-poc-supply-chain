@@ -56,6 +56,8 @@ dependencies {
     implementation "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
     implementation 'net.java.dev.jna:jna:4.5.1'
 
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
     // Corda integration dependencies
     cordaCompile "net.corda:corda-core:${corda_release_version}"
     cordaCompile "net.corda:corda-confidential-identities:4.0"
