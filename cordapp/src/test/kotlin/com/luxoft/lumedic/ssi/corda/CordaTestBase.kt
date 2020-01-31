@@ -1,7 +1,6 @@
 package com.luxoft.lumedic.ssi.corda
 
 import com.luxoft.lumedic.ssi.corda.flow.AuthPatient
-import com.luxoft.lumedic.ssi.corda.service.EpicCommunicationService
 import net.corda.core.flows.FlowLogic
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.common.internal.testNetworkParameters
@@ -53,9 +52,7 @@ open class CordaTestBase {
      *     }
      * */
     protected fun createPartyNode(legalName: CordaX500Name): StartedMockNode {
-        val party = net.createUnstartedNode(legalName).apply {
-            installCordaService(EpicCommunicationService::class.java)
-        }.start()
+        val party = net.createUnstartedNode(legalName).start()
 
         parties.add(party)
 
