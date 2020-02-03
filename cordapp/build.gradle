@@ -53,8 +53,9 @@ dependencies {
     // leaks com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
     compile "com.github.${cordentity_provider}.cordentity:cordentity-indy-utils:$cordentity_version"
 
-    implementation "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
-    implementation 'net.java.dev.jna:jna:4.5.1'
+    // leaks com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+    compile "com.github.${cordentity_provider}.cordentity:cordentity-agent-connection:$cordentity_version"
+    compile 'net.java.dev.jna:jna:4.5.1'
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 

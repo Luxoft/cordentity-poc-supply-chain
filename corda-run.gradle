@@ -15,6 +15,7 @@ def profilePath = "$profileRoot/develop"
 def nodesRoot = "$rootDir/build/nodes"
 def nodeDirs = { new File(nodesRoot).listFiles().findAll { it.isDirectory() } }
 
+// fixme: that's a hack to add 'clean' to the root project
 apply plugin: 'java'
 jar.enabled = false
 
