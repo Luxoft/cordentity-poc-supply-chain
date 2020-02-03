@@ -14,7 +14,7 @@ const val TAILS_PATH = "./tails"
 
 const val GENESIS_IP = """52.224.217.165"""  // client0 azure
 
-const val WS_ENDPOINT = "ws://13.92.115.239:8096/"  // protected client0 client
+const val WS_ENDPOINT = "ws://13.92.115.239:8096/ws"  // protected client0 client
 
 const val WS_LOGIN = "medical-supplychain"
 const val WS_PASS = "secretPassword"
