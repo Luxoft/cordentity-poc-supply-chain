@@ -4,7 +4,6 @@ buildscript {
         maven { url "https://software.r3.com/artifactory/corda-releases" }
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "net.corda:corda-common-logging:$corda_release_version"
         classpath "net.corda:corda-tools-network-bootstrapper:$corda_release_version"
     }
@@ -16,7 +15,8 @@ def profilePath = "$profileRoot/develop"
 def nodesRoot = "$rootDir/build/nodes"
 def nodeDirs = { new File(nodesRoot).listFiles().findAll { it.isDirectory() } }
 
-apply plugin: 'kotlin'
+// fixme: that's a hack to add 'clean' to the root project
+apply plugin: 'java'
 jar.enabled = false
 
 configurations {

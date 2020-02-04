@@ -3,17 +3,13 @@ package com.luxoft.supplychain.sovrinagentapp.ui.activities
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.PermissionChecker
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.PermissionChecker
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_CONTENT
-import com.luxoft.supplychain.sovrinagentapp.application.GENESIS_PATH
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
-import rx.Completable
-import rx.schedulers.Schedulers
-import java.io.File
 
 lateinit var splashScreen: SplashActivity
 
@@ -21,7 +17,7 @@ class SplashActivity : AppCompatActivity() {
 
     private val permissionRequestCode = 101
 
-    private val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,24 +36,19 @@ class SplashActivity : AppCompatActivity() {
                 if (grantResults.any { it != PermissionChecker.PERMISSION_GRANTED })
                     throw RuntimeException("You should grant permissions if you want to use vcx")
                 else {
-                    initGenesis()
-                    Completable.complete().observeOn(Schedulers.io()).subscribe {
-                        indyUser.walletUser.getCredentials().forEachRemaining {
-                            Log.d("User", "User $it")
-                        }
-                        val intent = Intent(this, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                    val state = getKoin().get<ApplicationState>()
+                    state.indyState.openOrCreateWallet()
+                    state.indyState.connectToPool()
+
+                    state.walletCredentials.value?.forEach {
+                        Log.d("User", "User $it")
                     }
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
                 }
             }
         }
-    }
-
-    private fun initGenesis() {
-        val genesis = File(GENESIS_PATH)
-        if (genesis.exists()) genesis.delete()
-        genesis.createNewFile()
-        genesis.writeText(GENESIS_CONTENT)
     }
 }

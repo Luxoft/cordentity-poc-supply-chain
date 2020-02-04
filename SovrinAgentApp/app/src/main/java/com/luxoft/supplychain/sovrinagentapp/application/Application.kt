@@ -18,8 +18,10 @@ package com.luxoft.supplychain.sovrinagentapp.application
 
 import android.app.Application
 import android.os.Environment
-import com.luxoft.supplychain.sovrinagentapp.data.*
-import com.luxoft.supplychain.sovrinagentapp.di.myModule
+import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.PackageState
+import com.luxoft.supplychain.sovrinagentapp.data.Product
+import com.luxoft.supplychain.sovrinagentapp.di.applicationsStateModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.koin.android.ext.android.startKoin
@@ -30,7 +32,7 @@ class Application : Application() {
 
         System.setProperty("INDY_HOME", Environment.getExternalStorageDirectory().absolutePath)
 
-        startKoin(this, listOf(myModule))
+        startKoin(this, listOf(applicationsStateModule))
 
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder().build())
