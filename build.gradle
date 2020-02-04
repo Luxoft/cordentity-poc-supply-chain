@@ -1,5 +1,4 @@
 buildscript {
-  ext.corda_release_group = 'net.corda'
   ext.corda_release_version = '4.1'
   ext.corda_gradle_plugins_version = '4.0.42'
   ext.cordentity_version = '5278eaf'
@@ -7,11 +6,16 @@ buildscript {
   ext.okhttp_version = '3.8.0'
   ext.spring_boot_version = '2.1.0.RELEASE'
   ext.springfox_version = '2.0.1'
-  ext.quasar_version = '0.7.10'
+  ext.kotlin_version = '1.2.71'
+
+  ext.socketio_version = '1.7.13'
+  ext.activemq_artemis_version = '2.2.0'
+
+  ext.jna_version = '4.5.1'
   ext.junit_version = '4.12'
   ext.assertj_version = '3.10.0'
+  ext.slf4j_version = '1.7.26'
   ext.mockito_version = '1.+'
-  ext.kotlin_version = '1.2.71'
 
   repositories {
     mavenLocal()
@@ -33,7 +37,6 @@ allprojects {
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://repo.sovrin.org/repository/maven-releases' }
     maven { url 'https://jitpack.io' }
-    maven { url 'http://repo.gradle.org/gradle/libs-releases-local' }
   }
 }
 
@@ -42,8 +45,8 @@ subprojects {
   apply plugin: 'idea'
 
   dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
   }
 
   tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

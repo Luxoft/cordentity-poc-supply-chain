@@ -17,10 +17,10 @@
 package com.luxoft.supplychain.sovrinagentapp.utils
 
 import android.content.Context
-import android.support.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import com.luxoft.blockchainlab.hyperledger.indy.wallet.WalletUser
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import io.realm.Realm

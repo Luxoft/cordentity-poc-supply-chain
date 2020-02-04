@@ -20,17 +20,16 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
-import com.luxoft.supplychain.sovrinagentapp.application.NAME
-import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ClaimsFragment
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.HistoryFragment
-import com.luxoft.supplychain.sovrinagentapp.ui.fragments.OrdersFragment
+import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ProfileFragment
+import com.luxoft.supplychain.sovrinagentapp.ui.fragments.VerificationsFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
@@ -40,10 +39,11 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = this::class.simpleName
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val indyUser: IndyUser by inject()
-    private lateinit var ordersFragment: OrdersFragment
+
+    private val appState: ApplicationState by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,48 +51,59 @@ class MainActivity : AppCompatActivity() {
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
         System.setProperty("jna.debug_load", "true")
 
+        appState.indyState.indyUser.observeForever { user: IndyUser ->
+            user.walletUser.updateCredentialsInRealm()
+        }
+
         setContentView(R.layout.activity_main)
-        setupToolbar()
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        appState.user.observe({lifecycle}) { user ->
+            headerTitle.text = user.name ?: ""
+        }
+
         setupViewPager()
-        setupCollapsingToolbar()
 
         startTimer()
     }
 
-    private fun setupCollapsingToolbar() {
-        collapse_toolbar.isTitleEnabled = true
-    }
-
     private fun setupViewPager() {
         val adapter = ViewPagerAdapter(supportFragmentManager)
-        adapter.addFrag(ClaimsFragment())
-        ordersFragment = OrdersFragment()
-        adapter.addFrag(ordersFragment)
-        adapter.addFrag(HistoryFragment())
+
+        adapter.addFrag(ProfileFragment())
+        adapter.addFrag(VerificationsFragment())
+
         viewpager.adapter = adapter
 
         tabs.setupWithViewPager(viewpager)
-    }
-
-    private fun setupToolbar() {
-        indyUser.walletUser.updateCredentialsInRealm()
-        val nameClaims = realm.where(ClaimAttribute::class.java)
-                .equalTo(FIELD_KEY, NAME)
-                .findAllAsync()  // todo: replace with `findFirstAsync` after you fix realm.delete on each update
-
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
-        nameClaims.addChangeListener { claims ->
-            val userName = claims.firstOrNull()?.value ?: ""
-            supportActionBar?.title = userName
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         realm.removeAllChangeListeners()
         realm.close()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_claims, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.clear_wallet -> {
+                appState.clearLocalData()
+                true
+            }
+            R.id.rescan_wallet -> {
+                appState.updateWalletCredentials()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     companion object {
@@ -121,7 +132,6 @@ class MainActivity : AppCompatActivity() {
                 if (inProgress) {
                     inProgress = false
                     showNotification(this, getString(R.string.new_digital_receipt), getString(R.string.you_ve_received))
-                    ordersFragment.onResume()
                 }
             }
             PopupStatus.HISTORY.ordinal -> {
