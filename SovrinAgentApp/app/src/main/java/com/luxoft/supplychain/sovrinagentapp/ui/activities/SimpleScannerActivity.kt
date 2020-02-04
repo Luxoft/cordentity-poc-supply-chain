@@ -32,12 +32,12 @@ import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
 import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
 import com.luxoft.supplychain.sovrinagentapp.data.*
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
@@ -82,7 +82,6 @@ class SimpleScannerActivity : AppCompatActivity() {
                 val state = intent?.getStringExtra(EXTRA_STATE)
                 if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
 
-                val serial = intent?.getStringExtra(EXTRA_SERIAL)
                 collectedAt = intent?.getLongExtra(EXTRA_COLLECTED_AT, 0)
 
                 when (state) {
@@ -136,9 +135,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
                                         val verifier = verifierInfoFromDid(partyDID())
 
-                                        val bodyMessage = formatPopupMessage(verifier, requestedData,
-                                            appState.walletCredentials.value,
-                                            appState.credentialPresentationRules, appState.credentialAttributePresentationRules)
+                                        val bodyMessage = formatPopupMessage(verifier, requestedData, appState.walletCredentials.value)
 
                                         val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
                                             .setTitle("Claims Requested")
@@ -219,30 +216,33 @@ class SimpleScannerActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-}
 
-fun formatPopupMessage(
-    verifier: VerifierInfo,
-    requestedAttributeKeys: Set<String>,
-    creds: List<CredentialReference>?,
-    credentialPresentationRules: CredentialPresentationRules,
-    attributePresentationRules: CredentialAttributePresentationRules
-): String {
-    val requestedClaims = requestedAttributeKeys
-        .map { attributePresentationRules.formatName(it) }
-        .joinToString(separator = "\n  - ", prefix = "  - ")
 
-    val requestedCredentials = creds!!
-        .filter { it.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
-        .map { credentialPresentationRules.formatName(it) }
-        .joinToStringPrettyAnd()
+    fun formatPopupMessage(
+        verifier: VerifierInfo,
+        requestedAttributeKeys: Set<String>,
+        creds: List<CredentialReference>?
+    ): String {
+        val credentialPresentationRules: CredentialPresentationRules = get()
+        val attributePresentationRules: CredentialAttributePresentationRules = get()
 
-    return """
+        val requestedClaims = requestedAttributeKeys
+            .map { attributePresentationRules.formatName(it) }
+            .joinToString(separator = "\n  - ", prefix = "  - ")
+
+        val requestedCredentials = creds!!
+            .filter { it.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
+            .map { credentialPresentationRules.formatName(it) }
+            .joinToStringPrettyAnd()
+
+        return """
         |${verifier.name} is requesting your $requestedCredentials credentials.
         |
         |The following claims will be revealed:
         |${requestedClaims} 
     """.trimMargin()
+    }
+
 }
 
 /**
