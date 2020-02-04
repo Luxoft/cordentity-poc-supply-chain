@@ -45,9 +45,9 @@ class ConnectionService(services: AppServiceHub) : SingletonSerializeAsToken() {
 
     private val connection = mock<AgentConnection>().apply {
         `when`(generateInvite())
-            .thenReturn(Single.create { it.onSuccess("Stub invite") })
+            .thenReturn(Single.just("Stub invite"))
         `when`(waitForInvitedParty(anyString(), anyLong()))
-            .thenReturn(Single.create { it.onSuccess(indyPartyConnection) })
+            .thenReturn(Single.just(indyPartyConnection))
     }
 
     fun getConnection() = connection
