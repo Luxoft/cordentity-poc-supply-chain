@@ -20,6 +20,7 @@ import com.luxoft.lumedic.ssi.corda.data.AuthResponse
 import com.luxoft.lumedic.ssi.corda.data.AuthState
 import com.luxoft.lumedic.ssi.corda.data.state.AuthProcessState
 import com.luxoft.lumedic.ssi.corda.flow.AuthPatient
+import com.luxoft.lumedic.ssi.corda.flow.DemoReset
 import com.luxoft.web.components.RPCComponent
 import com.wordnik.swagger.annotations.*
 import net.corda.core.messaging.startFlow
@@ -46,6 +47,27 @@ class HospitalController(rpc: RPCComponent) {
 
     @Value("\${indy.trustedCredentialsIssuerDID}")
     lateinit var trustedCredentialsIssuerDID: String
+
+    @ApiOperation(position = 0, value = "demo/reset", nickname = "DemoReset", notes = "Resets epic and corda data")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                code = 200,
+                message = "Corda transaction id hash which consumed all states",
+                response = String::class
+            ),
+            ApiResponse(code = 500, message = "Backend returned error", response = String::class)
+        ]
+    )
+    @PostMapping("demo/reset")
+    fun resetDemo(): String {
+        val response = services.startFlow(DemoReset::Hospital).returnValue.getOrThrow(
+            //TODO: understand why it takes so much time at first run
+            Duration.ofSeconds(120)
+        )
+
+        return response.toString()
+    }
 
     @ApiOperation(position = 0, value = "whoami", nickname = "whoami", notes = "Get own node name in X500 format")
     @ApiResponses(
