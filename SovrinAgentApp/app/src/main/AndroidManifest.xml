@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".application.Application"
+        android:name=".application.SovrinAgentApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".ui.activities.SplashActivity"
+            android:name=".views.activities.SplashActivity"
             android:screenOrientation="userPortrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -31,21 +31,21 @@
         </activity>
 
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".views.activities.MainActivity"
             android:screenOrientation="userPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".ui.activities.TrackPackageActivity"
+            android:name=".views.activities.TrackPackageActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".ui.activities.SimpleScannerActivity"
+            android:name=".views.activities.SimpleScannerActivity"
             android:screenOrientation="userPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".ui.activities.AskClaimsActivity"
+            android:name=".views.activities.AskClaimsActivity"
             android:screenOrientation="userPortrait" />
         <activity
-            android:name=".ui.activities.DigitalReceiptActivity"
+            android:name=".views.activities.DigitalReceiptActivity"
             android:screenOrientation="userPortrait"
             android:label="@string/title_digital_receipt"/>
     </application>
