@@ -7,7 +7,7 @@
     android:padding="24dp"
     android:scrollbars="none">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardlist_item"
         style="@style/Card">
 
@@ -51,5 +51,5 @@
                 android:textSize="@dimen/text_title" />
 
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </ScrollView>

@@ -20,11 +20,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.NAME
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
 import com.luxoft.supplychain.sovrinagentapp.views.adapters.ViewPagerAdapter
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class MainActivity : AppCompatActivity() {
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
     private lateinit var ordersFragment: OrdersFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +55,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setupToolbar()
         setupViewPager()
-        setupCollapsingToolbar()
 
         startTimer()
-    }
-
-    private fun setupCollapsingToolbar() {
-        collapse_toolbar.isTitleEnabled = true
     }
 
     private fun setupViewPager() {
@@ -75,17 +71,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        indyUser.walletUser.updateCredentialsInRealm()
+        appState.indyState.indyUser.observeForever { user: IndyUser ->
+            user.walletUser.updateCredentialsInRealm()
+        }
         val nameClaims = realm.where(ClaimAttribute::class.java)
                 .equalTo(FIELD_KEY, NAME)
-                .findAllAsync()  // todo: replace with `findFirstAsync` after you fix realm.delete on each update
+                .findAllAsync()
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-        nameClaims.addChangeListener { claims ->
-            val userName = claims.first()?.value ?: ""
-            supportActionBar?.title = userName
+//        nameClaims.addChangeListener { claims ->
+//            val userName = claims.first()?.value ?: ""
+//            supportActionBar?.title = userName
+//        }
+        appState.user.observe({lifecycle}) { user ->
+            headerTitle.text = user.name ?: ""
         }
     }
 

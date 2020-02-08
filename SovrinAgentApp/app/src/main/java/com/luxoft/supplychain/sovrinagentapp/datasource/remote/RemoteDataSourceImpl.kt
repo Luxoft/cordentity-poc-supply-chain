@@ -1,8 +1,6 @@
 package com.luxoft.supplychain.sovrinagentapp.datasource.remote
 
-import android.content.Context
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
@@ -13,10 +11,8 @@ import com.luxoft.supplychain.sovrinagentapp.application.sharedPreferencesRequst
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.SharedPreferencesStore
-import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
 import com.luxoft.supplychain.sovrinagentapp.data.idatasource.RemoteDataSource
 import io.reactivex.Single
-import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 

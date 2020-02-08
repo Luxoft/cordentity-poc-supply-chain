@@ -16,7 +16,7 @@
 
 package com.luxoft.supplychain.sovrinagentapp.domain.di
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -75,7 +75,8 @@ private val loadFeature by lazy {
             dataSourceModule,
             sharedPreferencesStoreModule,
             applicationsStateModule,
-            agentConnectionModule
+            agentConnectionModule,
+            apiModule
     )
 }
 
@@ -158,32 +159,32 @@ fun indyInitialize() : Boolean {
     }
 }
 
-fun provideWalletAndPool(): Pair<Wallet, Pool> {
-
-    var retry = true
-    var dialog: AlertDialog? = null
-    while (retry) {
-        if (indyInitialize())
-            retry = false
-        else {
-            Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
-                dialog = AlertDialog.Builder(splashScreen)
-                        .setTitle("Indy Pool")
-                        .setMessage("Please check Internet connection and tap RETRY")
-                        .setCancelable(false)
-                        .setPositiveButton("RETRY") { _, _ -> retry = true }
-                        .setNegativeButton("EXIT") { _, _ -> splashScreen.finish(); retry = false }
-                        .create()
-                splashScreen.runOnUiThread {
-                    dialog?.show()
-                }
-            }
-            Thread.sleep(1000)
-            while (dialog == null || dialog!!.isShowing) { Thread.yield() }
-        }
-    }
-    return Pair(wallet, pool)
-}
+//fun provideWalletAndPool(): Pair<Wallet, Pool> {
+//
+//    var retry = true
+//    var dialog: AlertDialog? = null
+//    while (retry) {
+//        if (indyInitialize())
+//            retry = false
+//        else {
+//            Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+//                dialog = AlertDialog.Builder(splashScreen)
+//                        .setTitle("Indy Pool")
+//                        .setMessage("Please check Internet connection and tap RETRY")
+//                        .setCancelable(false)
+//                        .setPositiveButton("RETRY") { _, _ -> retry = true }
+//                        .setNegativeButton("EXIT") { _, _ -> splashScreen.finish(); retry = false }
+//                        .create()
+//                splashScreen.runOnUiThread {
+//                    dialog?.show()
+//                }
+//            }
+//            Thread.sleep(1000)
+//            while (dialog == null || dialog!!.isShowing) { Thread.yield() }
+//        }
+//    }
+//    return Pair(wallet, pool)
+//}
 
 fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     val (wallet, pool) = walletAndPool
@@ -196,17 +197,14 @@ fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
     return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
 }
 
-fun provideApiClient(gson: Gson): SovrinAgentService {
-    val retrofit: Retrofit = Retrofit.Builder()
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .baseUrl(BASE_URL)
-        .build()
-
-    retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
-
-    return retrofit.create(SovrinAgentService::class.java)
+val apiModule: Module = module {
+    single<SovrinAgentService>(createdAtStart = true) {
+        api
+    }
 }
+
+
+val gson = provideGson()
 
 fun provideGson(): Gson {
     return GsonBuilder().setExclusionStrategies(object : ExclusionStrategy {
@@ -218,4 +216,18 @@ fun provideGson(): Gson {
             return false
         }
     }).create()
+}
+
+val api:SovrinAgentService = provideApiClient(gson)
+
+fun provideApiClient(gson: Gson): SovrinAgentService {
+    val retrofit: Retrofit = Retrofit.Builder()
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .baseUrl(BASE_URL)
+            .build()
+
+    retrofit.client().setReadTimeout(1, TimeUnit.MINUTES)
+
+    return retrofit.create(SovrinAgentService::class.java)
 }

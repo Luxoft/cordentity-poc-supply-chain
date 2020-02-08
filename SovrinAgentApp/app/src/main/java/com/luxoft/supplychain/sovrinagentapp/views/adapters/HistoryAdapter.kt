@@ -18,9 +18,6 @@ package com.luxoft.supplychain.sovrinagentapp.views.adapters
 
 import android.content.Context
 import android.content.Intent
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.ContextCompat.startActivity
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.View
@@ -28,6 +25,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+import androidx.recyclerview.widget.RecyclerView
+import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.*
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
@@ -46,18 +47,22 @@ import kotlinx.android.synthetic.main.item_history.view.*
 import kotlinx.android.synthetic.main.item_history_content.view.*
 
 class HistoryAdapter(private val realm: Realm, private val parent: HistoryFragment) : RecyclerView.Adapter<HistoryAdapter.OrderViewHolder>() {
+    lateinit var receiptSerials: Set<Any?>
 
     private fun rescanOrders() : List<Product> {
-        val receiptSerials = parent.indyUser.walletUser.getCredentials()
-            .asSequence()
-            .filter { ref -> ref.getSchemaIdObject().name.contains("package_receipt") }
-            .map { ref -> ref.attributes[EXTRA_SERIAL] }
-            .toSet()
+        parent.appState.indyState.indyUser.observeForever { user: IndyUser ->
+            receiptSerials = user.walletUser.getCredentials()
+                    .asSequence()
+                    .filter { ref -> ref.getSchemaIdObject().name.contains("package_receipt") }
+                    .map { ref -> ref.attributes[EXTRA_SERIAL] }
+                    .toSet()
+
+        }
         return realm.where(Product::class.java)
-            .sort(FIELD_COLLECTED_AT, Sort.DESCENDING)
-            .isNotNull(FIELD_COLLECTED_AT)
-            .findAll()
-            .filter { product -> product.serial in receiptSerials }
+                .sort(FIELD_COLLECTED_AT, Sort.DESCENDING)
+                .isNotNull(FIELD_COLLECTED_AT)
+                .findAll()
+                .filter { product -> product.serial in receiptSerials }
     }
     private var orders: List<Product> = rescanOrders()
 

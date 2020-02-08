@@ -17,10 +17,10 @@
 package com.luxoft.supplychain.sovrinagentapp.views.activities
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.data.Product

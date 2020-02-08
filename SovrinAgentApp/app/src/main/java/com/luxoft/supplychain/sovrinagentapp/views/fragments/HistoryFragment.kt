@@ -17,19 +17,22 @@
 package com.luxoft.supplychain.sovrinagentapp.views.fragments
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.Product
 import com.luxoft.supplychain.sovrinagentapp.views.activities.MainActivity.Companion.showAlertDialog
 import com.luxoft.supplychain.sovrinagentapp.views.adapters.HistoryAdapter
 import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -37,7 +40,7 @@ import rx.schedulers.Schedulers
 class HistoryFragment : Fragment() {
 
     private val api: SovrinAgentService by inject()
-    val indyUser: IndyUser by inject()
+    val appState: ApplicationState by inject()
     private val realm: Realm = Realm.getDefaultInstance()
     private lateinit var recyclerAdapter: HistoryAdapter
 

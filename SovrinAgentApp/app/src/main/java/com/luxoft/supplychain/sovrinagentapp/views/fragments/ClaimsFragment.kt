@@ -17,23 +17,25 @@
 package com.luxoft.supplychain.sovrinagentapp.views.fragments
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.AUTHORITIES
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
 import com.luxoft.supplychain.sovrinagentapp.application.TIME
+import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.views.adapters.ClaimsAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
 import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_claims.*
 import org.koin.android.ext.android.inject
 
 class ClaimsFragment : Fragment() {
@@ -42,7 +44,7 @@ class ClaimsFragment : Fragment() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val realm: Realm = Realm.getDefaultInstance()
-    private val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_claims, container, false)
@@ -76,7 +78,9 @@ class ClaimsFragment : Fragment() {
 
     private fun updateMyClaims() {
         swipeRefreshLayout.isRefreshing = true
-        indyUser.walletUser.updateCredentialsInRealm()
+        appState.indyState.indyUser.observeForever { user: IndyUser ->
+            user.walletUser.updateCredentialsInRealm()
+        }
         swipeRefreshLayout.isRefreshing = false
     }
 }

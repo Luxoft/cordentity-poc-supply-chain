@@ -17,12 +17,13 @@
 package com.luxoft.supplychain.sovrinagentapp.views.fragments
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.communcations.SovrinAgentService
 import com.luxoft.supplychain.sovrinagentapp.data.PackageState
@@ -33,6 +34,7 @@ import com.luxoft.supplychain.sovrinagentapp.views.adapters.OrdersAdapter
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import io.realm.Realm
 import io.realm.RealmResults
+import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
