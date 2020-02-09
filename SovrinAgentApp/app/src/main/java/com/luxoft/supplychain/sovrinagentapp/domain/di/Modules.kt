@@ -16,7 +16,6 @@
 
 package com.luxoft.supplychain.sovrinagentapp.domain.di
 
-import androidx.appcompat.app.AlertDialog
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -41,10 +40,10 @@ import com.luxoft.supplychain.sovrinagentapp.datasource.local.LocalDataSourceImp
 import com.luxoft.supplychain.sovrinagentapp.datasource.remote.RemoteDataSourceImpl
 import com.luxoft.supplychain.sovrinagentapp.domain.irepository.IndyRepository
 import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetCredentialsUseCase
+import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetInviteQRCodeUseCase
 import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetProofRequestUseCase
 import com.luxoft.supplychain.sovrinagentapp.domain.usecase.SendProofUseCase
 import com.luxoft.supplychain.sovrinagentapp.viewmodel.IndyViewModel
-import com.luxoft.supplychain.sovrinagentapp.views.activities.splashScreen
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
 import org.hyperledger.indy.sdk.wallet.Wallet
@@ -56,9 +55,7 @@ import org.koin.dsl.module
 import retrofit.GsonConverterFactory
 import retrofit.Retrofit
 import retrofit.RxJavaCallAdapterFactory
-import rx.Completable
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
 import java.net.InetAddress
@@ -81,13 +78,14 @@ private val loadFeature by lazy {
 }
 
 val viewModelModule: Module = module {
-    viewModel { IndyViewModel(getCredentialsUseCase = get(), getProofRequestUseCase = get(), sendProofUseCase = get()) }
+    viewModel { IndyViewModel(getCredentialsUseCase = get(), getProofRequestUseCase = get(), sendProofUseCase = get(), getInviteQRCodeUseCase = get()) }
 }
 
 val useCaseModule: Module = module {
     factory { GetCredentialsUseCase(indyRepository = get()) }
     factory { GetProofRequestUseCase(indyRepository = get()) }
     factory { SendProofUseCase(indyRepository = get()) }
+    factory { GetInviteQRCodeUseCase(indyRepository = get()) }
 }
 
 val repositoryModule: Module = module {

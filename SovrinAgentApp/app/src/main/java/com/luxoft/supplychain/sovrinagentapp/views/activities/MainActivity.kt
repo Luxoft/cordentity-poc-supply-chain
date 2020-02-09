@@ -18,9 +18,12 @@ package com.luxoft.supplychain.sovrinagentapp.views.activities
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
@@ -28,15 +31,19 @@ import com.luxoft.supplychain.sovrinagentapp.application.NAME
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.ClaimAttribute
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
+import com.luxoft.supplychain.sovrinagentapp.utils.Resource
+import com.luxoft.supplychain.sovrinagentapp.utils.ResourceState
 import com.luxoft.supplychain.sovrinagentapp.views.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.views.fragments.ClaimsFragment
 import com.luxoft.supplychain.sovrinagentapp.views.fragments.HistoryFragment
 import com.luxoft.supplychain.sovrinagentapp.views.fragments.OrdersFragment
 import com.luxoft.supplychain.sovrinagentapp.utils.showNotification
 import com.luxoft.supplychain.sovrinagentapp.utils.updateCredentialsInRealm
+import com.luxoft.supplychain.sovrinagentapp.viewmodel.IndyViewModel
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.viewModel
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -45,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private val realm: Realm = Realm.getDefaultInstance()
     private val appState: ApplicationState by inject()
     private lateinit var ordersFragment: OrdersFragment
+    private val vm: IndyViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 //            val userName = claims.first()?.value ?: ""
 //            supportActionBar?.title = userName
 //        }
-        appState.user.observe({lifecycle}) { user ->
+        appState.user.observe({ lifecycle }) { user ->
             headerTitle.text = user.name ?: ""
         }
     }
@@ -102,10 +110,10 @@ class MainActivity : AppCompatActivity() {
 
         //TODO to toast
         fun showAlertDialog(context: Context, cause: String?, callback: () -> Unit = {}) = AlertDialog.Builder(context)
-            .setTitle("Error")
-            .setMessage(cause)
-            .setCancelable(false)
-            .setPositiveButton("ok") { _, _ -> callback() }.show()
+                .setTitle("Error")
+                .setMessage(cause)
+                .setCancelable(false)
+                .setPositiveButton("ok") { _, _ -> callback() }.show()
     }
 
     var uiHandler: Handler? = null
@@ -133,6 +141,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     private val timeoutTimerTask = object : TimerTask() {
         override fun run() {
             uiHandler!!.post(timeoutRunnable)
@@ -144,4 +153,22 @@ class MainActivity : AppCompatActivity() {
         uiHandler = Handler()
         myTimer.schedule(timeoutTimerTask, 1L * 1000, 1L * 1000)
     }
+
+    fun getQr() {
+        vm.getInviteQRCode()
+        vm.qrCode.observe(this, Observer { updateQRCode(it) })
+    }
+
+    private fun updateQRCode(resource: Resource<Bitmap>?) {
+        resource?.let {
+            when (it.state) {
+                ResourceState.LOADING -> {
+                    Toast.makeText(this, "Creating invite QR code", Toast.LENGTH_LONG)
+                }
+                ResourceState.SUCCESS -> Toast.makeText(this, "QR code is created", Toast.LENGTH_LONG)
+                ResourceState.ERROR -> Toast.makeText(this, "Get Claims Error: ${it.message}", Toast.LENGTH_LONG)
+            }
+        }
+    }
+
 }

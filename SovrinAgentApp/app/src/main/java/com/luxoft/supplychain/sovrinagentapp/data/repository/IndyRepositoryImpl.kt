@@ -1,5 +1,6 @@
 package com.luxoft.supplychain.sovrinagentapp.data.repository
 
+import android.graphics.Bitmap
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.supplychain.sovrinagentapp.data.idatasource.LocalDataSource
 import com.luxoft.supplychain.sovrinagentapp.data.idatasource.RemoteDataSource
@@ -8,7 +9,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class IndyRepositoryImpl constructor(private val localDataSource: LocalDataSource, private val remoteDataSource: RemoteDataSource) : IndyRepository {
-
     override fun getCredentials(url: String): Single<String> =
             remoteDataSource.getCredentials(url)
 
@@ -21,4 +21,6 @@ class IndyRepositoryImpl constructor(private val localDataSource: LocalDataSourc
     override fun sendProof(proofRequest: ProofRequest): Single<String> =
             remoteDataSource.sendProof(proofRequest)
 
+    override fun getInviteQRCode(): Single<Bitmap> =
+            remoteDataSource.getInviteQRCode()
 }

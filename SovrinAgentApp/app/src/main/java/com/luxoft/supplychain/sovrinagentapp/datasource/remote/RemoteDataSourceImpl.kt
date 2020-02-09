@@ -1,5 +1,6 @@
 package com.luxoft.supplychain.sovrinagentapp.datasource.remote
 
+import android.graphics.Bitmap
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
@@ -15,6 +16,11 @@ import com.luxoft.supplychain.sovrinagentapp.data.idatasource.RemoteDataSource
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.journeyapps.barcodescanner.BarcodeEncoder
+
 
 class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnection, private val applicationState: ApplicationState, private val sharedPreferencesStore: SharedPreferencesStore)
     : RemoteDataSource {
@@ -72,6 +78,7 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
         }
     }
 
+    //use for buyer wallet app role
     override fun receiveProofRequest(url: String): Single<ProofRequest> {
         return Single.create<ProofRequest> { s ->
             run {
@@ -88,6 +95,7 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
         }
     }
 
+    //use for buyer wallet app role
     override fun sendProof(proofRequest: ProofRequest): Single<String> {
         return Single.create<String> { s ->
             run {
@@ -108,4 +116,21 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
         }
     }
 
+    //use for kiosk verifier app role
+    override fun getInviteQRCode(): Single<Bitmap> {
+        return Single.create<Bitmap> { bitmap ->
+            run {
+                val inviteUrl: String = agentConnection.generateInvite().toBlocking().value();
+                val multiFormatWriter = MultiFormatWriter()
+                try {
+                    val bitMatrix = multiFormatWriter.encode(inviteUrl, BarcodeFormat.QR_CODE, 200, 200)
+                    val barcodeEncoder = BarcodeEncoder()
+                    bitmap.onSuccess(barcodeEncoder.createBitmap(bitMatrix))
+                } catch (e: WriterException) {
+                    e.printStackTrace()
+                    bitmap.onError(e)
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.luxoft.supplychain.sovrinagentapp.domain.irepository
 
+import android.graphics.Bitmap
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -10,5 +11,5 @@ interface IndyRepository {
     fun sendProofOnRequest(url: String): Single<String>
     fun receiveProofRequest(url: String): Single<ProofRequest>
     fun sendProof(proofRequest: ProofRequest): Single<String>
-
+    fun getInviteQRCode(): Single<Bitmap>
 }
