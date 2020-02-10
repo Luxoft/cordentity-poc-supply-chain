@@ -29,6 +29,7 @@ data class AuthResponse(
 enum class AuthState {
     INVITED,
     CONNECTED,
+    VERIFIED,
     FAILED,
     SUCCESS
 }

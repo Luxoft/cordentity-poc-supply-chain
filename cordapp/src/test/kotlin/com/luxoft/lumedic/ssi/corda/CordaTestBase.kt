@@ -78,6 +78,7 @@ open class CordaTestBase {
             ).map {
                 it.withConfig(
                     mapOf(
+                        "EpicSubscriptionKey" to "123",
                         "EpicBackend" to "http://localhost:8082"
                     )
                 )
