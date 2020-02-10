@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
@@ -43,6 +44,7 @@ import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.io.IOException
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -136,53 +138,59 @@ class SimpleScannerActivity : AppCompatActivity() {
                     PackageState.NEW.name -> {
                         setStatusName(R.string.state_new)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
-                            try {
+                            val partyConnection: IndyPartyConnection = try {
                                 publishProgress(R.string.progress_accept_invite)
-                                agentConnection.acceptInvite(result).toBlocking().value().apply {
-                                    publishProgress(R.string.progress_waiting_for_authentication)
-                                    val proofRequest = receiveProofRequest().toBlocking().value()
-                                    publishProgress(R.string.progress_providing_credential_proofs)
-                                    val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
-                                    val requestedDataStr = requestedData.joinToString(separator = ", ")
+                                agentConnection.acceptInvite(result).toBlocking().value()
+                            } catch (error: Throwable) {
+                                notifyErrorAndFinish(error, "This is QR code does not contain an Indy invite!",
+                                    "Please make sure to scan an appropriate QR code")
+                                return@subscribe
+                            }
 
-                                    getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataStr).apply()
-                                    Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
-                                        val verifier = verifierInfoFromDid(partyDID())
+                            try {
+                                publishProgress(R.string.progress_waiting_for_authentication)
+                                val proofRequest = partyConnection.receiveProofRequest().toBlocking().value()
+                                publishProgress(R.string.progress_providing_credential_proofs)
+                                val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+                                val requestedDataStr = requestedData.joinToString(separator = ", ")
 
-                                        val bodyMessage = formatPopupMessage(verifier, requestedData, appState.walletCredentials.value)
+                                getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataStr).apply()
+                                Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+                                    val verifier = verifierInfoFromDid(partyConnection.partyDID())
 
-                                        val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
-                                            .setTitle("Claims Requested")
-                                            .setMessage(bodyMessage)
-                                            .setCancelable(false)
-                                            .setPositiveButton("ALLOW") { _, _ ->
-                                                Completable.complete().observeOn(Schedulers.io()).subscribe {
+                                    val bodyMessage = formatPopupMessage(verifier, requestedData, appState.walletCredentials.value)
 
-                                                    publishProgress(R.string.progress_providing_authentication_proofs)
-                                                    val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
-                                                    val connection = agentConnection.getIndyPartyConnection(verifier.did).toBlocking().value()
-                                                            ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
-                                                    connection.sendProof(proofFromLedgerData)
+                                    val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
+                                        .setTitle("Claims Requested")
+                                        .setMessage(bodyMessage)
+                                        .setCancelable(false)
+                                        .setPositiveButton("ALLOW") { _, _ ->
+                                            Completable.complete().observeOn(Schedulers.io()).subscribe {
 
-                                                    val event = VerificationEvent(
-                                                            Instant.now(),
-                                                            proofFromLedgerData,
-                                                            proofRequest,
-                                                            requestedData,
-                                                            verifier)
+                                                publishProgress(R.string.progress_providing_authentication_proofs)
+                                                val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
+                                                val connection = agentConnection.getIndyPartyConnection(verifier.did).toBlocking().value()
+                                                    ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
+                                                connection.sendProof(proofFromLedgerData)
 
-                                                    appState.storeVerificationEvent(event)
+                                                val event = VerificationEvent(
+                                                    Instant.now(),
+                                                    proofFromLedgerData,
+                                                    proofRequest,
+                                                    requestedData,
+                                                    verifier)
 
-                                                    this@SimpleScannerActivity.finish()
-                                                }
+                                                appState.storeVerificationEvent(event)
+
+                                                this@SimpleScannerActivity.finish()
                                             }
-                                            .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
-                                            .create()
-                                        showDialog(dialog)
-                                    }
+                                        }
+                                        .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
+                                        .create()
+                                    showDialog(dialog)
                                 }
                             } catch (er: Exception) {
-                                notifyAndFinish("New Package Error: ${er.message}")
+                                notifyErrorAndFinish(er, "Failed to Authenticate", "Please check that servers are OK")
                             }
                         }
                     }
