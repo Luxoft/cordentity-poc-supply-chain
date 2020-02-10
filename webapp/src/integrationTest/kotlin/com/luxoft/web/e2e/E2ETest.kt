@@ -18,16 +18,8 @@ package com.luxoft.web.e2e
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
-import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
-import com.luxoft.blockchainlab.hyperledger.indy.SsiUser
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.GenesisHelper
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.PoolHelper
-import com.luxoft.blockchainlab.hyperledger.indy.helpers.WalletHelper
-import com.luxoft.blockchainlab.hyperledger.indy.ledger.IndyPoolLedgerUser
-import com.luxoft.blockchainlab.hyperledger.indy.wallet.IndySDKWalletUser
+import com.luxoft.blockchainlab.corda.hyperledger.indy.service.IndyPartyConnectionMock
 import com.luxoft.web.clients.HospitalClient
-import org.apache.commons.io.FileUtils
-import org.hyperledger.indy.sdk.pool.Pool
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,8 +32,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import rx.Single
-import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
@@ -80,31 +70,7 @@ abstract class E2ETest {
         }
 
         @Bean
-        fun ssiUser(): SsiUser {
-            val pool: Pool
-            val poolName: String = "test-pool-${Math.abs(Random().nextInt())}"
-            val tmpTestWalletId = "tmpTestWallet${Math.abs(Random().nextInt())}"
-
-            val genesisFile = File("../devops/profile/develop/genesis/indy_pool_lumedic.txn")
-            if (!GenesisHelper.exists(genesisFile))
-                throw RuntimeException("Genesis file ${genesisFile.absolutePath} doesn't exist")
-
-            PoolHelper.createOrTrunc(genesisFile, poolName)
-            pool = PoolHelper.openExisting(poolName)
-
-            //creating user wallet with credentials required by logic
-            File(this.javaClass.classLoader.getResource("testUserWallet.db").file)
-                .copyTo(File("${FileUtils.getUserDirectory()}/.indy_client/wallet/$tmpTestWalletId/sqlite.db"))
-                .apply {
-                    Runtime.getRuntime().addShutdownHook(Thread { FileUtils.deleteQuietly(parentFile) })
-                }
-
-            val wallet = WalletHelper.openExisting(tmpTestWalletId, "password")
-
-            val walletUser = IndySDKWalletUser(wallet)
-            val ledgerUser = IndyPoolLedgerUser(pool, walletUser.getIdentityDetails().did) { walletUser.sign(it) }
-            return IndyUser.with(walletUser).with(ledgerUser).build()
-        }
+        fun ssiUser() = IndyPartyConnectionMock.ssiTestUser()
     }
 
     @Autowired

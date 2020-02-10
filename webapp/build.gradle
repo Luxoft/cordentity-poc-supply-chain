@@ -96,4 +96,5 @@ dependencies {
 
   integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
   integrationTestImplementation 'org.springframework.boot:spring-boot-test'
+  integrationTestImplementation project(':cordapp').sourceSets.test.output
 }
