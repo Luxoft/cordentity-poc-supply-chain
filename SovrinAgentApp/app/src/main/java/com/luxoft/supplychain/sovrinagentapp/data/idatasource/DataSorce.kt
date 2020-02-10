@@ -16,4 +16,6 @@ interface RemoteDataSource {
     fun receiveProofRequest(url: String): Single<ProofRequest>
     fun sendProof(proofRequest: ProofRequest): Single<String>
     fun getInviteQRCode(): Single<Bitmap>
+    fun waitForInvitedParty(timeout : Long): Single<IndyPartyConnection>
+    fun sendProofRequestReceiveAndVerify(indyPartyConnection: IndyPartyConnection?): Single<Boolean>
 }

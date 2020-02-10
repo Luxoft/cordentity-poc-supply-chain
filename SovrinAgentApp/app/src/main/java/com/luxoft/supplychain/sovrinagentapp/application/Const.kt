@@ -33,6 +33,9 @@ const val sharedPreferencesRequstedDataKey = "REQUESTED_DATA_KEY"
 const val sharedPreferencesLastConnectionDiDName = "LAST_CONNECTION_DID_SP"
 const val sharedPreferencesLastConnectionDiDKey = "LAST_CONNECTION_DID_KEY"
 
+const val sharedPreferencesLastInviteUrlName = "LAST_INVITE_URL"
+const val sharedPreferencesLastInviteUrlKey = "LAST_INVITE_URL_KEY"
+
 const val BASE_URL = "http://localhost:8082"
 
 const val FIELD_KEY = "key"

@@ -96,7 +96,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                     publishProgress(R.string.progress_accept_invite)
                 }
                 ResourceState.SUCCESS -> if (it.data.equals("completed")) notifyAndFinish(R.string.progress_state_get_proofs_finished) else it.data?.let { it1 -> publishProgress(it1) }
-                ResourceState.ERROR -> notifyAndFinish("Get Claims Error: ${it.message}")
+                ResourceState.ERROR -> notifyAndFinish("Get credential Error: ${it.message}")
             }
         }
     }

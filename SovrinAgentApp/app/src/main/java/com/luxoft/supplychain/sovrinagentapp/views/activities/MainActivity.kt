@@ -24,6 +24,7 @@ import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.FIELD_KEY
@@ -165,8 +166,51 @@ class MainActivity : AppCompatActivity() {
                 ResourceState.LOADING -> {
                     Toast.makeText(this, "Creating invite QR code", Toast.LENGTH_LONG)
                 }
-                ResourceState.SUCCESS -> Toast.makeText(this, "QR code is created", Toast.LENGTH_LONG)
+                ResourceState.SUCCESS -> {
+                    Toast.makeText(this, "QR code is created", Toast.LENGTH_LONG)
+                    showQR(it.data)
+                }
                 ResourceState.ERROR -> Toast.makeText(this, "Get Claims Error: ${it.message}", Toast.LENGTH_LONG)
+            }
+        }
+    }
+
+    private fun showQR(bitmap: Bitmap?) {
+        //imageViewQR.setImageBitmap(bitmap)
+        vm.waitForInvitedParty(30000L)
+        vm.indyPartyConnection.observe(this, Observer{updateIndyPartyConnection(it)})
+    }
+
+    private fun updateIndyPartyConnection(resource: Resource<IndyPartyConnection>?) {
+        resource?.let {
+            when (it.state) {
+                ResourceState.LOADING -> {
+                    Toast.makeText(this, "Waiting for Indy Party Connection", Toast.LENGTH_LONG)
+                }
+                ResourceState.SUCCESS -> {
+                    Toast.makeText(this, "Connection is created", Toast.LENGTH_LONG)
+                    sendProofRequestReceiveAndVerify(it.data)
+                }
+                ResourceState.ERROR -> Toast.makeText(this, "Connection Error: ${it.message}", Toast.LENGTH_LONG)
+            }
+        }
+    }
+
+    private fun sendProofRequestReceiveAndVerify(indyPartyConnection: IndyPartyConnection?) {
+        indyPartyConnection?.let { vm.sendProofRequestReceiveAndVerify(it) }
+        vm.verified.observe(this, Observer{updateVerified(it)})
+    }
+
+    private fun updateVerified(resource: Resource<Boolean>?) {
+        resource?.let {
+            when (it.state) {
+                ResourceState.LOADING -> {
+                    Toast.makeText(this, "Verifying proof request", Toast.LENGTH_LONG)
+                }
+                ResourceState.SUCCESS -> {
+                    Toast.makeText(this, "Verified", Toast.LENGTH_LONG)
+                }
+                ResourceState.ERROR -> Toast.makeText(this, "Verifying Error: ${it.message}", Toast.LENGTH_LONG)
             }
         }
     }

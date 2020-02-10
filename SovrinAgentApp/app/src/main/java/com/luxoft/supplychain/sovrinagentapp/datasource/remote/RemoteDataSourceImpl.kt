@@ -5,10 +5,6 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
-import com.luxoft.supplychain.sovrinagentapp.application.sharedPreferencesLastConnectionDiDKey
-import com.luxoft.supplychain.sovrinagentapp.application.sharedPreferencesLastConnectionDiDName
-import com.luxoft.supplychain.sovrinagentapp.application.sharedPreferencesRequstedDataKey
-import com.luxoft.supplychain.sovrinagentapp.application.sharedPreferencesRequstedDataName
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
 import com.luxoft.supplychain.sovrinagentapp.data.SharedPreferencesStore
@@ -20,6 +16,8 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
+import com.luxoft.supplychain.sovrinagentapp.application.*
 
 
 class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnection, private val applicationState: ApplicationState, private val sharedPreferencesStore: SharedPreferencesStore)
@@ -121,6 +119,7 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
         return Single.create<Bitmap> { bitmap ->
             run {
                 val inviteUrl: String = agentConnection.generateInvite().toBlocking().value();
+                sharedPreferencesStore.writeString(sharedPreferencesLastInviteUrlName, sharedPreferencesLastInviteUrlKey, inviteUrl)
                 val multiFormatWriter = MultiFormatWriter()
                 try {
                     val bitMatrix = multiFormatWriter.encode(inviteUrl, BarcodeFormat.QR_CODE, 200, 200)
@@ -133,4 +132,42 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
             }
         }
     }
+
+    //use for kiosk verifier app role
+    override fun waitForInvitedParty(timeout: Long): Single<IndyPartyConnection> {
+        return Single.create<IndyPartyConnection> { connection ->
+            run {
+                try {
+                    connection.onSuccess(agentConnection.waitForInvitedParty(sharedPreferencesStore.readString(sharedPreferencesLastInviteUrlName, sharedPreferencesLastInviteUrlKey)!!, timeout).toBlocking().value())
+                } catch (e: Exception) {
+                    connection.onError(e)
+                }
+            }
+        }
+    }
+
+    //use for kiosk verifier app role
+    override fun sendProofRequestReceiveAndVerify(indyPartyConnection: IndyPartyConnection?): Single<Boolean> {
+        return Single.create<Boolean> { boolean ->
+            run {
+                try {
+                    val proofRequest: ProofRequest = createProofRequest()
+                    indyPartyConnection!!.sendProofRequest(proofRequest).apply {
+                        indyPartyConnection.receiveProof().toBlocking().value().apply {
+                            val verified: Boolean = applicationState.indyState.indyUser.value!!.verifyProofWithLedgerData(proofRequest, this)
+                            boolean.onSuccess(verified)
+                        }
+                    }
+                } catch (e: Exception) {
+                    boolean.onError(e)
+                }
+            }
+        }
+
+    }
+
+    private fun createProofRequest(): ProofRequest {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

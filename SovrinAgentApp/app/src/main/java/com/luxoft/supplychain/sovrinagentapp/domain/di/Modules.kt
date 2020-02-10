@@ -39,10 +39,7 @@ import com.luxoft.supplychain.sovrinagentapp.data.repository.IndyRepositoryImpl
 import com.luxoft.supplychain.sovrinagentapp.datasource.local.LocalDataSourceImpl
 import com.luxoft.supplychain.sovrinagentapp.datasource.remote.RemoteDataSourceImpl
 import com.luxoft.supplychain.sovrinagentapp.domain.irepository.IndyRepository
-import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetCredentialsUseCase
-import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetInviteQRCodeUseCase
-import com.luxoft.supplychain.sovrinagentapp.domain.usecase.GetProofRequestUseCase
-import com.luxoft.supplychain.sovrinagentapp.domain.usecase.SendProofUseCase
+import com.luxoft.supplychain.sovrinagentapp.domain.usecase.*
 import com.luxoft.supplychain.sovrinagentapp.viewmodel.IndyViewModel
 import io.realm.RealmObject
 import org.hyperledger.indy.sdk.pool.Pool
@@ -78,7 +75,8 @@ private val loadFeature by lazy {
 }
 
 val viewModelModule: Module = module {
-    viewModel { IndyViewModel(getCredentialsUseCase = get(), getProofRequestUseCase = get(), sendProofUseCase = get(), getInviteQRCodeUseCase = get()) }
+    viewModel { IndyViewModel(getCredentialsUseCase = get(), getProofRequestUseCase = get(), sendProofUseCase = get(), getInviteQRCodeUseCase = get(), waitForInvitedPartyUseCase = get(),
+            sendProofRequestReceiveVerifyUseCase = get()) }
 }
 
 val useCaseModule: Module = module {
@@ -86,6 +84,8 @@ val useCaseModule: Module = module {
     factory { GetProofRequestUseCase(indyRepository = get()) }
     factory { SendProofUseCase(indyRepository = get()) }
     factory { GetInviteQRCodeUseCase(indyRepository = get()) }
+    factory { WaitForInvitedPartyUseCase(indyRepository = get()) }
+    factory { SendProofRequestReceiveVerifyUseCase(indyRepository = get()) }
 }
 
 val repositoryModule: Module = module {
