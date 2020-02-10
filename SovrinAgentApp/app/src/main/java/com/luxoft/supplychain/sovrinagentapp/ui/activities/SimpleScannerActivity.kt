@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
@@ -88,9 +89,22 @@ class SimpleScannerActivity : AppCompatActivity() {
                     PackageState.GETPROOFS.name -> {
                         setStatusName(R.string.state_get_proofs)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
+                            val parsedInvite = try {
+                                publishProgress(R.string.progress_parse_qr_code)
+                                SerializationUtils.jSONToAny<Invite>(result)
+                            } catch (error: JsonMappingException) {
+                                notifyErrorAndFinish(error, "This is NOT a new Credential QR code!",
+                                    "Please make sure to scan an appropriate QR code")
+                                return@subscribe
+                            }catch (error: Throwable) {
+                                notifyErrorAndFinish(error, "Failed to process QR code for a new Credential.",
+                                    "Please try refreshing the website.")
+                                return@subscribe
+                            }
+
                             try {
                                 publishProgress(R.string.progress_accept_invite)
-                                agentConnection.acceptInvite(SerializationUtils.jSONToAny<Invite>(result).invite).toBlocking().value().apply {
+                                agentConnection.acceptInvite(parsedInvite.invite).toBlocking().value().apply {
                                     publishProgress(R.string.progress_receiving_credential)
                                     do {
                                         val credOffer = try {
@@ -114,7 +128,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     notifyAndFinish(R.string.progress_state_get_proofs_finished)
                                 }
                             } catch (er: Exception) {
-                                notifyAndFinish("Get Claims Error: ${er.message}")
+                                notifyErrorAndFinish(er, "Failed to receive a new Credential", "Please check that servers are OK")
                             }
                         }
                     }
@@ -197,6 +211,17 @@ class SimpleScannerActivity : AppCompatActivity() {
     private fun notifyAndFinish(text: String) {
         runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_LONG).show() }
         finish()
+    }
+
+    private fun notifyErrorAndFinish(error: Throwable,
+                                     description: String,
+                                     message: String) {
+        notifyAndFinish("""
+            |$description 
+            |$message
+            |
+            |$error
+            """.trimMargin())
     }
     private fun showDialog(dialog: AlertDialog) {
         runOnUiThread { dialog.show() }
