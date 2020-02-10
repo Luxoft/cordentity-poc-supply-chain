@@ -15,6 +15,7 @@ buildscript {
   ext.junit_version = '4.12'
   ext.assertj_version = '3.10.0'
   ext.slf4j_version = '1.7.26'
+  ext.mockito_version = '3.2.4'
 
   repositories {
     mavenLocal()
@@ -36,7 +37,6 @@ allprojects {
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     maven { url 'https://repo.sovrin.org/repository/maven-releases' }
     maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.sovrin.org/repository/maven-releases' }
   }
 }
 
