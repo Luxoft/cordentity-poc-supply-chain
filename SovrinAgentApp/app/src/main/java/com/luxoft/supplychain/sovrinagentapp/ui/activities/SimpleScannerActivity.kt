@@ -94,7 +94,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                 publishProgress(R.string.progress_parse_qr_code)
                                 SerializationUtils.jSONToAny<Invite>(result)
                             } catch (error: JsonMappingException) {
-                                notifyErrorAndFinish(error, "This is NOT a new Credential QR code!",
+                                notifyErrorAndFinish(error, "This QR code does not contain a Credential.",
                                     "Please make sure to scan an appropriate QR code")
                                 return@subscribe
                             } catch (error: Throwable) {
@@ -141,7 +141,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                 publishProgress(R.string.progress_accept_invite)
                                 agentConnection.acceptInvite(result).toBlocking().value()
                             } catch (error: Throwable) {
-                                notifyErrorAndFinish(error, "This is QR code does not contain an Indy invite!",
+                                notifyErrorAndFinish(error, "This QR code does not contain an Indy Invite.",
                                     "Please make sure to scan an appropriate QR code")
                                 return@subscribe
                             }
@@ -302,7 +302,8 @@ class SimpleScannerActivity : AppCompatActivity() {
             |$description 
             |$message
             |
-            |$error
+            |${error.javaClass.simpleName}
+            |${error.message?.abbreviate(200) ?: ""}
             """.trimMargin())
     }
     private fun showDialog(dialog: AlertDialog) {
@@ -329,9 +330,6 @@ class SimpleScannerActivity : AppCompatActivity() {
         val knownAttributeKeys = creds.flatMap { it.attributes.keys }.map { it.toLowerCase()}.toSet()
         return requestedAttributeKeys.all { it.toLowerCase() in knownAttributeKeys }
     }
-
-    private fun Iterable<String>.formatAsVerticalList(): String =
-        joinToString(separator = "\n  - ", prefix = "  - ")
 }
 
 /**
@@ -342,4 +340,11 @@ fun <T> List<T>.joinToStringPrettyAnd(): String = when(size) {
     1 -> first().toString()
     else -> this.dropLast(1).joinToString(separator = ", ") + " and " + this.last().toString()
 }
+
+/**
+ * Joins a list of elements in a `-` separated vertical item list
+ * */
+fun <T> Iterable<T>.formatAsVerticalList(): String =
+    this.map { e -> "  - $e"}
+    .joinToString(separator = "\n")
 
