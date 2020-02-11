@@ -143,10 +143,9 @@ class AuthPatient {
                 progressTracker.currentStep = VERIFY_CREDS
                 checkPermissions(authResponse.requestId, credentialsIssuerDid, patientDid)
                 authProcessStateAndRef =
-                    setAuthState(authProcessStateAndRef, AuthState.SUCCESS, ToDoContract.Commands.Do())
+                    setAuthState(authProcessStateAndRef, AuthState.VERIFIED, ToDoContract.Commands.Do())
 
                 progressTracker.currentStep = UPDATE_EPIC
-
                 val credentialProof = builder {
                     val idQueryCriteria = QueryCriteria.VaultCustomQueryCriteria(
                         CredentialProofSchemaV1.PersistentProof::id.equal(authResponse.requestId)
@@ -155,6 +154,8 @@ class AuthPatient {
                 }.states.single().state.data.proof
 
                 epicCommunicationService().submitInsurancePost(credentialProof)
+                authProcessStateAndRef =
+                    setAuthState(authProcessStateAndRef, AuthState.SUCCESS, ToDoContract.Commands.Do())
             } catch (e: Exception) {
                 logger.error("Error in ${this.javaClass.canonicalName}", e)
                 setAuthState(authProcessStateAndRef, AuthState.FAILED, ToDoContract.Commands.Do())

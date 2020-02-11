@@ -43,6 +43,7 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.ENGLISH).withZone(ZoneOffset.UTC)
 
     private val epicEndpoint = serviceHub.getAppContext().config.getString("EpicBackend")
+    private val epicKey = serviceHub.getAppContext().config.getString("EpicSubscriptionKey")
 
     fun submitInsurancePost(credentialProof: ProofInfo) {
         val body = SubmitInsurancePost(
@@ -59,8 +60,9 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
         val bodyJson = mapper.writeValueAsString(body)
         val request =
             Request.Builder()
-                .url("$epicEndpoint/Interconnect-WMLAB/api/epic/2018/PatientAccess/External/SubmitInsurance/Billing2018/SubmitInsurance")
+                .url("$epicEndpoint/api/did/epic")
                 .post(RequestBody.create(JSON, bodyJson))
+                .addHeader("Ocp-Apim-Subscription-Key", epicKey)
                 .build()
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful()) {
@@ -81,19 +83,19 @@ data class SubmitInsurancePost(
     val Patient: PatientData = PatientData()
 ) {
     data class PatientData(
-        val ID: String = "Z2743",
-        val Type: String = "EXTERNAL"
+        val ID: String = "MockPatientID",
+        val Type: String = "MockType"
     )
 
     data class InsuranceData(
         val GroupNumber: String,
         val InsuranceName: String,
         val MemberNumber: String,
-        val PayorID: String? = null,
+        val PayorID: String = "MockPayorID",
         val PayorIDType: String = "INTERNAL",
         val RelationshipToSubscriber: String = "01",
         val SubscriberDateOfBirth: String,
-        val SubscriberID: String = UUID.randomUUID().toString(),
+        val SubscriberID: String = Date().time.toString(),
         val SubscriberName: String
     )
 }
