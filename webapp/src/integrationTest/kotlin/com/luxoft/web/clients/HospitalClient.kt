@@ -29,11 +29,13 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 enum class TreatmentCenterEndpoint(val url: String) {
     AUTH("/api/hospital/auth"),
+    RESET("/api/hospital/demo/reset"),
 }
 
 @Component
@@ -56,7 +58,7 @@ class HospitalClient {
 
     @PostConstruct
     fun init() {
-        restTemplate = restTemplateBuilder.rootUri(endpoint).build()
+        restTemplate = restTemplateBuilder.setReadTimeout(Duration.ofSeconds(60)).rootUri(endpoint).build()
     }
 
     fun getRequestState(requestId: String): AuthState =
@@ -65,6 +67,9 @@ class HospitalClient {
 
     fun postAuthRequest(): AuthResponse =
         restTemplate.postForObject(TreatmentCenterEndpoint.AUTH.url) ?: throw RuntimeException("Failed to get invite")
+
+    fun postReset(): String =
+        restTemplate.postForObject(TreatmentCenterEndpoint.RESET.url) ?: throw RuntimeException("Failed to get invite")
 
     fun authPatientFlow() {
         val authResponse = postAuthRequest()
@@ -91,5 +96,10 @@ class HospitalClient {
 
             authProcessState == AuthState.SUCCESS
         }
+    }
+
+    fun demoReset() {
+        val postReset = postReset()
+        assert(postReset.isNotBlank())
     }
 }

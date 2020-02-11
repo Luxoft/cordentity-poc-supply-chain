@@ -78,7 +78,10 @@ abstract class E2ETest {
 
     @Test
     fun mainFlow() {
-        hospitalClient.authPatientFlow()
+        repeat(2) {
+            hospitalClient.authPatientFlow()
+            hospitalClient.demoReset()
+        }
     }
 }
 
