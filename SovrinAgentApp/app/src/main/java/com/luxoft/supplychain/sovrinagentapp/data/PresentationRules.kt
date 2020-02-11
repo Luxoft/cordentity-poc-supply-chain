@@ -1,6 +1,7 @@
 package com.luxoft.supplychain.sovrinagentapp.data
 
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
+import com.luxoft.supplychain.sovrinagentapp.utils.abbreviate
 import java.lang.Integer.min
 import java.text.DateFormat
 import java.util.*
@@ -67,10 +68,3 @@ class CredentialAttributePresentationRules() {
 
 }
 
-fun String.abbreviate(maxWidth: Int, ending: String = "..."): String {
-    return when {
-        length <= maxWidth -> return this
-        maxWidth < ending.length -> "?"
-        else -> this.take(maxWidth - ending.length).trimEnd() + ending
-    }
-}

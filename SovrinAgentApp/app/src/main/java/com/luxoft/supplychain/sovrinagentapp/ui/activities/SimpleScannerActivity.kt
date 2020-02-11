@@ -37,6 +37,9 @@ import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
 import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
 import com.luxoft.supplychain.sovrinagentapp.data.*
+import com.luxoft.supplychain.sovrinagentapp.utils.abbreviate
+import com.luxoft.supplychain.sovrinagentapp.utils.formatAsVerticalList
+import com.luxoft.supplychain.sovrinagentapp.utils.joinToStringPrettyAnd
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
 import org.koin.android.ext.android.get
@@ -331,20 +334,4 @@ class SimpleScannerActivity : AppCompatActivity() {
         return requestedAttributeKeys.all { it.toLowerCase() in knownAttributeKeys }
     }
 }
-
-/**
- * Joins a list to string: "el1, el2, el3 and el4"
-* */
-fun <T> List<T>.joinToStringPrettyAnd(): String = when(size) {
-    0 -> ""
-    1 -> first().toString()
-    else -> this.dropLast(1).joinToString(separator = ", ") + " and " + this.last().toString()
-}
-
-/**
- * Joins a list of elements in a `-` separated vertical item list
- * */
-fun <T> Iterable<T>.formatAsVerticalList(): String =
-    this.map { e -> "  - $e"}
-    .joinToString(separator = "\n")
 
