@@ -68,7 +68,7 @@
     dest: "{{ ansible_env.HOME}}/devops/mockServer.json"
 
 - name: Start agents
-  command: docker-compose up -d agent94 agent95
+  command: docker-compose up -d agent94 agent95 agent96
 
 - name: Start Corda
   command: docker-compose up -d notary

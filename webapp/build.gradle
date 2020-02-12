@@ -44,7 +44,7 @@ sourceSets {
 }
 
 configurations {
-  integrationTestCompile.extendsFrom testCompile
+  integrationTestImplementation.extendsFrom testImplementation
   integrationTestRuntime.extendsFrom testRuntime
 }
 
@@ -79,11 +79,11 @@ dependencies {
   implementation project(':cordapp')
 
   // app specific deps
-  implementation 'com.corundumstudio.socketio:netty-socketio:1.7.13'
+  implementation "com.corundumstudio.socketio:netty-socketio:$socketio_version"
 
   //TODO: java.lang.ClassNotFoundException: javax.json.JsonValue fix
-  implementation("org.apache.activemq:artemis-core-client:2.2.0") { force = true }
-  implementation("org.apache.activemq:artemis-commons:2.2.0") { force = true }
+  implementation("org.apache.activemq:artemis-core-client:$activemq_artemis_version") { force = true }
+  implementation("org.apache.activemq:artemis-commons:$activemq_artemis_version") { force = true }
   implementation "javax.json:javax.json-api"
 
   //Swagger
@@ -93,6 +93,8 @@ dependencies {
   // Spring Boot
   implementation 'org.springframework.boot:spring-boot-starter'
   implementation 'org.springframework.boot:spring-boot-starter-web'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.springframework.boot:spring-boot-test'
+
+  integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
+  integrationTestImplementation 'org.springframework.boot:spring-boot-test'
+  integrationTestImplementation project(':cordapp').sourceSets.test.output
 }

@@ -1,7 +1,7 @@
 {
   "httpRequest": {
     "method": "POST",
-    "path": "/Interconnect-WMLAB/api/epic/2018/PatientAccess/External/SubmitInsurance/Billing2018/SubmitInsurance"
+    "path": "/api/did/epic"
   },
   "httpResponse": {
     "statusCode": 200,
