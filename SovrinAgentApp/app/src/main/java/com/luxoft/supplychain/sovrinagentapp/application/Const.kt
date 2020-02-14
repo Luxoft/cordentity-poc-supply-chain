@@ -9,8 +9,8 @@ const val TIME = "time"
 const val NOTIFICATION_CHANNEL_ID = "10001"
 const val NOTIFICATION_CHANNEL_NAME = "INDY_NOTIFICATION_CHANNEL"
 
-const val GENESIS_PATH = "/sdcard/docker.txn"
-const val TAILS_PATH = "/sdcard/tails"
+const val GENESIS_PATH = "./docker.txn"
+const val TAILS_PATH = "./tails"
 
 //const val nodeIp = """52.15.95.244"""  // amazon
 //const val GENESIS_IP = """52.15.95.244"""  // azure

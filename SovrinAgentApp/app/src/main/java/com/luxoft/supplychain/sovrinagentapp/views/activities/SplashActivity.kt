@@ -23,6 +23,7 @@ class SplashActivity : AppCompatActivity() {
     private val permissionRequestCode = 101
 
     private val indyUser: IndyUser by inject()
+    private val appState: ApplicationState by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

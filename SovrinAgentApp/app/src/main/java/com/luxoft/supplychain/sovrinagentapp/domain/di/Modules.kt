@@ -16,6 +16,7 @@
 
 package com.luxoft.supplychain.sovrinagentapp.domain.di
 
+import android.os.Environment
 import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import com.google.gson.Gson
@@ -109,10 +110,13 @@ val applicationsStateModule: Module = module {
     }
 }
 
+val phoneStorage = Environment.getExternalStorageDirectory().toURI()
+
 val applicationState = ApplicationState(
 //                androidContext(),
         InetAddress.getByName(GENESIS_IP),
-        URI.create(GENESIS_PATH)
+        phoneStorage.resolve(GENESIS_PATH),
+        phoneStorage.resolve(TAILS_PATH)
 )
 
 val agentConnectionModule: Module = module {
@@ -126,36 +130,36 @@ val agentConnectionProgress = agentConnection.connect(WS_ENDPOINT, WS_LOGIN, WS_
 
 
 //Async indy initialization for smooth UX
-lateinit var pool: Pool
-lateinit var wallet: Wallet
-
-fun indyInitialize() : Boolean {
-    var t: Thread? = null
-    val observable = Observable.create<Unit> { observer ->
-        try {
-            t = Thread {
-                pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
-                wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
-            }
-            t?.apply { run(); join() }
-            observer.onNext(Unit)
-        } catch (e: Exception) {
-            observer.onError(RuntimeException("Error initializing indy", e))
-        }
-    }
-    return try {
-        observable
-            .observeOn(Schedulers.io())
-            .subscribeOn(Schedulers.newThread())
-            .timeout(10, TimeUnit.SECONDS)
-            .toBlocking()
-            .first()
-        true
-    } catch (e: Exception) {
-        t?.interrupt()
-        false
-    }
-}
+//lateinit var pool: Pool
+//lateinit var wallet: Wallet
+//
+//fun indyInitialize() : Boolean {
+//    var t: Thread? = null
+//    val observable = Observable.create<Unit> { observer ->
+//        try {
+//            t = Thread {
+//                pool = PoolHelper.openOrCreate(File(GENESIS_PATH), "pool")
+//                wallet = WalletHelper.openOrCreate("medical-supplychain", "password")
+//            }
+//            t?.apply { run(); join() }
+//            observer.onNext(Unit)
+//        } catch (e: Exception) {
+//            observer.onError(RuntimeException("Error initializing indy", e))
+//        }
+//    }
+//    return try {
+//        observable
+//            .observeOn(Schedulers.io())
+//            .subscribeOn(Schedulers.newThread())
+//            .timeout(10, TimeUnit.SECONDS)
+//            .toBlocking()
+//            .first()
+//        true
+//    } catch (e: Exception) {
+//        t?.interrupt()
+//        false
+//    }
+//}
 
 //fun provideWalletAndPool(): Pair<Wallet, Pool> {
 //
@@ -184,16 +188,16 @@ fun indyInitialize() : Boolean {
 //    return Pair(wallet, pool)
 //}
 
-fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
-    val (wallet, pool) = walletAndPool
-    val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
-        IndySDKWalletUser(wallet, did, TAILS_PATH)
-    } ?: run {
-        IndySDKWalletUser(wallet, tailsPath = TAILS_PATH).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
-    }
-
-    return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
-}
+//fun provideIndyUser(walletAndPool: Pair<Wallet, Pool>): IndyUser {
+//    val (wallet, pool) = walletAndPool
+//    val walletUser = wallet.getOwnIdentities().firstOrNull()?.run {
+//        IndySDKWalletUser(wallet, did, TAILS_PATH)
+//    } ?: run {
+//        IndySDKWalletUser(wallet, tailsPath = TAILS_PATH).apply { createMasterSecret(DEFAULT_MASTER_SECRET_ID) }
+//    }
+//
+//    return IndyUser(walletUser, IndyPoolLedgerUser(pool, walletUser.did, walletUser::sign), false)
+//}
 
 val apiModule: Module = module {
     single<SovrinAgentService>(createdAtStart = true) {

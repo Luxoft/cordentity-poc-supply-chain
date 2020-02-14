@@ -23,9 +23,10 @@ import java.net.InetAddress
 import java.net.URI
 
 class IndyState(
-    val indyPoolIp: InetAddress,
-    val genesisPath: URI,
-    val genesisContent: (nodeIp: InetAddress) -> String = ::StandardIndyPoolGenesis)
+        val indyPoolIp: InetAddress,
+        val genesisPath: URI,
+        val tailsPath: URI,
+        val genesisContent: (nodeIp: InetAddress) -> String = ::StandardIndyPoolGenesis)
 {
     private val mutWallet = MutableLiveData<Wallet>()
     val wallet: LiveData<Wallet> = mutWallet
@@ -38,9 +39,9 @@ class IndyState(
 
         val walletUser: IndySDKWalletUser
         if(existingDid != null) {
-            walletUser = IndySDKWalletUser(wallet, existingDid, TAILS_PATH)
+            walletUser = IndySDKWalletUser(wallet, existingDid, tailsPath.path)
         } else {
-            walletUser = IndySDKWalletUser(wallet, tailsPath = TAILS_PATH)
+            walletUser = IndySDKWalletUser(wallet, tailsPath = tailsPath.path)
             walletUser.createMasterSecret(DEFAULT_MASTER_SECRET_ID)
         }
 
@@ -68,14 +69,14 @@ class IndyState(
 
     fun connectToPool() {
         initGenesisFile()
-        val pool = PoolHelper.openOrCreate(File(genesisPath.toString()), "pool")
+        val pool = PoolHelper.openOrCreate(File(genesisPath), "pool")
         GlobalScope.launch(Dispatchers.Main) {
             mutPool.value = pool
         }
     }
 
     private fun initGenesisFile() {
-        val genesis = File(genesisPath.toString())
+        val genesis = File(genesisPath)
 
         if (genesis.exists()) genesis.delete()
         genesis.createNewFile()
