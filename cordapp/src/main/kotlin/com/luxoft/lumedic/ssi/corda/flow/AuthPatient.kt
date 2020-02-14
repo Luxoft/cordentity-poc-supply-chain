@@ -153,7 +153,7 @@ class AuthPatient {
                     serviceHub.vaultService.queryBy<IndyCredentialProof>(idQueryCriteria)
                 }.states.single().state.data.proof
 
-                epicCommunicationService().submitInsurancePost(credentialProof)
+                epicCommunicationService().updateClientData(credentialProof)
                 authProcessStateAndRef =
                     setAuthState(authProcessStateAndRef, AuthState.SUCCESS, ToDoContract.Commands.Do())
             } catch (e: Exception) {

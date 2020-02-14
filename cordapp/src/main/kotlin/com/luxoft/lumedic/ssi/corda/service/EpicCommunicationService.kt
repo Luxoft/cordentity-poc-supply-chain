@@ -42,25 +42,35 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
     private val JSON: MediaType = MediaType.parse("application/json; charset=utf-8")!!
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.ENGLISH).withZone(ZoneOffset.UTC)
 
-    private val epicEndpoint = serviceHub.getAppContext().config.getString("EpicBackend")
+    private val epicEndpointUrl = serviceHub.getAppContext().config.getString("EpicEndpointUrl")
     private val epicKey = serviceHub.getAppContext().config.getString("EpicSubscriptionKey")
 
-    fun submitInsurancePost(credentialProof: ProofInfo) {
-        val body = SubmitInsurancePost(
-            Insurance = SubmitInsurancePost.InsuranceData(
-                GroupNumber = credentialProof.getAttributeValue("Group_number")!!.raw,
-                InsuranceName = credentialProof.getAttributeValue("Payor")!!.raw,
-                MemberNumber = credentialProof.getAttributeValue("Insurance/member_ID")!!.raw,
-                SubscriberDateOfBirth = dateFormatter.format(
-                    Instant.ofEpochMilli(credentialProof.getAttributeValue("Subscriber_date_of_birth_ms")!!.raw.toLong())
-                ),
-                SubscriberName = credentialProof.getAttributeValue("Subscriber_name")!!.raw
-            )
+    private val initialState = SubmitInsurancePost(
+        Insurance = SubmitInsurancePost.InsuranceData(
+            PayorID = "578",
+            GroupNumber = "",
+            InsuranceName = "",
+            MemberNumber = "931935359",
+            SubscriberDateOfBirth = "19750101",
+            SubscriberName = "SMITH,JONATHAN"
         )
+    )
+    private val targetState = SubmitInsurancePost(
+        Insurance = SubmitInsurancePost.InsuranceData(
+            PayorID = "1344",
+            GroupNumber = "",
+            InsuranceName = "",
+            MemberNumber = "MSJ601067914",
+            SubscriberDateOfBirth = "19750101",
+            SubscriberName = "SMITH,JONATHAN"
+        )
+    )
+
+    private fun submitInsurancePost(body: SubmitInsurancePost) {
         val bodyJson = mapper.writeValueAsString(body)
         val request =
             Request.Builder()
-                .url("$epicEndpoint/api/did/epic")
+                .url(epicEndpointUrl)
                 .post(RequestBody.create(JSON, bodyJson))
                 .addHeader("Ocp-Apim-Subscription-Key", epicKey)
                 .build()
@@ -74,6 +84,50 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
             }
         }
     }
+
+    fun updateClientData(credentialProof: ProofInfo) {
+        submitInsurancePost(initialState.run {
+            copy(
+                Insurance = Insurance.copy(
+                    GroupNumber = "19",
+                    InsuranceName = credentialProof.getAttributeValue("Payor")!!.raw,
+                    SubscriberDateOfBirth = dateFormatter.format(
+                        Instant.ofEpochMilli(credentialProof.getAttributeValue("Subscriber_date_of_birth_ms")!!.raw.toLong())
+                    ),
+                    SubscriberName = credentialProof.getAttributeValue("Subscriber_name")!!.raw
+                )
+            )
+        })
+        submitInsurancePost(targetState.run {
+            copy(
+                Insurance = Insurance.copy(
+                    GroupNumber = "14",
+                    InsuranceName = credentialProof.getAttributeValue("Payor")!!.raw,
+                    SubscriberDateOfBirth = dateFormatter.format(
+                        Instant.ofEpochMilli(credentialProof.getAttributeValue("Subscriber_date_of_birth_ms")!!.raw.toLong())
+                    ),
+                    SubscriberName = credentialProof.getAttributeValue("Subscriber_name")!!.raw
+                )
+            )
+        })
+    }
+
+    fun resetClientData() {
+        submitInsurancePost(targetState.run {
+            copy(
+                Insurance = Insurance.copy(
+                    GroupNumber = "15"
+                )
+            )
+        })
+        submitInsurancePost(initialState.run {
+            copy(
+                Insurance = Insurance.copy(
+                    GroupNumber = "18"
+                )
+            )
+        })
+    }
 }
 
 fun FlowLogic<Any>.epicCommunicationService() = serviceHub.cordaService(EpicCommunicationService::class.java)
@@ -84,7 +138,7 @@ data class SubmitInsurancePost(
 ) {
     data class PatientData(
         val ID: String = "MockPatientID",
-        val Type: String = "MockType"
+        val Type: String = "EXTERNAL"
     )
 
     data class InsuranceData(
@@ -95,7 +149,8 @@ data class SubmitInsurancePost(
         val PayorIDType: String = "INTERNAL",
         val RelationshipToSubscriber: String = "01",
         val SubscriberDateOfBirth: String,
-        val SubscriberID: String = Date().time.toString(),
         val SubscriberName: String
-    )
+    ) {
+        val SubscriberID get() = Date().time.toString()
+    }
 }

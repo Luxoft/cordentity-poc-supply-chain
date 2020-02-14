@@ -5,6 +5,7 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.finalizeTransaction
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.me
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.whoIsNotary
 import com.luxoft.lumedic.ssi.corda.contract.ToDoContract
+import com.luxoft.lumedic.ssi.corda.service.epicCommunicationService
 import net.corda.core.contracts.ContractState
 import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.*
@@ -42,6 +43,7 @@ class DemoReset {
             val me = me()
             try {
                 progressTracker.currentStep = RESET_EPIC
+                epicCommunicationService().resetClientData()
 
                 progressTracker.currentStep = BUILD_CONSUMING_TX
                 val states = serviceHub.vaultService.queryBy<ContractState>().states

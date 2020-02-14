@@ -6,4 +6,4 @@ node:
   rpcUser: user1
   rpcPassword: test
 indy:
-  trustedCredentialsIssuerDID: MRzYgbx16JDgukDLa2tuyk
+  trustedCredentialsIssuerDID: SFqyhJadgMVe5mBfcLVBKU

@@ -10,12 +10,17 @@ import java.util.concurrent.LinkedBlockingQueue
 class EpicCommunicationService(val serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
 
     companion object {
-        val submitInsurancePostSent = LinkedBlockingQueue<ProofInfo>()
+        val updateClientDataSent = LinkedBlockingQueue<ProofInfo>()
+        val resetDemoSent = LinkedBlockingQueue<Boolean>()
     }
 
     private val epicEndpoint = serviceHub.getAppContext().config.getString("EpicBackend")
 
-    fun submitInsurancePost(credentialProof: ProofInfo) {
-        submitInsurancePostSent.put(credentialProof)
+    fun updateClientData(credentialProof: ProofInfo) {
+        updateClientDataSent.put(credentialProof)
+    }
+
+    fun resetClientData() {
+        resetDemoSent.put(true)
     }
 }
