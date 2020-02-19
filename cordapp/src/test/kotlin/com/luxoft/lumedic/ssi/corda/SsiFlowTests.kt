@@ -25,8 +25,8 @@ class SsiFlowTests : CordaTestBase() {
         //Test will run only if libindy installed
         assumeTrue(LibIndy.isInitialized())
 
-        val authResponse = notary.runFlow(AuthPatient.Hospital("MRzYgbx16JDgukDLa2tuyk")).get()
-        val proofInfo = EpicCommunicationService.submitInsurancePostSent.poll(1, TimeUnit.MINUTES)
+        val authResponse = notary.runFlow(AuthPatient.Hospital("SFqyhJadgMVe5mBfcLVBKU")).get()
+        val proofInfo = EpicCommunicationService.updateClientDataSent.poll(1, TimeUnit.MINUTES)
         assertNotNull(proofInfo)
         proofInfo?.also { credentialProof ->
             assertTrue(credentialProof.getAttributeValue("Group_number")!!.raw.isNotBlank())
@@ -50,6 +50,7 @@ class SsiFlowTests : CordaTestBase() {
         assertTrue { beforeMainStates.count() < afterMainStates.count() }
 
         val txId = notary.runFlow(DemoReset.Hospital()).get()
+        assertTrue { EpicCommunicationService.resetDemoSent.poll() }
         val afterResetStates = getAllStates()
         assertTrue { afterResetStates.isEmpty() }
     }
