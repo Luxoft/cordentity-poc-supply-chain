@@ -26,18 +26,23 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.blikoon.qrcodescanner.QrCodeActivity
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
+import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_COLLECTED_AT
-import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_SERIAL
 import com.luxoft.supplychain.sovrinagentapp.application.EXTRA_STATE
 import com.luxoft.supplychain.sovrinagentapp.application.QR_SCANNER_CODE_EXTRA
 import com.luxoft.supplychain.sovrinagentapp.data.*
+import com.luxoft.supplychain.sovrinagentapp.utils.abbreviate
+import com.luxoft.supplychain.sovrinagentapp.utils.formatAsVerticalList
+import com.luxoft.supplychain.sovrinagentapp.utils.joinToStringPrettyAnd
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_scanner.*
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import rx.Completable
 import rx.android.schedulers.AndroidSchedulers
@@ -82,16 +87,28 @@ class SimpleScannerActivity : AppCompatActivity() {
                 val state = intent?.getStringExtra(EXTRA_STATE)
                 if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
 
-                val serial = intent?.getStringExtra(EXTRA_SERIAL)
                 collectedAt = intent?.getLongExtra(EXTRA_COLLECTED_AT, 0)
 
                 when (state) {
                     PackageState.GETPROOFS.name -> {
                         setStatusName(R.string.state_get_proofs)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
+                            val parsedInvite = try {
+                                publishProgress(R.string.progress_parse_qr_code)
+                                SerializationUtils.jSONToAny<Invite>(result)
+                            } catch (error: JsonMappingException) {
+                                notifyErrorAndFinish(error, "This QR code does not contain a Credential.",
+                                    "Please make sure to scan an appropriate QR code")
+                                return@subscribe
+                            } catch (error: Throwable) {
+                                notifyErrorAndFinish(error, "Failed to process QR code for a new Credential.",
+                                    "Please try refreshing the website.")
+                                return@subscribe
+                            }
+
                             try {
                                 publishProgress(R.string.progress_accept_invite)
-                                agentConnection.acceptInvite(SerializationUtils.jSONToAny<Invite>(result).invite).toBlocking().value().apply {
+                                agentConnection.acceptInvite(parsedInvite.invite).toBlocking().value().apply {
                                     publishProgress(R.string.progress_receiving_credential)
                                     do {
                                         val credOffer = try {
@@ -115,7 +132,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                     notifyAndFinish(R.string.progress_state_get_proofs_finished)
                                 }
                             } catch (er: Exception) {
-                                notifyAndFinish("Get Claims Error: ${er.message}")
+                                notifyErrorAndFinish(er, "Failed to receive a new Credential", "Please check that servers are OK")
                             }
                         }
                     }
@@ -123,55 +140,63 @@ class SimpleScannerActivity : AppCompatActivity() {
                     PackageState.NEW.name -> {
                         setStatusName(R.string.state_new)
                         Completable.complete().observeOn(Schedulers.io()).subscribe {
-                            try {
+                            val partyConnection: IndyPartyConnection = try {
                                 publishProgress(R.string.progress_accept_invite)
-                                agentConnection.acceptInvite(result).toBlocking().value().apply {
-                                    publishProgress(R.string.progress_waiting_for_authentication)
-                                    val proofRequest = receiveProofRequest().toBlocking().value()
-                                    publishProgress(R.string.progress_providing_credential_proofs)
-                                    val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
-                                    val requestedDataStr = requestedData.joinToString(separator = ", ")
+                                agentConnection.acceptInvite(result).toBlocking().value()
+                            } catch (error: Throwable) {
+                                notifyErrorAndFinish(error, "This QR code does not contain an Indy Invite.",
+                                    "Please make sure to scan an appropriate QR code")
+                                return@subscribe
+                            }
 
-                                    getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataStr).apply()
+                            try {
+                                publishProgress(R.string.progress_waiting_for_authentication)
+                                val proofRequest = partyConnection.receiveProofRequest().toBlocking().value()
+                                publishProgress(R.string.progress_providing_credential_proofs)
+                                val requestedData: Set<String> = proofRequest.requestedAttributes.keys + proofRequest.requestedPredicates.keys
+                                val requestedDataStr = requestedData.joinToString(separator = ", ")
+
+                                getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE).edit().putString(sharedPreferencesKey, requestedDataStr).apply()
+
+                                val verifier = verifierInfoFromDid(partyConnection.partyDID())
+                                val walletCredentials = appState.walletCredentials.value ?: throw IllegalStateException("Unable to access local Indy Wallet")
+
+                                if (!walletHasAllRequestedClaims(requestedData, walletCredentials)) {
                                     Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
-                                        val verifier = verifierInfoFromDid(partyDID())
-
-                                        val bodyMessage = formatPopupMessage(verifier, requestedData,
-                                            appState.walletCredentials.value,
-                                            appState.credentialPresentationRules, appState.credentialAttributePresentationRules)
-
-                                        val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
-                                            .setTitle("Claims Requested")
-                                            .setMessage(bodyMessage)
-                                            .setCancelable(false)
-                                            .setPositiveButton("ALLOW") { _, _ ->
-                                                Completable.complete().observeOn(Schedulers.io()).subscribe {
-
-                                                    publishProgress(R.string.progress_providing_authentication_proofs)
-                                                    val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
-                                                    val connection = agentConnection.getIndyPartyConnection(verifier.did).toBlocking().value()
-                                                            ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
-                                                    connection.sendProof(proofFromLedgerData)
-
-                                                    val event = VerificationEvent(
-                                                            Instant.now(),
-                                                            proofFromLedgerData,
-                                                            proofRequest,
-                                                            requestedData,
-                                                            verifier)
-
-                                                    appState.storeVerificationEvent(event)
-
-                                                    this@SimpleScannerActivity.finish()
-                                                }
-                                            }
-                                            .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
-                                            .create()
+                                        val dialog = unknownClaimsDialog(verifier, requestedData, walletCredentials)
                                         showDialog(dialog)
                                     }
+                                    return@subscribe
                                 }
+
+                                Completable.complete().observeOn(AndroidSchedulers.mainThread()).subscribe {
+                                    val dialog = provideClaimsDialog(verifier, requestedData, walletCredentials) {
+                                        Completable.complete().observeOn(Schedulers.io()).subscribe {
+
+                                            publishProgress(R.string.progress_providing_authentication_proofs)
+                                            val proofFromLedgerData: ProofInfo = appState.indyState.indyUser.value!!.createProofFromLedgerData(proofRequest)
+                                            val connection = agentConnection.getIndyPartyConnection(verifier.did).toBlocking().value()
+                                                ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
+                                            connection.sendProof(proofFromLedgerData)
+
+                                            val event = VerificationEvent(
+                                                Instant.now(),
+                                                proofFromLedgerData,
+                                                proofRequest,
+                                                requestedData,
+                                                verifier)
+
+                                            appState.storeVerificationEvent(event)
+
+                                            this@SimpleScannerActivity.finish()
+                                        }
+                                    }
+
+                                    showDialog(dialog)
+                                }
+
                             } catch (er: Exception) {
-                                notifyAndFinish("New Package Error: ${er.message}")
+                                notifyErrorAndFinish(er, "Failed to Authenticate", "Please check that servers are OK")
                             }
                         }
                     }
@@ -183,6 +208,77 @@ class SimpleScannerActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    private fun provideClaimsDialog(
+        verifier: VerifierInfo,
+        requestedAttributeKeys: Set<String>,
+        walletCredentials: List<CredentialReference>,
+        allowAction: () -> Unit
+    ): AlertDialog {
+        val credentialPresentationRules: CredentialPresentationRules = get()
+        val attributePresentationRules: CredentialAttributePresentationRules = get()
+
+        val requestedCredentials = walletCredentials
+            .filter { cred -> cred.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
+            .map { credentialPresentationRules.formatName(it) }
+            .joinToStringPrettyAnd()
+
+        val formattedListRequestedAttributes = requestedAttributeKeys
+            .map { attributePresentationRules.formatName(it) }
+            .formatAsVerticalList()
+
+        val bodyMessage = """
+                |${verifier.name} is requesting your $requestedCredentials credentials.
+                |
+                |The following claims will be revealed:
+                |$formattedListRequestedAttributes 
+            """.trimMargin()
+
+        val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
+            .setTitle("Claims Requested")
+            .setMessage(bodyMessage)
+            .setCancelable(false)
+            .setPositiveButton("ALLOW") { _, _ -> allowAction() }
+            .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
+            .create()
+
+        return dialog
+    }
+
+    private fun unknownClaimsDialog(
+        verifier: VerifierInfo,
+        requestedAttributeKeys: Set<String>,
+        walletCredentials: List<CredentialReference>
+    ): AlertDialog {
+        val credentialPresentationRules: CredentialPresentationRules = get()
+        val attributePresentationRules: CredentialAttributePresentationRules = get()
+
+        val allKnownAttributeKeys = walletCredentials.flatMap { it.attributes.keys }.toSet()
+        val unknownAttributeKey = requestedAttributeKeys.filter { it !in allKnownAttributeKeys }
+
+        val formattedListUnknownAttributes = unknownAttributeKey
+            .map { attributePresentationRules.formatName(it) }
+            .formatAsVerticalList()
+
+        val formattedListWalletCredentials = walletCredentials
+            .map { credentialPresentationRules.formatName(it) }
+            .formatAsVerticalList()
+
+        val bodyMessage = """
+            |${verifier.name} is requesting unknown attributes:
+            |$formattedListUnknownAttributes
+            |
+            |You have ${walletCredentials.size} credentials in you wallet
+            |$formattedListWalletCredentials
+        """.trimMargin()
+
+        return AlertDialog.Builder(this@SimpleScannerActivity)
+            .setTitle("Unknown Claims Requested")
+            .setMessage(bodyMessage)
+            .setCancelable(false)
+            .setNegativeButton("CANCEL") { _, _ -> finish() }
+            .create()
     }
 
     private fun setStatusName(@StringRes textId: Int) {
@@ -200,6 +296,18 @@ class SimpleScannerActivity : AppCompatActivity() {
     private fun notifyAndFinish(text: String) {
         runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_LONG).show() }
         finish()
+    }
+
+    private fun notifyErrorAndFinish(error: Throwable,
+                                     description: String,
+                                     message: String) {
+        notifyAndFinish("""
+            |$description 
+            |$message
+            |
+            |${error.javaClass.simpleName}
+            |${error.message?.abbreviate(200) ?: ""}
+            """.trimMargin())
     }
     private fun showDialog(dialog: AlertDialog) {
         runOnUiThread { dialog.show() }
@@ -219,34 +327,11 @@ class SimpleScannerActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    fun walletHasAllRequestedClaims(requestedAttributeKeys: Set<String>, creds: List<CredentialReference>): Boolean {
+        // Proving algorithm is CASE-INSENSITIVE for attribute keys
+        val knownAttributeKeys = creds.flatMap { it.attributes.keys }.map { it.toLowerCase()}.toSet()
+        return requestedAttributeKeys.all { it.toLowerCase() in knownAttributeKeys }
+    }
 }
 
-fun formatPopupMessage(
-    verifier: VerifierInfo,
-    requestedAttributeKeys: Set<String>,
-    creds: List<CredentialReference>?,
-    credentialPresentationRules: CredentialPresentationRules,
-    attributePresentationRules: CredentialAttributePresentationRules
-): String {
-    val requestedClaims = requestedAttributeKeys
-        .map { attributePresentationRules.formatName(it) }
-        .joinToString(separator = "\n  - ", prefix = "  - ")
-
-    val requestedCredentials = creds!!
-        .filter { it.attributes.keys.intersect(requestedAttributeKeys).isNotEmpty() }
-        .map { credentialPresentationRules.formatName(it) }
-        .joinToStringPrettyAnd()
-
-    return """
-        |${verifier.name} is requesting your $requestedCredentials credentials.
-        |
-        |The following claims will be revealed:
-        |${requestedClaims} 
-    """.trimMargin()
-}
-
-/**
- * Joins a list to string: "el1, el2, el3 and el4"
-* */
-fun <T> List<T>.joinToStringPrettyAnd() =
-    this.dropLast(1).joinToString(separator = ", ") + " and " + this.last().toString()

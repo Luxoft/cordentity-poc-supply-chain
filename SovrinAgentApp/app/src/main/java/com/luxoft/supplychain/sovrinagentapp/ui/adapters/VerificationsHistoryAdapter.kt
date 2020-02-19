@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import androidx.lifecycle.LiveData
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
+import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
 import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
 import kotlinx.android.synthetic.main.item_verification.view.*
 import org.koin.standalone.KoinComponent
@@ -28,7 +28,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         }
     }
 
-    private val appState: ApplicationState by inject()
+    private val attributeFormatter: CredentialAttributePresentationRules by inject()
     private val inflater = LayoutInflater.from(context)
 
     override fun getItem(position: Int): Any = items[position]
@@ -41,7 +41,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         // todo: re-use [convertView]
         val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
 
-        val revealedAttributeNames = event.requestedAttributeNames.map { appState.credentialAttributePresentationRules.formatName(it) }
+        val revealedAttributeNames = event.requestedAttributeNames.map { attributeFormatter.formatName(it) }
 
         view.verificationDate.text = DateFormat.getDateTimeInstance().format(Date.from(event.verificationInstant))
         view.provedData.text = revealedAttributeNames.joinToString()

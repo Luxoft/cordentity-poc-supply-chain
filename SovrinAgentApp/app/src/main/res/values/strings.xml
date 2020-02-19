@@ -37,6 +37,7 @@
     <string name="state_collected">Performing verification of package</string>
     <string name="state_delivered">Picking up the medicine</string>
 
+    <string name="progress_parse_qr_code">Recognizing QR code</string>
     <string name="progress_accept_invite">Connecting to counter-party</string>
     <string name="progress_receiving_credential">Receiving digital credential</string>
     <string name="progress_receiving_credential_offer">Receiving digital credential offer</string>

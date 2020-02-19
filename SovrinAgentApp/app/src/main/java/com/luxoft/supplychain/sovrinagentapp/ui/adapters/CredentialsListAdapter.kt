@@ -10,7 +10,8 @@ import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
 import com.luxoft.supplychain.sovrinagentapp.R
-import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
+import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
+import com.luxoft.supplychain.sovrinagentapp.data.CredentialPresentationRules
 import kotlinx.android.synthetic.main.item_credential_attribute.view.*
 import kotlinx.android.synthetic.main.item_credentilal.view.*
 import org.koin.standalone.KoinComponent
@@ -33,7 +34,9 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
         }
     }
 
-    private val appState: ApplicationState by inject()
+    private val groupFormatter: CredentialPresentationRules by inject()
+    private val childFormatter: CredentialAttributePresentationRules by inject()
+
     private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getGroup(groupPosition: Int): Any = groups[groupPosition]
@@ -54,12 +57,10 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
         // todo: maybe use parent view as root?
         val view = inflater.inflate(R.layout.item_credentilal, /*root=*/null)
 
-        val formatter = appState.credentialPresentationRules
+        view.tittle.text = groupFormatter.formatName(cred)
+        view.description.text = groupFormatter.formatDescription(cred)
 
-        view.tittle.text = formatter.formatName(cred)
-        view.description.text = formatter.formatDescription(cred)
-
-        val issuerName = formatter.formatIssuerName(cred)
+        val issuerName = groupFormatter.formatIssuerName(cred)
         if(issuerName != null) {
             view.verifier.text = issuerName
             view.verifier.visibility = VISIBLE
@@ -80,10 +81,8 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
         // todo: maybe use parent view as root?
         val view = inflater.inflate(R.layout.item_credential_attribute, /*root=*/null)
 
-        val formatter = appState.credentialAttributePresentationRules
-
-        view.name.text = formatter.formatName(key)
-        view.textValue.text = formatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 40)
+        view.name.text = childFormatter.formatName(key)
+        view.textValue.text = childFormatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 40)
 
         /* Handle img attribute:
         item.value ?: return

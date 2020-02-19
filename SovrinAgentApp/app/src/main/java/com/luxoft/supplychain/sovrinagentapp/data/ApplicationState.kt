@@ -10,22 +10,11 @@ import com.luxoft.supplychain.sovrinagentapp.utils.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.net.InetAddress
-import java.net.URI
 
 class ApplicationState(
         val context: Context,
-        indyPoolIp: InetAddress,
-        indyPoolGenesisPath: URI,
-        indyPoolTailsPath: URI,
-        indyPoolGenesisContent: (nodeIp: InetAddress) -> String = ::StandardIndyPoolGenesis)
+        val indyState: IndyState)
 {
-    val indyState: IndyState = IndyState(
-        indyPoolIp,
-        indyPoolGenesisPath,
-        indyPoolTailsPath,
-        indyPoolGenesisContent)
-
     private val refreshedIndyUser = VolatileLiveDataHolder(indyState.indyUser)
     val walletCredentials: LiveData<List<CredentialReference>> = refreshedIndyUser.liveData.map { indyUser ->
         indyUser.walletUser.getCredentials().asSequence().toList()
@@ -42,9 +31,6 @@ class ApplicationState(
 
     private val mutAuthenticationHistory = MutableLiveData(initialValue = listOf<VerificationEvent>())
     val authenticationHistory: LiveData<List<VerificationEvent>> = mutAuthenticationHistory
-
-    val credentialPresentationRules = CredentialPresentationRules()
-    val credentialAttributePresentationRules = CredentialAttributePresentationRules()
 
     fun updateWalletCredentials() {
         GlobalScope.launch(Dispatchers.Main) {
