@@ -32,18 +32,7 @@ enum class PopupStatus {
     HISTORY
 }
 
-data class Serial(val serial: String, @JsonProperty("clientUUID") val clientUUID: String?)
-
 data class Invite(val invite: String, @JsonProperty("clientUUID") val clientUUID: String?)
-
-data class PushToken(val did: String, val token: String)
-
-data class AskForPackageRequest(val tcName: String, val clientUUID: String)
-
-open class Error {
-    open var code: Int = 0
-    open var message: String? = null
-}
 
 @RealmClass
 open class ClaimAttribute : RealmObject() {
@@ -78,37 +67,8 @@ open class Product : RealmObject() {
     open var serial: String? = null
 
     open var state: String? = null
-    open var description: String? = null
-
-    open var patientDid: String? = null
-    open var patientDiagnosis: String? = null
-
     open var medicineName: String? = null
-    open var medicineDescription: String? = null
-
     open var requestedAt: Long? = null
-
-    open var issuedAt: Long? = null
-
-    open var processedAt: Long? = null
-
-    open var deliveredAt: Long? = null
-
-    open var qp: Boolean? = false
-
-    open var collectedAt: Long? = null
-}
-
-@RealmClass
-open class Waybill : RealmObject() {
-    open var id: String? = null
-}
-
-@RealmClass
-open class ProductOperation : RealmObject() {
-    open var by: String? = null
-    @PrimaryKey
-    open var at: Long? = null
 }
 
 data class AuthorityInfo(
