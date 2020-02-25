@@ -44,8 +44,10 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
 
     private val epicEndpointUrl = serviceHub.getAppContext().config.getString("EpicEndpointUrl")
     private val epicKey = serviceHub.getAppContext().config.getString("EpicSubscriptionKey")
+    private val patientId = serviceHub.getAppContext().config.getString("EpicPatientId")
 
     private val initialState = SubmitInsurancePost(
+        Patient = SubmitInsurancePost.PatientData(ID = patientId),
         Insurance = SubmitInsurancePost.InsuranceData(
             PayorID = "578",
             GroupNumber = "",
@@ -56,6 +58,7 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
         )
     )
     private val targetState = SubmitInsurancePost(
+        Patient = SubmitInsurancePost.PatientData(ID = patientId),
         Insurance = SubmitInsurancePost.InsuranceData(
             PayorID = "1344",
             GroupNumber = "",
@@ -90,7 +93,6 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
             copy(
                 Insurance = Insurance.copy(
                     GroupNumber = "19",
-                    InsuranceName = credentialProof.getAttributeValue("Payor")!!.raw,
                     SubscriberDateOfBirth = dateFormatter.format(
                         Instant.ofEpochMilli(credentialProof.getAttributeValue("Subscriber_date_of_birth_ms")!!.raw.toLong())
                     ),
@@ -102,7 +104,6 @@ class EpicCommunicationService(serviceHub: AppServiceHub) : SingletonSerializeAs
             copy(
                 Insurance = Insurance.copy(
                     GroupNumber = "14",
-                    InsuranceName = credentialProof.getAttributeValue("Payor")!!.raw,
                     SubscriberDateOfBirth = dateFormatter.format(
                         Instant.ofEpochMilli(credentialProof.getAttributeValue("Subscriber_date_of_birth_ms")!!.raw.toLong())
                     ),
@@ -134,10 +135,10 @@ fun FlowLogic<Any>.epicCommunicationService() = serviceHub.cordaService(EpicComm
 
 data class SubmitInsurancePost(
     val Insurance: InsuranceData,
-    val Patient: PatientData = PatientData()
+    val Patient: PatientData
 ) {
     data class PatientData(
-        val ID: String = "MockPatientID",
+        val ID: String,
         val Type: String = "EXTERNAL"
     )
 
