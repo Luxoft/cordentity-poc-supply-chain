@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        var popupStatus: AtomicInteger = AtomicInteger(0)
+        var popupStatus: AtomicInteger = AtomicInteger(-1)
         var inProgress: Boolean = false
 
         //TODO to toast
