@@ -8,7 +8,6 @@
     <string name="you_have_d_verified_credentials">You have %d verified credentials</string>
     <string name="insurer_approved_your_prescription">Insurer has confirmed the coverage for your prescription</string>
     <string name="scan_qr_code">Scan QR-code</string>
-    <string name="scan_pack_qr_code">Scan package QR-code</string>
     <string name="santorium_plus">Santorium Plus</string>
     <string name="manufacture">MANUFACTURE</string>
     <string name="manufacturing_astura_673434">Manufacturing Astura 673434</string>
@@ -26,7 +25,7 @@
     <string name="splash_waiting">wait a moment…</string>
 
     <string name="state_get_proofs">Getting digital credentials</string>
-    <string name="state_new">Getting digital receipt for medicine</string>
+    <string name="state_new">Presenting digital credentials</string>
 
     <string name="progress_parse_qr_code">Recognizing QR code</string>
     <string name="progress_accept_invite">Connecting to counter-party</string>

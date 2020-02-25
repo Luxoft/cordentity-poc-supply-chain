@@ -22,7 +22,7 @@
         android:layout_marginLeft="10dp"
         android:layout_weight="1"
         android:textColor="@color/almost_black"
-        tools:text="@string/scan_pack_qr_code" />
+        tools:text="@string/scan_qr_code" />
 
     <TextView
         android:id="@+id/tvText"
