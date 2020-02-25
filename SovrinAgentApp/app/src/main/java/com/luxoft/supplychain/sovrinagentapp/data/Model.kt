@@ -23,15 +23,10 @@ import io.realm.annotations.RealmClass
 
 enum class PackageState {
     GETPROOFS,
-    NEW,
-    ISSUED,
-    PROCESSED,
-    DELIVERED,
-    COLLECTED
+    NEW
 }
 
 enum class PopupStatus {
-    NEW,
     IN_PROGRESS,
     RECEIVED,
     HISTORY
@@ -66,11 +61,8 @@ open class Product : RealmObject() {
 
     fun currentStateTimestamp(state: Int?): Long? {
         return when (state) {
+            PackageState.GETPROOFS.ordinal -> 0
             PackageState.NEW.ordinal -> requestedAt
-            PackageState.ISSUED.ordinal -> issuedAt
-            PackageState.PROCESSED.ordinal -> processedAt
-            PackageState.DELIVERED.ordinal -> deliveredAt
-            PackageState.COLLECTED.ordinal -> collectedAt
             else -> 0
         }
     }
@@ -78,10 +70,6 @@ open class Product : RealmObject() {
     fun currentStateMessage(state: Int?): String? {
         return when (state) {
             PackageState.NEW.ordinal -> "Insurer has confirmed the coverage for your prescription"
-            PackageState.ISSUED.ordinal -> "Manufacturing request is created"
-            PackageState.PROCESSED.ordinal -> "Medicine is produced"
-            PackageState.DELIVERED.ordinal -> "Ready for pick-up"
-            PackageState.COLLECTED.ordinal -> "Medicine is collected"
             else -> this.state ?: ""
         }
     }

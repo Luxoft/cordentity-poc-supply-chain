@@ -85,7 +85,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                 val result = data?.getStringExtra(QR_SCANNER_CODE_EXTRA)
 
                 val state = intent?.getStringExtra(EXTRA_STATE)
-                if (result == null || !(correctInvite.matches(result) || (PackageState.COLLECTED.name == state && correctUtl.matches(result)))) return
+                if (result == null || !(correctInvite.matches(result))) return
 
                 collectedAt = intent?.getLongExtra(EXTRA_COLLECTED_AT, 0)
 
