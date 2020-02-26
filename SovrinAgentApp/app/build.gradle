@@ -44,6 +44,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        // Kotlinx-coroutines inssue: https://github.com/Kotlin/kotlinx.coroutines/issues/1797
+        pickFirst 'META-INF/*.kotlin_module'
+    }
 
     // Good read on Android flavors: https://proandroiddev.com/advanced-android-flavors-part-2-enter-flavor-dimensions-4ad7f486f6
     flavorDimensions("client")
@@ -103,6 +107,9 @@ dependencies {
 
     // QR code scanning
     implementation 'com.github.blikoon:QRCodeScanner:0.1.2'
+
+    // HTTP Client
+    implementation "io.ktor:ktor-client-android:$ktor_version"
 
     testImplementation 'junit:junit:4.12'
 }

@@ -102,6 +102,15 @@ class MainActivity : AppCompatActivity() {
                 appState.updateWalletCredentials()
                 true
             }
+            R.id.reset_backend -> {
+                appState.clearBackendData()
+                true
+            }
+            R.id.reset_all -> {
+                appState.clearBackendData()
+                appState.clearLocalData()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

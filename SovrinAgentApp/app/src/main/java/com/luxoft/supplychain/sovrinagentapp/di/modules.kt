@@ -4,10 +4,7 @@ import android.os.Environment
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
 import com.luxoft.blockchainlab.corda.hyperledger.indy.PythonRefAgentConnection
 import com.luxoft.supplychain.sovrinagentapp.application.*
-import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
-import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
-import com.luxoft.supplychain.sovrinagentapp.data.CredentialPresentationRules
-import com.luxoft.supplychain.sovrinagentapp.data.IndyState
+import com.luxoft.supplychain.sovrinagentapp.data.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module.module
 import java.net.InetAddress
@@ -23,8 +20,12 @@ val applicationsStateModule = module {
         )
     }
 
+    single<VerifierBackendState> {
+        VerifierBackendState(BACKEND_BASE_URL)
+    }
+
     single<ApplicationState> {
-        ApplicationState(androidContext(), get<IndyState>())
+        ApplicationState(androidContext(), get<IndyState>(), get<VerifierBackendState>())
     }
 
     single<AgentConnection>(createOnStart = true) {
