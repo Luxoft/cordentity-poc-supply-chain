@@ -25,13 +25,14 @@
                 android:background="@drawable/youngman"
                 android:contentDescription="User Profile Photo"
                 android:scaleType="fitEnd"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/tabs"/>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#207c6c"
+                android:background="@color/colorPrimary"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
@@ -67,13 +68,13 @@
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/bg_main"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:tabIndicatorColor="@android:color/white"
-                app:tabMode="fixed"
-                app:tabMinWidth="130dp"/>
+                app:tabTextAppearance="@style/TabText"
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabMode="fixed"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
