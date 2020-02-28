@@ -8,21 +8,13 @@
     <string name="you_have_d_verified_credentials">You have %d verified credentials</string>
     <string name="insurer_approved_your_prescription">Insurer has confirmed the coverage for your prescription</string>
     <string name="scan_qr_code">Scan QR-code</string>
-    <string name="scan_pack_qr_code">Scan package QR-code</string>
-    <string name="will_be_provided_by_tc">will be provided by TC</string>
-    <string name="digital_receipt">Digital receipt</string>
     <string name="santorium_plus">Santorium Plus</string>
     <string name="manufacture">MANUFACTURE</string>
     <string name="manufacturing_astura_673434">Manufacturing Astura 673434</string>
     <string name="new_digital_receipt">New digital receipt</string>
-    <string name="your_package_is_ready">Your package is ready for pick-up</string>
     <string name="you_ve_received">You\'ve received digital receipt for your Santorium Plus prescription</string>
-    <string name="visit_your">Visit your treatment centre to pick up the package</string>
     <string name="to_check_the_license_list">to check the license list</string>
-    <string name="_18_package_collected_status_check">18 Package collected, status: check</string>
 
-    <string name="verified">verified</string>
-    <string name="license_list">License list</string>
     <string name="btn_agree">Agree</string>
     <string name="receipt_did">DID: %s</string>
     <string name="receipt_schema_id">Schema ID: %s</string>
@@ -33,23 +25,16 @@
     <string name="splash_waiting">wait a moment…</string>
 
     <string name="state_get_proofs">Getting digital credentials</string>
-    <string name="state_new">Getting digital receipt for medicine</string>
-    <string name="state_collected">Performing verification of package</string>
-    <string name="state_delivered">Picking up the medicine</string>
+    <string name="state_new">Presenting digital credentials</string>
 
     <string name="progress_parse_qr_code">Recognizing QR code</string>
     <string name="progress_accept_invite">Connecting to counter-party</string>
     <string name="progress_receiving_credential">Receiving digital credential</string>
     <string name="progress_receiving_credential_offer">Receiving digital credential offer</string>
     <string name="progress_creating_credential_request">Creating digital credential request</string>
-    <string name="progress_collecting_package">Collecting package</string>
     <string name="progress_verifying_credential">Verifying digital credential</string>
     <string name="progress_waiting_for_authentication">Waiting for authentication</string>
     <string name="progress_providing_credential_proofs">Providing credential proofs</string>
-    <string name="progress_reading_package_history">Reading package history</string>
     <string name="progress_providing_authentication_proofs">Providing authentication proofs</string>
-    <string name="progress_verifying_digital_license">Verifying digital license</string>
-    <string name="progress_requesting_digital_license">Requesting digital license for step of manufacturing</string>
-    <string name="progress_state_new_finished">Digital receipt has been accepted</string>
     <string name="progress_state_get_proofs_finished">New digital credential has been received</string>
 </resources>

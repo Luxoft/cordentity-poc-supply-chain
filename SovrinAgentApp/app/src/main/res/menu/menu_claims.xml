@@ -3,22 +3,28 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity">
 
-    <item android:id="@+id/clear_wallet"
-          android:title="Reset Wallet"
+    <item android:id="@+id/reset_all"
+          android:title="Reset Demo"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/reset_backend"
-          android:title="Reset Demo"
-          app:showAsAction="never"
-          android:visible="false"/>
+    <item android:title="Options"
+          app:showAsAction="never">
 
-    <item android:id="@+id/rescan_wallet"
-          android:title="Rescan Wallet"
-          app:showAsAction="never"
-          android:visible="false"/>
+        <menu>
+            <item android:id="@+id/clear_wallet"
+                  android:title="Reset Local Wallet"
+                  app:showAsAction="never"/>
 
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
-          app:showAsAction="never"
-          android:visible="false"/>
+            <item android:id="@+id/reset_backend"
+                  android:title="Reset EPIC Backend"
+                  app:showAsAction="never"/>
+
+            <item android:id="@+id/rescan_wallet"
+                  android:title="Rescan Wallet"
+                  app:showAsAction="never"
+                  android:visible="false"/>
+        </menu>
+
+    </item>
+
 </menu>

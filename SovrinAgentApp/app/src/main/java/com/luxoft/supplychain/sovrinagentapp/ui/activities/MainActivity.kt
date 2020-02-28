@@ -102,12 +102,21 @@ class MainActivity : AppCompatActivity() {
                 appState.updateWalletCredentials()
                 true
             }
+            R.id.reset_backend -> {
+                appState.clearBackendData()
+                true
+            }
+            R.id.reset_all -> {
+                appState.clearBackendData()
+                appState.clearLocalData()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     companion object {
-        var popupStatus: AtomicInteger = AtomicInteger(0)
+        var popupStatus: AtomicInteger = AtomicInteger(-1)
         var inProgress: Boolean = false
 
         //TODO to toast

@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class ApplicationState(
         val context: Context,
-        val indyState: IndyState)
+        val indyState: IndyState,
+        val backendState: VerifierBackendState)
 {
     private val refreshedIndyUser = VolatileLiveDataHolder(indyState.indyUser)
     val walletCredentials: LiveData<List<CredentialReference>> = refreshedIndyUser.liveData.map { indyUser ->
@@ -40,6 +41,13 @@ class ApplicationState(
 
     fun clearLocalData() {
         indyState.resetWallet()
+        GlobalScope.launch(Dispatchers.Main) {
+            mutAuthenticationHistory.value = listOf()
+        }
+    }
+
+    fun clearBackendData() {
+        backendState.resetDemo()
         GlobalScope.launch(Dispatchers.Main) {
             mutAuthenticationHistory.value = listOf()
         }
