@@ -21,18 +21,37 @@
             <ImageView
                 android:id="@+id/headerImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/user"
+                android:layout_height="50mm"
+                android:background="@drawable/youngman"
                 android:contentDescription="User Profile Photo"
-                android:scaleType="center" />
+                android:scaleType="fitEnd"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#207c6c"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/search_icon"
+                    android:background="@android:color/transparent"
+                    android:adjustViewBounds="true"
+                    android:rotation="90"
+                    android:layout_gravity="start"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/logo_luxoft"
+                    android:layout_gravity="center"/>
+
+            </androidx.appcompat.widget.Toolbar>
 
             <TextView
                 android:id="@+id/headerTitle"
