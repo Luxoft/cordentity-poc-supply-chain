@@ -7,22 +7,16 @@
     android:layout_height="match_parent"
     android:background="@color/bg_main">
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scanVerificationRequest"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Provide Credentials"
-        android:background="@drawable/gradient"
-        android:layout_margin="@dimen/card_margin"
-
-        android:drawableEnd="@drawable/ic_qr_code"
-        android:drawablePadding="20dp"
-        android:gravity="start|center_vertical"
-        android:paddingEnd="25dp"
-        android:paddingStart="@dimen/element_paddingStart_level1"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:src="@drawable/present_icon"
+        android:backgroundTint="#E8F9F6"
+        app:backgroundTint="#00FFFFFF"
+        android:layout_margin="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ListView
         android:id="@+id/verificationHistory"
