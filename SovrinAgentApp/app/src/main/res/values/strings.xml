@@ -14,6 +14,9 @@
     <string name="new_digital_receipt">New digital receipt</string>
     <string name="you_ve_received">You\'ve received digital receipt for your Santorium Plus prescription</string>
     <string name="to_check_the_license_list">to check the license list</string>
+    <string name="tip_to_get_credential">You have no verified IDs or insurance records.
+        To add new ID or record, click on the button at the bottom right.</string>
+    <string name="tip_to_present_credential">To present your credential, click on the button at the bottom right.</string>
 
     <string name="btn_agree">Agree</string>
     <string name="receipt_did">DID: %s</string>

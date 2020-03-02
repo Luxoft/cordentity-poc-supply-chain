@@ -44,7 +44,14 @@ class ProfileFragment : Fragment() {
 
         appState.walletCredentials.observe({lifecycle}) { creds ->
             walletStatus.text = getString(R.string.you_have_d_verified_credentials, creds.size)
-            walletStatus.visibility = View.VISIBLE
+
+            if(creds.isEmpty()) {
+                walletStatus.visibility = View.GONE
+                tipGetCredential.visibility = View.VISIBLE
+            } else {
+                walletStatus.visibility = View.VISIBLE
+                tipGetCredential.visibility = View.GONE
+            }
         }
 
         scanNewCredential.setOnClickListener {

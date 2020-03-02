@@ -42,6 +42,14 @@ class VerificationsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        appState.authenticationHistory.observe({lifecycle}) { verifications ->
+            if(verifications.isEmpty()) {
+                tipPreseentCredentioal.visibility = View.VISIBLE
+            } else {
+                tipPreseentCredentioal.visibility = View.GONE
+            }
+        }
+
         scanVerificationRequest.setOnClickListener {
             val intent = Intent()
                 .setClass(scanVerificationRequest.context, SimpleScannerActivity::class.java)
