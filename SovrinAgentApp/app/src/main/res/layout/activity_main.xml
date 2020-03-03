@@ -24,7 +24,7 @@
                 android:layout_height="50mm"
                 android:background="@drawable/youngman"
                 android:contentDescription="User Profile Photo"
-                android:scaleType="fitEnd"
+                android:scaleType="fitCenter"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/tabs"/>
 
@@ -58,7 +58,6 @@
                 android:id="@+id/headerTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
                 android:paddingStart="@dimen/element_paddingStart_level1"
                 android:paddingVertical="6dp"
                 style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"

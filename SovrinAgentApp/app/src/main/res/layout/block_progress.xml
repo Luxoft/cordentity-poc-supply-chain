@@ -3,17 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo_x"
-        android:layout_gravity="center"/>
-
     <ProgressBar
-        android:layout_width="90dp"
-        android:layout_height="90dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_gravity="center"
-        android:indeterminateDrawable="@drawable/progress_animation"
+        android:indeterminateDrawable="@drawable/lumedic_icon_loader"
         android:indeterminateOnly="true" />
 
 </FrameLayout>

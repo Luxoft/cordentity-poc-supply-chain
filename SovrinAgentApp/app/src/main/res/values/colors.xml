@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#207c6c</color>
-    <color name="colorPrimaryDark">#2d2d2d</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#217d6d</color>
+    <color name="colorPrimaryDark">#155046</color>
+    <color name="colorAccent">#e8f9f6</color>
+    <color name="windowBackground">@color/bg_main</color>
+    <color name="windowBackgroundSplashScreen">#ccefe6</color>
+    <color name="textColorPrimary">#ffffff</color>
+
     <color name="actionbar_opacity">#33000000</color>
 
     <color name="white">#ffffff</color>

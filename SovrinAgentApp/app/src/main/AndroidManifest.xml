@@ -40,7 +40,7 @@
         <activity
             android:name=".ui.activities.SimpleScannerActivity"
             android:screenOrientation="userPortrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/SplashTheme"/>
         <activity
             android:name=".ui.activities.AskClaimsActivity"
             android:screenOrientation="userPortrait" />
