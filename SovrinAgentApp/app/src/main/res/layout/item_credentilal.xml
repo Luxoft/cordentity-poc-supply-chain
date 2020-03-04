@@ -3,23 +3,40 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:paddingStart="@dimen/element_paddingStart_level1"
-    android:paddingTop="12dp"
+    android:paddingStart="17dp"
+    android:paddingTop="16dp"
     android:paddingEnd="25dp"
-    android:paddingBottom="12dp">
+    android:paddingBottom="40dp"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/id_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+    />
 
     <TextView
         android:id="@+id/tittle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Text"
-        android:textColor="@color/gray_dark"
+        android:textSize="12dp"
+        android:textFontWeight="500"
+        android:fontFamily="sans-serif-medium"
+        android:textAllCaps="true"
+        android:letterSpacing="2dp"
+        android:layout_marginStart="10dp"
+        android:paddingTop="2dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/icon"
+        app:layout_constraintStart_toEndOf="@id/icon"
         tools:text = "Personal Digital ID"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
     />
 
     <TextView
@@ -27,10 +44,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Text"
-        android:textColor="@color/gray_dark"
-        tools:text = "Mark Rubenshtein"
-        app:layout_constraintTop_toBottomOf="@id/tittle"
+        android:textSize="24dp"
+        android:textFontWeight="400"
+        android:paddingTop="19dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintTop_toBottomOf="@id/icon"
         app:layout_constraintStart_toStartOf="parent"
+        tools:text = "Mark Rubenshtein"
     />
 
     <TextView
@@ -40,8 +60,11 @@
         style="@style/Text"
         android:textColor="@color/gray_dark"
         android:text="@string/verified_by"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="12dp"
+        android:textFontWeight="400"
+        android:paddingEnd="4dp"
+        app:layout_constraintTop_toBottomOf="@id/description"
+        app:layout_constraintStart_toStartOf="parent"
     />
 
     <TextView
@@ -50,9 +73,11 @@
         android:layout_height="wrap_content"
         style="@style/Text"
         android:textColor="@color/gray_dark"
+        android:textSize="12dp"
+        android:textFontWeight="400"
+        app:layout_constraintBaseline_toBaselineOf="@id/verified_by"
+        app:layout_constraintStart_toEndOf="@id/verified_by"
         tools:text = "Providence"
-        app:layout_constraintTop_toBottomOf="@id/verified_by"
-        app:layout_constraintEnd_toEndOf="parent"
     />
     
 </androidx.constraintlayout.widget.ConstraintLayout>
