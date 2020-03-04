@@ -31,7 +31,7 @@
         android:textFontWeight="500"
         android:fontFamily="sans-serif-medium"
         android:textAllCaps="true"
-        android:letterSpacing="2dp"
+        android:letterSpacing="2.0"
         android:layout_marginStart="10dp"
         android:paddingTop="2dp"
         app:layout_constraintBaseline_toBaselineOf="@id/icon"
