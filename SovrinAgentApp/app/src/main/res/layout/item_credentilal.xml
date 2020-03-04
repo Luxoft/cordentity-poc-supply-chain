@@ -6,20 +6,33 @@
     style="@style/Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:paddingStart="17dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="25dp"
-    android:paddingBottom="40dp"
+    android:background="@android:color/transparent"
+    android:paddingTop="15dp"
     android:layout_margin="8dp">
+
+<!--    <View
+        android:id="@+id/cardGap"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"/>-->
+
+    <View
+        android:id="@+id/card_background"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/id_icon"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="17dp"
+        app:layout_constraintTop_toTopOf="@id/card_background"
+        app:layout_constraintStart_toStartOf="@id/card_background"
     />
 
     <TextView
@@ -34,7 +47,7 @@
         android:letterSpacing="2.0"
         android:layout_marginStart="10dp"
         android:paddingTop="2dp"
-        app:layout_constraintBaseline_toBaselineOf="@id/icon"
+        app:layout_constraintTop_toTopOf="@id/card_background"
         app:layout_constraintStart_toEndOf="@id/icon"
         tools:text = "Personal Digital ID"
     />
@@ -48,8 +61,9 @@
         android:textFontWeight="400"
         android:paddingTop="19dp"
         android:paddingBottom="12dp"
+        android:layout_marginStart="17dp"
         app:layout_constraintTop_toBottomOf="@id/icon"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/card_background"
         tools:text = "Mark Rubenshtein"
     />
 
@@ -63,8 +77,10 @@
         android:textSize="12dp"
         android:textFontWeight="400"
         android:paddingEnd="4dp"
+        android:layout_marginStart="17dp"
+        android:layout_marginBottom="40dp"
         app:layout_constraintTop_toBottomOf="@id/description"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/card_background"
     />
 
     <TextView
