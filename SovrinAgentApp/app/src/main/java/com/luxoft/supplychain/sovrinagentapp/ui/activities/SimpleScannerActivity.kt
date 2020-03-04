@@ -179,12 +179,7 @@ class SimpleScannerActivity : AppCompatActivity() {
                                                 ?: throw RuntimeException("Agent connection with ${verifier.did} not found")
                                             connection.sendProof(proofFromLedgerData)
 
-                                            val event = VerificationEvent(
-                                                Instant.now(),
-                                                proofFromLedgerData,
-                                                proofRequest,
-                                                requestedData,
-                                                verifier)
+                                            val event = VerificationEvent(Instant.now(), requestedData, verifier)
 
                                             appState.storeVerificationEvent(event)
 

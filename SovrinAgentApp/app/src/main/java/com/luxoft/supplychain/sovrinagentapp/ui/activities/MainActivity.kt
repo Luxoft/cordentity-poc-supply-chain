@@ -27,6 +27,7 @@ import com.luxoft.blockchainlab.hyperledger.indy.IndyUser
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.PopupStatus
+import com.luxoft.supplychain.sovrinagentapp.data.dummyVerificationEvent
 import com.luxoft.supplychain.sovrinagentapp.ui.adapters.ViewPagerAdapter
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.ProfileFragment
 import com.luxoft.supplychain.sovrinagentapp.ui.fragments.VerificationsFragment
@@ -109,6 +110,10 @@ class MainActivity : AppCompatActivity() {
             R.id.reset_all -> {
                 appState.clearBackendData()
                 appState.clearLocalData()
+                true
+            }
+            R.id.generate_verification_event -> {
+                appState.storeVerificationEvent(dummyVerificationEvent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

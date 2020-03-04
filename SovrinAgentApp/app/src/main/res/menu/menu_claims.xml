@@ -23,6 +23,10 @@
                   android:title="Rescan Wallet"
                   app:showAsAction="never"
                   android:visible="false"/>
+
+            <item android:id="@+id/generate_verification_event"
+                  android:title="Generate Verification Event"
+                  app:showAsAction="never"/>
         </menu>
 
     </item>

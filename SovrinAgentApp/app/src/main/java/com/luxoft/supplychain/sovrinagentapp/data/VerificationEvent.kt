@@ -1,13 +1,9 @@
 package com.luxoft.supplychain.sovrinagentapp.data
 
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import java.time.Instant
 
 data class VerificationEvent(
     val verificationInstant: Instant,
-    val proof: ProofInfo,
-    val proofRequest: ProofRequest,
     val requestedAttributeNames: Set<String>,
     val verifier: VerifierInfo
 )
@@ -24,3 +20,5 @@ fun verifierInfoFromDid(did: String) =
         name = "Cherry Hill Medical Center",
         address = "511 16th Ave, Seattle, WA 98122",
         contactPhone = "(206) 320-2000")
+
+val dummyVerificationEvent = VerificationEvent(Instant.now(), emptySet(), verifierInfoFromDid("???"))
