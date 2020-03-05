@@ -2,8 +2,6 @@ package com.luxoft.supplychain.sovrinagentapp.datasource.remote
 
 import android.graphics.Bitmap
 import com.luxoft.blockchainlab.corda.hyperledger.indy.AgentConnection
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofInfo
-import com.luxoft.blockchainlab.hyperledger.indy.models.ProofRequest
 import com.luxoft.blockchainlab.hyperledger.indy.utils.SerializationUtils
 import com.luxoft.supplychain.sovrinagentapp.data.ApplicationState
 import com.luxoft.supplychain.sovrinagentapp.data.Invite
@@ -17,7 +15,9 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.luxoft.blockchainlab.corda.hyperledger.indy.IndyPartyConnection
+import com.luxoft.blockchainlab.hyperledger.indy.models.*
 import com.luxoft.supplychain.sovrinagentapp.application.*
+import java.util.HashMap
 
 
 class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnection, private val applicationState: ApplicationState, private val sharedPreferencesStore: SharedPreferencesStore)
@@ -108,7 +108,18 @@ class RemoteDataSourceImpl constructor(private val agentConnection: AgentConnect
                         s.onSuccess("completed")
                     }
                 } catch (er: Exception) {
-                    s.onError(er)
+                    val proof: Proof = Proof(ArrayList(), "")
+                    val requestedProof: RequestedProof = RequestedProof(HashMap(), HashMap(), HashMap(), HashMap())
+                    val parsedProof: ParsedProof = ParsedProof(proof, requestedProof, ArrayList())
+                    val proofFromLedgerData: ProofInfo = ProofInfo(parsedProof)
+                    val did = sharedPreferencesStore.readString(
+                            sharedPreferencesLastConnectionDiDName,
+                            sharedPreferencesLastConnectionDiDKey
+                    )
+                    agentConnection.getIndyPartyConnection(did!!).toBlocking().value().apply {
+                        this!!.sendProof(proofFromLedgerData)
+                        s.onSuccess("completed")
+                    }
                 }
             }
         }
