@@ -12,15 +12,10 @@ const val NOTIFICATION_CHANNEL_NAME = "INDY_NOTIFICATION_CHANNEL"
 const val GENESIS_PATH = "./docker.txn"
 const val TAILS_PATH = "./tails"
 
-//const val nodeIp = """52.15.95.244"""  // amazon
-//const val GENESIS_IP = """52.15.95.244"""  // azure
-const val GENESIS_IP = """52.224.217.165"""  // azure
+const val GENESIS_IP = """"""
 
 
-//const val WS_ENDPOINT = "ws://localhost:8094/ws"
-//const val WS_ENDPOINT = "ws://13.92.115.239:8094/ws"  // azure
-//const val WS_ENDPOINT = "ws://3.17.65.252:8094/ws"  // amazon
-const val WS_ENDPOINT = "ws://52.224.104.135:8094/ws"  // client
+const val WS_ENDPOINT = "ws://:8094/ws"  // client
 
 const val WS_LOGIN = "medical-supplychain"
 const val WS_PASS = "secretPassword"

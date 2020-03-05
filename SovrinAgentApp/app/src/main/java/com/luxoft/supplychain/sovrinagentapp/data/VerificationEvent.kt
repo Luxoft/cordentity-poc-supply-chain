@@ -20,7 +20,7 @@ data class VerifierInfo(
 )
 
 fun verifierInfoFromDid(did: String) =
-    VerifierInfo(did,
-        name = "Cherry Hill Medical Center",
-        address = "511 16th Ave, Seattle, WA 98122",
-        contactPhone = "(206) 320-2000")
+    VerifierInfo("",
+        name = "",
+        address = "",
+        contactPhone = "")

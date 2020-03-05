@@ -90,10 +90,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-//        nameClaims.addChangeListener { claims ->
-//            val userName = claims.first()?.value ?: ""
-//            supportActionBar?.title = userName
-//        }
         appState.user.observe({ lifecycle }) { user ->
             headerTitle.text = user.name ?: ""
         }
