@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.item_verification.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<VerificationEvent>>) :
@@ -45,6 +46,17 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
         val event = items[groupPosition]
 
+        return if(isExpanded)
+            groupViewExpanded(convertView, parent, event)
+        else
+            groupViewCollapsed(convertView, parent, event)
+    }
+
+    override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
+        return TODO()
+    }
+
+    private fun groupViewCollapsed(convertView: View?, parent: ViewGroup?, event: VerificationEvent): View {
         // todo: re-use [convertView]
         val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
 
@@ -59,7 +71,19 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         return view
     }
 
-    override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
-        return TODO()
+    private fun groupViewExpanded(convertView: View?, parent: ViewGroup?, event: VerificationEvent): View {
+        // todo: re-use [convertView]
+        val view = inflater.inflate(R.layout.item_verification_expanded, /*root=*/parent, /*attachTORoot=*/false)
+
+        val date = Date.from(event.verificationInstant)
+        val dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.US)
+        val timeFormat = SimpleDateFormat("hh:mm aa", Locale.US)
+
+        view.verificationDate.text = timeFormat.format(date) + "  " + dateFormat.format(date)
+        view.verifierName.text = event.verifier.name
+        view.verifierAddress.text = event.verifier.address
+        view.verifierContactPhone.text = event.verifier.contactPhone
+
+        return view
     }
 }
