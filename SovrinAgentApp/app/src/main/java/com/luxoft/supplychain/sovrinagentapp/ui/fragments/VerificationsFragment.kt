@@ -59,6 +59,6 @@ class VerificationsFragment : Fragment() {
             ContextCompat.startActivity(scanVerificationRequest.context, intent, /*options=*/null)
         }
 
-        verificationHistory.adapter = VerificationsHistoryAdapter(requireContext(), appState.authenticationHistory)
+        verificationHistory.setAdapter(VerificationsHistoryAdapter(requireContext(), appState.authenticationHistory))
     }
 }

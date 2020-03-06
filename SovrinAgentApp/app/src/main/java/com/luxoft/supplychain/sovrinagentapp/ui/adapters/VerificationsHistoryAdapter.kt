@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
@@ -16,7 +16,7 @@ import java.text.DateFormat
 import java.util.*
 
 class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<VerificationEvent>>) :
-    BaseAdapter(), KoinComponent
+    BaseExpandableListAdapter(), KoinComponent
 {
     private var items: List<VerificationEvent> = listOf()
 
@@ -31,12 +31,19 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
     private val attributeFormatter: CredentialAttributePresentationRules by inject()
     private val inflater = LayoutInflater.from(context)
 
-    override fun getItem(position: Int): Any = items[position]
-    override fun getItemId(position: Int): Long = position.toLong()
-    override fun getCount(): Int = items.size
+    override fun getGroup(groupPosition: Int): Any = items[groupPosition]
+    override fun getChild(groupPosition: Int, childPosition: Int): Any = TODO()
+    override fun getGroupCount(): Int = items.size
+    override fun getChildrenCount(groupPosition: Int): Int = 0
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val event = items[position]
+    override fun getGroupId(groupPosition: Int): Long = groupPosition.toLong()
+    override fun getChildId(groupPosition: Int, childPosition: Int): Long = 0
+
+    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = false
+    override fun hasStableIds(): Boolean = false // todo: what is it?
+
+    override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
+        val event = items[groupPosition]
 
         // todo: re-use [convertView]
         val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
@@ -52,4 +59,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         return view
     }
 
+    override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
+        return TODO()
+    }
 }
