@@ -60,8 +60,38 @@
                 android:paddingVertical="6dp"
                 style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/tabs"
+                app:layout_constraintBottom_toTopOf="@id/fixedHeaderTitle"
+                android:visibility="gone"
                 tools:text="User Name"/>
+
+            <TextView
+                android:id="@+id/fixedHeaderTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hi, Jonathan Smith!"
+                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="16dp"
+                android:textFontWeight="500"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="83dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/fixedHeaderSubtitle"/>
+
+            <TextView
+                android:id="@+id/fixedHeaderSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Manage your credentials by adding or presenting your credentials below"
+                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                android:fontFamily="sans-serif"
+                android:textSize="14dp"
+                android:textFontWeight="400"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="15dp"
+                android:layout_marginEnd="83dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/tabs"/>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
