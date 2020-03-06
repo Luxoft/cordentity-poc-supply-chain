@@ -3,8 +3,7 @@ package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
@@ -70,6 +69,13 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
             view.verified_by.visibility = GONE
         }
 
+        if(isExpanded) {
+            view.group_is_expanded.visibility = VISIBLE
+            view.group_is_collapsed.visibility = INVISIBLE
+        } else {
+            view.group_is_expanded.visibility = INVISIBLE
+            view.group_is_collapsed.visibility = VISIBLE
+        }
 
         return view
     }

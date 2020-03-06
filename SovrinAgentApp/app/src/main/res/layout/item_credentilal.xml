@@ -1,94 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Card"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:paddingTop="15dp"
-    android:layout_margin="8dp">
+<FrameLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="wrap_content">
 
-    <View
-        android:id="@+id/card_background"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+    <!-- ListView ignores element margins, so workaround with FrameLayout and partial margins -->
+    <androidx.cardview.widget.CardView
+        style="@style/Card"
+        android:layout_marginLeft="@dimen/card_margin"
+        android:layout_marginRight="@dimen/card_margin"
+        android:layout_marginBottom="@dimen/card_margin_half"
+        android:layout_marginTop="@dimen/card_margin_half">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/id_icon"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="@id/card_background"
-        app:layout_constraintStart_toStartOf="@id/card_background"
-    />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="40dp">
 
-    <TextView
-        android:id="@+id/tittle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Text"
-        android:textSize="12dp"
-        android:textFontWeight="500"
-        android:fontFamily="sans-serif-medium"
-        android:textAllCaps="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:paddingTop="2dp"
-        app:layout_constraintTop_toTopOf="@id/card_background"
-        app:layout_constraintStart_toEndOf="@id/icon"
-        tools:text = "Personal Digital ID"
-    />
+            <ImageView
+                android:id="@+id/group_is_collapsed"
+                android:layout_width="12dp"
+                android:layout_height="8dp"
+                android:src="@drawable/down"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Text"
-        android:textSize="24dp"
-        android:textFontWeight="400"
-        android:paddingTop="19dp"
-        android:paddingBottom="12dp"
-        android:layout_marginStart="17dp"
-        app:layout_constraintTop_toBottomOf="@id/icon"
-        app:layout_constraintStart_toStartOf="@id/card_background"
-        tools:text = "Mark Rubenshtein"
-    />
+            <ImageView
+                android:id="@+id/group_is_expanded"
+                android:layout_width="12dp"
+                android:layout_height="8dp"
+                android:src="@drawable/up"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="invisible"/>
 
-    <TextView
-        android:id="@+id/verified_by"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Text"
-        android:textColor="@color/gray_dark"
-        android:text="@string/verified_by"
-        android:textSize="12dp"
-        android:textFontWeight="400"
-        android:paddingEnd="4dp"
-        android:layout_marginStart="17dp"
-        android:paddingBottom="40dp"
-        app:layout_constraintTop_toBottomOf="@id/description"
-        app:layout_constraintStart_toStartOf="@id/card_background"
-    />
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/id_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+            />
 
-    <TextView
-        android:id="@+id/verifier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Text"
-        android:textColor="@color/gray_dark"
-        android:textSize="12dp"
-        android:textFontWeight="400"
-        app:layout_constraintBaseline_toBaselineOf="@id/verified_by"
-        app:layout_constraintStart_toEndOf="@id/verified_by"
-        tools:text = "Providence"
-    />
-    
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tittle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Text"
+                android:textSize="12dp"
+                android:textFontWeight="500"
+                android:fontFamily="sans-serif-medium"
+                android:textAllCaps="true"
+                android:layout_marginStart="10dp"
+                android:paddingTop="2dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/icon"
+                tools:text = "Personal Digital ID"
+            />
 
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Text"
+                android:textSize="24dp"
+                android:textFontWeight="400"
+                android:paddingTop="19dp"
+                android:paddingBottom="12dp"
+                app:layout_constraintTop_toBottomOf="@id/icon"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text = "Mark Rubenshtein"
+            />
+
+            <TextView
+                android:id="@+id/verified_by"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Text"
+                android:textColor="@color/gray_dark"
+                android:text="@string/verified_by"
+                android:textSize="12dp"
+                android:textFontWeight="400"
+                android:paddingEnd="4dp"
+                app:layout_constraintTop_toBottomOf="@id/description"
+                app:layout_constraintStart_toStartOf="parent"
+            />
+
+            <TextView
+                android:id="@+id/verifier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Text"
+                android:textColor="@color/gray_dark"
+                android:textSize="12dp"
+                android:textFontWeight="400"
+                app:layout_constraintBaseline_toBaselineOf="@id/verified_by"
+                app:layout_constraintStart_toEndOf="@id/verified_by"
+                tools:text = "Providence"
+            />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>
