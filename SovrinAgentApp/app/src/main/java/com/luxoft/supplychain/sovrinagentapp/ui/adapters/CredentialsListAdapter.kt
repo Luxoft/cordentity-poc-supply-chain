@@ -66,7 +66,7 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
                 ?: inflater.inflate(R.layout.item_credential_attribute, /*root=*/parent, /*attachToRoot=*/false)
 
         view.name.text = childFormatter.formatName(key)
-        view.textValue.text = childFormatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 40)
+        view.textValue.text = childFormatter.formatValueText(key, value)
 
         /* Handle img attribute:
         item.value ?: return

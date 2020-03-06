@@ -1,8 +1,6 @@
 package com.luxoft.supplychain.sovrinagentapp.data
 
 import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialReference
-import com.luxoft.supplychain.sovrinagentapp.utils.abbreviate
-import java.lang.Integer.min
 import java.text.DateFormat
 import java.util.*
 
@@ -41,19 +39,13 @@ class CredentialAttributePresentationRules() {
     }
 
     fun formatValueText(attrKey: String,
-                        attrValue: Any?,
-                        maxWidth: Int = Int.MAX_VALUE,
-                        maxWidthWithKey: Int = Int.MAX_VALUE): String
+                        attrValue: Any?): String
     {
         val str = attrValue?.toString()?.trim()
 
-        val keyStr = formatName(attrKey)
-        val maxTextWidth = min(maxWidth, maxWidthWithKey - keyStr.length)
-
         when(contentType(attrKey, attrValue)) {
             ContentType.TEXT -> {
-                str ?: return "---"
-                return str.abbreviate(maxTextWidth, ending = "..")
+                return str ?: "---"
             }
 
             ContentType.DATE -> {
