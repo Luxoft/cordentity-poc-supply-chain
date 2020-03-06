@@ -12,7 +12,7 @@ import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
 import com.luxoft.supplychain.sovrinagentapp.data.CredentialPresentationRules
 import kotlinx.android.synthetic.main.item_credential_attribute.view.*
-import kotlinx.android.synthetic.main.item_credentilal.view.*
+import kotlinx.android.synthetic.main.item_credentilal_collapsed.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -50,34 +50,12 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
     override fun hasStableIds(): Boolean = false // todo: what is it?
 
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
-        val cred = groups[groupPosition]
+        val credential = groups[groupPosition]
 
-        // todo: reuse [convertView]
-        // todo: maybe use parent view as root?
-        val view = inflater.inflate(R.layout.item_credentilal, /*root=*/null)
-
-        view.tittle.text = groupFormatter.formatName(cred)
-        view.description.text = groupFormatter.formatDescription(cred)
-
-        val issuerName = groupFormatter.formatIssuerName(cred)
-        if(issuerName != null) {
-            view.verifier.text = issuerName
-            view.verifier.visibility = VISIBLE
-            view.verified_by.visibility = VISIBLE
-        } else {
-            view.verifier.visibility = GONE
-            view.verified_by.visibility = GONE
-        }
-
-        if(isExpanded) {
-            view.group_is_expanded.visibility = VISIBLE
-            view.group_is_collapsed.visibility = INVISIBLE
-        } else {
-            view.group_is_expanded.visibility = INVISIBLE
-            view.group_is_collapsed.visibility = VISIBLE
-        }
-
-        return view
+        return if(isExpanded)
+            groupViewExpanded(convertView, parent, credential)
+        else
+            groupViewCollapsed(convertView, parent, credential)
     }
 
     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
@@ -101,4 +79,43 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
         return view
     }
 
+    private fun groupViewCollapsed(convertView: View?, parent: ViewGroup?, cred: CredentialReference): View {
+        // todo: reuse [convertView]
+        val view = inflater.inflate(R.layout.item_credentilal_collapsed, /*root=*/parent, /*attachToRoot=*/false)
+
+        view.tittle.text = groupFormatter.formatName(cred)
+        view.description.text = groupFormatter.formatDescription(cred)
+
+        val issuerName = groupFormatter.formatIssuerName(cred)
+        if(issuerName != null) {
+            view.verifier.text = issuerName
+            view.verifier.visibility = VISIBLE
+            view.verified_by.visibility = VISIBLE
+        } else {
+            view.verifier.visibility = GONE
+            view.verified_by.visibility = GONE
+        }
+
+        return view
+    }
+
+    private fun groupViewExpanded(convertView: View?, parent: ViewGroup?, cred: CredentialReference): View {
+        // todo: reuse [convertView]
+        val view = inflater.inflate(R.layout.item_credentilal_expanded, /*root=*/parent, /*attachToRoot=*/false)
+
+        view.tittle.text = groupFormatter.formatName(cred)
+        view.description.text = groupFormatter.formatDescription(cred)
+
+        val issuerName = groupFormatter.formatIssuerName(cred)
+        if(issuerName != null) {
+            view.verifier.text = issuerName
+            view.verifier.visibility = VISIBLE
+            view.verified_by.visibility = VISIBLE
+        } else {
+            view.verifier.visibility = GONE
+            view.verified_by.visibility = GONE
+        }
+
+        return view
+    }
 }

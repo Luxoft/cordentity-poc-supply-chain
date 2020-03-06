@@ -71,7 +71,7 @@
                 android:groupIndicator="@android:color/transparent"
                 app:layout_constraintTop_toBottomOf="@id/walletStatus"
                 app:layout_constraintBottom_toBottomOf="parent"
-                tools:listitem="@layout/item_credentilal"/>
+                tools:listitem="@layout/item_credentilal_collapsed"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
