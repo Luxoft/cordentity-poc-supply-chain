@@ -230,11 +230,11 @@ class SimpleScannerActivity : AppCompatActivity() {
                 |$formattedListRequestedAttributes 
             """.trimMargin()
 
-        val dialog = AlertDialog.Builder(this@SimpleScannerActivity)
-            .setTitle("Claims Requested")
+        val dialog = AlertDialog.Builder(this@SimpleScannerActivity, android.R.style.Theme_Material_Light_Dialog_Alert)
+            .setTitle("Claims requested")
             .setMessage(bodyMessage)
             .setCancelable(false)
-            .setPositiveButton("ALLOW") { _, _ -> allowAction() }
+            .setPositiveButton("ACCEPT") { _, _ -> allowAction() }
             .setNegativeButton("CANCEL") { _, _ -> this@SimpleScannerActivity.finish() }
             .create()
 
@@ -268,8 +268,8 @@ class SimpleScannerActivity : AppCompatActivity() {
             |$formattedListWalletCredentials
         """.trimMargin()
 
-        return AlertDialog.Builder(this@SimpleScannerActivity)
-            .setTitle("Unknown Claims Requested")
+        return AlertDialog.Builder(this@SimpleScannerActivity, android.R.style.Theme_Material_Light_Dialog_Alert)
+            .setTitle("Unknown claims requested")
             .setMessage(bodyMessage)
             .setCancelable(false)
             .setNegativeButton("CANCEL") { _, _ -> finish() }
