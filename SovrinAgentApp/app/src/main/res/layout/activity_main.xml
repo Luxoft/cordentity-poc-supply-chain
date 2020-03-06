@@ -6,7 +6,6 @@
     android:id="@+id/mainlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="com.luxoft.supplychain.sovrinagentapp.ui.activities.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -21,12 +20,12 @@
             <ImageView
                 android:id="@+id/headerImage"
                 android:layout_width="match_parent"
-                android:layout_height="50mm"
-                android:background="@drawable/youngman"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@drawable/youngman_gradient"
                 android:contentDescription="User Profile Photo"
-                android:scaleType="fitCenter"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/tabs"/>
+                app:layout_constraintTop_toBottomOf="@id/toolbar"
+            />
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -34,8 +33,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageButton
                     android:layout_width="wrap_content"
@@ -70,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/bg_main"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/headerImage"
                 app:tabTextAppearance="@style/TabText"
                 app:tabIndicatorColor="@color/colorPrimary"
                 app:tabMode="fixed"/>
