@@ -35,7 +35,17 @@ class CredentialAttributePresentationRules() {
 
     fun formatName(attrKey: String): String {
         val removedSuffix = attrKey.removeSuffix("_ms")
-        return removedSuffix.replace('_', ' ').trim()
+        val removedServiceChars = removedSuffix.replace('_', ' ').trim()
+
+        val abbreviationRanges = Regex("""[A-Z]{2,}""").findAll(removedServiceChars).map { it.range }
+        val allLowerCase = removedServiceChars.toLowerCase(Locale.US)
+
+        val builder = StringBuilder(allLowerCase)
+        for(abbRange in abbreviationRanges)
+            for(index in abbRange)
+                builder[index] = builder[index].toUpperCase()
+
+        return builder.toString()
     }
 
     fun formatValueText(attrKey: String,
