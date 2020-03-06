@@ -3,7 +3,8 @@ package com.luxoft.supplychain.sovrinagentapp.ui.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import androidx.lifecycle.LiveData
@@ -61,9 +62,8 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
         val (key, value) = items[groupPosition][childPosition]
 
-        // todo: reuse [convertView]
-        // todo: maybe use parent view as root?
-        val view = inflater.inflate(R.layout.item_credential_attribute, /*root=*/null)
+        val view = convertView
+                ?: inflater.inflate(R.layout.item_credential_attribute, /*root=*/parent, /*attachToRoot=*/false)
 
         view.name.text = childFormatter.formatName(key)
         view.textValue.text = childFormatter.formatValueText(key, value, maxWidth = 25, maxWidthWithKey = 40)
@@ -80,7 +80,6 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
     }
 
     private fun groupViewCollapsed(convertView: View?, parent: ViewGroup?, cred: CredentialReference): View {
-        // todo: reuse [convertView]
         val view = inflater.inflate(R.layout.item_credentilal_collapsed, /*root=*/parent, /*attachToRoot=*/false)
 
         view.tittle.text = groupFormatter.formatName(cred)
@@ -100,7 +99,6 @@ class CredentialsListAdapter(val context: Context, credentials: LiveData<List<Cr
     }
 
     private fun groupViewExpanded(convertView: View?, parent: ViewGroup?, cred: CredentialReference): View {
-        // todo: reuse [convertView]
         val view = inflater.inflate(R.layout.item_credentilal_expanded, /*root=*/parent, /*attachToRoot=*/false)
 
         view.tittle.text = groupFormatter.formatName(cred)

@@ -9,8 +9,8 @@ import androidx.lifecycle.LiveData
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
 import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
-import kotlinx.android.synthetic.main.item_verification.view.verificationDate
-import kotlinx.android.synthetic.main.item_verification.view.verifierName
+import kotlinx.android.synthetic.main.item_verification_collapsed.view.verificationDate
+import kotlinx.android.synthetic.main.item_verification_collapsed.view.verifierName
 import kotlinx.android.synthetic.main.item_verification_expanded.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
@@ -59,8 +59,7 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
     }
 
     private fun groupViewCollapsed(convertView: View?, parent: ViewGroup?, event: VerificationEvent): View {
-        // todo: re-use [convertView]
-        val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
+        val view = inflater.inflate(R.layout.item_verification_collapsed, /*root=*/parent, /*attachTORoot=*/false)
 
         val date = Date.from(event.verificationInstant)
         val dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.US)
@@ -73,7 +72,6 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
     }
 
     private fun groupViewExpanded(convertView: View?, parent: ViewGroup?, event: VerificationEvent): View {
-        // todo: re-use [convertView]
         val view = inflater.inflate(R.layout.item_verification_expanded, /*root=*/parent, /*attachTORoot=*/false)
 
         val date = Date.from(event.verificationInstant)
