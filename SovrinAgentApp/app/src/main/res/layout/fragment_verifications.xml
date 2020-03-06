@@ -34,8 +34,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:fontFamily="sans-serif-medium"
+            android:textFontWeight="500"
+            android:letterSpacing="0.05"
             android:textColor="@color/black"
-            android:textSize="@dimen/text_title"
             android:layout_marginLeft="10dp"
             android:text="@string/tip_to_present_credential"/>
     </LinearLayout>
