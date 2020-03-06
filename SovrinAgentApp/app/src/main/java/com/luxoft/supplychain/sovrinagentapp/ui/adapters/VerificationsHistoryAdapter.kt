@@ -9,7 +9,9 @@ import androidx.lifecycle.LiveData
 import com.luxoft.supplychain.sovrinagentapp.R
 import com.luxoft.supplychain.sovrinagentapp.data.CredentialAttributePresentationRules
 import com.luxoft.supplychain.sovrinagentapp.data.VerificationEvent
-import kotlinx.android.synthetic.main.item_verification.view.*
+import kotlinx.android.synthetic.main.item_verification.view.verificationDate
+import kotlinx.android.synthetic.main.item_verification.view.verifierName
+import kotlinx.android.synthetic.main.item_verification_expanded.view.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import java.text.DateFormat
@@ -60,13 +62,12 @@ class VerificationsHistoryAdapter(val context: Context, history: LiveData<List<V
         // todo: re-use [convertView]
         val view = inflater.inflate(R.layout.item_verification, /*root=*/parent, /*attachTORoot=*/false)
 
-        val revealedAttributeNames = event.requestedAttributeNames.map { attributeFormatter.formatName(it) }
+        val date = Date.from(event.verificationInstant)
+        val dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.US)
+        val timeFormat = SimpleDateFormat("hh:mm aa", Locale.US)
 
-        view.verificationDate.text = DateFormat.getDateTimeInstance().format(Date.from(event.verificationInstant))
-        view.provedData.text = revealedAttributeNames.joinToString()
+        view.verificationDate.text = timeFormat.format(date) + "  " + dateFormat.format(date)
         view.verifierName.text = event.verifier.name
-        view.verifierAddress.text = event.verifier.address
-        view.verifierContactPhone.text = event.verifier.contactPhone
 
         return view
     }
