@@ -9,6 +9,7 @@ android:layout_height="wrap_content">
     <!-- ListView ignores element margins, so workaround with FrameLayout and partial margins -->
     <androidx.cardview.widget.CardView
         style="@style/Card"
+        app:cardCornerRadius="0dp"
         android:layout_marginLeft="@dimen/card_margin"
         android:layout_marginRight="@dimen/card_margin"
         android:layout_marginBottom="0dp"
