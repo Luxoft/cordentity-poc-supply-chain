@@ -20,7 +20,6 @@ import com.luxoft.blockchainlab.corda.hyperledger.indy.data.state.IndyCredential
 import com.luxoft.poc.supplychain.data.AcceptanceResult
 import com.luxoft.poc.supplychain.data.state.Package
 import com.luxoft.poc.supplychain.flow.GetInviteFlow
-import com.luxoft.poc.supplychain.flow.GetTailsFlow
 import com.luxoft.poc.supplychain.flow.PackageWithdrawal
 import com.luxoft.poc.supplychain.flow.ReceiveShipment
 import com.luxoft.poc.supplychain.flow.medicine.AskNewPackage
@@ -71,13 +70,6 @@ class TreatmentCenterController(rpc: RPCComponent) {
         println("Responding to /api/tc/invite with ($uuid,$response)")
 
         return Invite(response, uuid.toString())
-    }
-
-    @GetMapping("tails")
-    fun getTails(): Map<String, String> {
-        val response = services.startFlow(GetTailsFlow::Treatment).returnValue.getOrThrow(Duration.ofSeconds(15))
-
-        return response
     }
 
     @PostMapping("request/create")

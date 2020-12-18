@@ -1,142 +1,95 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url "https://software.r3.com/artifactory/corda-releases" }
     }
-
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "net.corda.plugins:cordformation:${corda_gradle_plugins_version}"
+        classpath "net.corda:corda-common-logging:$corda_release_version"
+        classpath "net.corda:corda-tools-network-bootstrapper:$corda_release_version"
     }
 }
 
 def RUN_CORDA_GROUP = "corda"
+def profileRoot = "$rootDir/devops/profile/"
+def profilePath = "$profileRoot/develop"
+def nodesRoot = "$rootDir/build/nodes"
+def nodeDirs = { new File(nodesRoot).listFiles().findAll { it.isDirectory() } }
 
 apply plugin: 'kotlin'
-apply plugin: 'net.corda.plugins.cordformation'
-
-task deployNodes(type: net.corda.plugins.Cordform, group: RUN_CORDA_GROUP) {
-    dependsOn 'cordapp:jar'
-    directory "$rootDir/build/nodes"
-
-    node {
-        name "O=Notary,L=London,C=GB"
-        notary = [validating: false]
-        p2pPort 10701
-        rpcSettings {
-            address("localhost:10702")
-            adminAddress("localhost:10703")
-        }
-        cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-
-    node {
-        name "O=PharmaOne,L=London,C=GB"
-        p2pPort 10001
-        rpcSettings {
-            address("localhost:10002")
-            adminAddress("localhost:10003")
-        }
-        cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-
-    node {
-        name "O=SEEHOF,L=Zurich,C=CH"
-        p2pPort 10101
-        rpcSettings {
-            address("localhost:10102")
-            adminAddress("localhost:10103")
-        }
-        cordapps = ["com.luxoft.poc.supplychain:cordapp:0.1"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-}
-
-
-deployNodes.initializeConfiguration()
-def cordaNodes = deployNodes.nodes
-
+jar.enabled = false
 
 configurations {
     /** Dependencies that must be deployed into running Corda nodes */
-    cordappDeploy
-}
-
-task deployJarsToNodes(group: RUN_CORDA_GROUP) {
-    doLast {
-        def cordaDeployConfiguration = configurations.cordappDeploy
-        def cordaDeployDependencies = cordaDeployConfiguration.resolvedConfiguration.firstLevelModuleDependencies
-        def cordaDeployArtifacts = cordaDeployDependencies.collectMany { it.moduleArtifacts }
-        def cordaDeployFiles = cordaDeployArtifacts*.file
-        
-        for(nodeDir in cordaNodes*.nodeDir) {
-            copy {
-                from cordaDeployFiles
-                into "$nodeDir/cordapps"
-            }
-        }
-    }
-}
-
-task deployCordappToNodes(group: RUN_CORDA_GROUP) {
-    doLast {
-        for(nodeDir in cordaNodes*.nodeDir) {
-            copy {
-                from('devops/Dockerfile-corda')
-                into(nodeDir)
-            }
-        }
-    }
-}
-
-task deployGenesisToNodes(group: RUN_CORDA_GROUP) {
-    doLast {
-        for (nodeDir in cordaNodes*.nodeDir) {
-            copy {
-                from ('cordapp/src/main/resources/genesis')
-                into("$nodeDir/genesis")
-            }
-        }
-    }
-}
-
-task deployConfigsToNodes(group: RUN_CORDA_GROUP) {
-    def indyConfigMapping = [
-            "SEEHOF"            : "treatment",
-            "PharmaOne"         : "issuer",
-            "Notary"            : "notary"
-    ]
-
-    doLast {
-        indyConfigMapping.each { nodeName, configName ->
-            def node = cordaNodes.find { it.nodeDir.name == nodeName }
-
-            copy {
-                from("config/test/indyconfig")
-                into("${node.nodeDir}/indyconfig")
-                include("${configName}.properties")
-                rename("${configName}.properties", 'indy.properties')
-            }
-        }
+    cordappDeploy {
+        transitive = false
+        extendsFrom implementation
     }
 }
 
 task killCordaProcesses(type: Exec, group: RUN_CORDA_GROUP) {
-    commandLine "bash", "-c", 'kill -9 `jps | grep "Corda" | cut -d " " -f 1` || true'
+    commandLine "bash", "-c", 'kill `pgrep xterm` && sleep 5; kill -9 `jps | grep "Corda\\|unavailable" | cut -d " " -f 1`; true'
 }
 
-task deployCordaNetwork(group: RUN_CORDA_GROUP) {
-    dependsOn deployNodes
-    dependsOn deployJarsToNodes
-    dependsOn deployCordappToNodes
-    dependsOn deployConfigsToNodes
-    dependsOn deployGenesisToNodes
+task copyNodeFiles(group: RUN_CORDA_GROUP) {
+    afterEvaluate {
+        //Assembling project dependencies
+        for (dependency in configurations.cordappDeploy.allDependencies) {
+            if (dependency instanceof ProjectDependency) {
+                dependsOn "$dependency.dependencyProject.name:assemble"
+            }
+        }
+    }
+    doFirst {
+        //Node directories
+        copy {
+            from "$profilePath/nodes"
+            into "$rootDir/build/nodes"
+        }
+        for (nodeDir in nodeDirs()) {
+            //Corda exec jar and docker file
+            copy {
+                from "$profilePath/Dockerfile-corda"
+                from(configurations.cordappDeploy) {
+                    include("corda-${corda_release_version}.jar")
+                    rename "corda-${corda_release_version}.jar", "corda.jar"
+                }
+                into nodeDir
+            }
+            //Indy genesis
+            copy {
+                from "$profilePath/genesis"
+                into "$nodeDir/genesis"
+            }
+            //Cordapp default configs
+            copy {
+                from "${profilePath}/config"
+                into "$nodeDir/cordapps/config"
+            }
+            //External node info
+            copy {
+                from "${profilePath}/additional-node-infos"
+                into "$nodeDir/additional-node-infos"
+            }
+        }
+        //Node configs overwrite
+        copy {
+            from "$profilePath/nodes"
+            into "$rootDir/build/nodes"
+        }
+        // Cordapps are copied into nodesRoot -- the bootstrapper will
+        // distribute these cordapps to nodes
+        copy {
+            from(configurations.cordappDeploy)
+            into nodesRoot
+        }
+    }
 }
 
-task runNodes(type: Exec, group: RUN_CORDA_GROUP) {
-    dependsOn deployCordaNetwork
-
-    workingDir "$rootDir/build/nodes"
-    executable "./runnodes"
+task bootstrap(type: Exec, group: RUN_CORDA_GROUP) {
+    dependsOn copyNodeFiles
+    def jarPath = buildscript.configurations.classpath.resolve().find {
+        it.name.startsWith("corda-tools-network-bootstrapper-")
+    }
+    commandLine "java", "-jar", "$jarPath", "--dir", "$rootDir/build/nodes"
 }

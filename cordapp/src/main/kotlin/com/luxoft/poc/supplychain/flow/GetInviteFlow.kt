@@ -1,9 +1,11 @@
 package com.luxoft.poc.supplychain.flow
 
 import co.paralleluniverse.fibers.Suspendable
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.indyUser
 import com.luxoft.blockchainlab.corda.hyperledger.indy.handle
 import com.luxoft.blockchainlab.corda.hyperledger.indy.service.awaitFiber
 import com.luxoft.blockchainlab.corda.hyperledger.indy.service.connectionService
+import com.luxoft.blockchainlab.hyperledger.indy.helpers.TailsHelper
 import com.luxoft.poc.supplychain.service.clientResolverService
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
@@ -35,6 +37,9 @@ class GetInviteFlow {
                                 return@handle
                             }
                             clientResolverService().userUuid2Did[clientId]!!.complete(message!!.partyDID())
+                            message.handleTailsRequestsWith {
+                                TailsHelper.DefaultReader(indyUser().walletUser.getTailsPath()).read(it)
+                            }
                         }
             }.exceptionally { logger.error("Error in invite future", it); null; }
 

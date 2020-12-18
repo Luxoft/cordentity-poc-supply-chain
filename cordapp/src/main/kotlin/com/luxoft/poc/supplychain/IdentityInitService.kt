@@ -17,8 +17,9 @@
 package com.luxoft.poc.supplychain
 
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateCredentialDefinitionFlow
+import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateRevocationRegistryFlow
 import com.luxoft.blockchainlab.corda.hyperledger.indy.flow.CreateSchemaFlow
-import com.luxoft.blockchainlab.hyperledger.indy.models.CredentialDefinitionId
+import com.luxoft.blockchainlab.hyperledger.indy.models.RevocationRegistryInfo
 import com.luxoft.blockchainlab.hyperledger.indy.models.SchemaId
 import com.luxoft.poc.supplychain.data.schema.IndySchema
 import com.luxoft.poc.supplychain.flow.IndyUtilsFlow
@@ -30,7 +31,7 @@ import java.time.Duration
 
 class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Duration = Duration.ofSeconds(30)) {
 
-    fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, CredentialDefinitionId> {
+    fun issueIndyMeta(schema: IndySchema): Pair<SchemaId, RevocationRegistryInfo> {
         rpc.startFlow(IndyUtilsFlow::GrantTrust).returnValue.get()
 
         val schemaId = rpc.startFlow(
@@ -38,9 +39,12 @@ class IdentityInitService(private val rpc: CordaRPCOps, private val timeout: Dur
         ).returnValue.getOrThrow(timeout).getSchemaIdObject()
 
         val credDefId =
-            rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, false).returnValue.getOrThrow(timeout)
+            rpc.startFlow(CreateCredentialDefinitionFlow::Authority, schemaId, true).returnValue.getOrThrow(timeout)
                 .getCredentialDefinitionIdObject()
 
-        return Pair(schemaId, credDefId)
+        val revocationRegistry =
+            rpc.startFlow(CreateRevocationRegistryFlow::Authority, credDefId, 100).returnValue.getOrThrow(timeout)
+
+        return Pair(schemaId, revocationRegistry)
     }
 }

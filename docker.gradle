@@ -1,43 +1,69 @@
 buildscript {
-    ext.docker_plugin_version = "0.19.2"
+    ext.docker_plugin_version = "0.9.4"
 
     repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
+        mavenLocal()
+        mavenCentral()
+        jcenter()
     }
+
     dependencies {
-        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:$docker_plugin_version"
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:$docker_plugin_version"
     }
 }
 
-apply plugin: com.palantir.gradle.docker.DockerRunPlugin
+apply plugin: com.avast.gradle.dockercompose.DockerComposePlugin
 
-
-ext.dockerRunTask = tasks.find {it.name == "dockerRun"}
-
-def DOCKER_GROUP = dockerRunTask.group
-
-task dockerCleanRun(group: DOCKER_GROUP) {
-    doLast {
-        dockerStop.execute()
-        println("DOCKER $dockerRun.name has been STOPED")
-        dockerRemoveContainer.execute()
-        println("DOCKER $dockerRun.name has been REMOVED")
-        dockerRunTask.execute()
-        println("DOCKER $dockerRun.name has been STARTED")
+//TODO: Figure out how to clean images of docker build removeImages="Local" doesn`t work
+dockerCompose {
+    projectName = name
+    baseimages {
+        startedServices = ['cordabaseimage']
     }
+    backends {
+        projectName = name
+        startedServices = ['tcweb', 'mfweb']
+    }
+    corda {
+        projectName = name
+        startedServices = ['notary', 'tccorda', 'mfcorda']
+    }
+    agents {
+        projectName = name
+        startedServices = ['agent95', 'agent96', 'agentInitiator']
+    }
+    cordaComposeUp.doLast {
+        sleep(60 * 1000)
+    }
+    backendsComposeUp.doLast {
+        sleep(60 * 1000)
+    }
+    backendsComposeUp.shouldRunAfter(cordaComposeUp)
+    cordaComposeUp.shouldRunAfter(agentsComposeUp)
+    baseimagesComposeBuild.dependsOn("bootstrap")
+    cordaComposeBuild.dependsOn("bootstrap")
+    cordaComposeBuild.dependsOn(baseimagesComposeBuild)
+    cordaComposeBuild.mustRunAfter(baseimagesComposeBuild)
+    backendsComposeBuild.dependsOn(":webapp:assemble")
+    backendsComposeBuild.dependsOn("bootstrap")
+    backendsComposeBuild.mustRunAfter(baseimagesComposeBuild)
+    backendsComposeDown.mustRunAfter(":webapp:test")
+//    backendsComposeDown.mustRunAfter(":webapp:integrationTest")
+    backendsComposeDown.doLast { backendsDockerImagesClean.execute() }
+    cordaComposeDown.mustRunAfter(backendsComposeDown)
+    cordaComposeDown.doLast { cordaDockerImagesClean.execute() }
+    composeDown.mustRunAfter(cordaComposeDown)
+
+    useComposeFiles = ["$rootDir/docker-compose.yml"]
+    removeImages = "Local"
+}
+def dockerCleanParam = ["bash", "-c", "docker rmi -f \$(docker images -q ${project.name.toLowerCase()}_*); true"]
+
+//This is because gradle don`t execute same tasks on one run
+task backendsDockerImagesClean(type: Exec, group: "docker") {
+    commandLine dockerCleanParam
 }
 
-static def dockerExists(String containerName) {
-    def result = "docker inspect $containerName".execute()
-    return result.waitFor() == 0
+task cordaDockerImagesClean(type: Exec, group: "docker") {
+    commandLine dockerCleanParam
 }
-
-dockerRunTask.onlyIf { !dockerExists(dockerRun.name) }
-dockerStop.onlyIf { dockerExists(dockerRun.name) }
-dockerRemoveContainer.onlyIf { dockerExists(dockerRun.name) }
-
-dockerRunTask.outputs.upToDateWhen { dockerExists(dockerRun.name) }
-dockerRemoveContainer.outputs.upToDateWhen { !dockerExists(dockerRun.name) }
-
